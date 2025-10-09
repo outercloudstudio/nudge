@@ -243,7 +243,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public void setLocation(MapLocation loc) {
         this.gameWorld.moveRobot(getLocation(), loc);
-        this.gameWorld.getObjectInfo().moveRobot(this, loc);
+        // this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = loc;
     }
 

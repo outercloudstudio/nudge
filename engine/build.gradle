@@ -59,7 +59,7 @@ dependencies {
     // If you need JSI, download jsi-1.0.jar manually and use:
     [group: 'net.sf.trove4j', name: 'trove4j', version: '2.1.0'],
   )
-  implementation files('lib/jsi-1.0.jar')
+  // implementation files('lib/jsi-1.0.jar')
 
   testImplementation(
     [group: 'junit', name: 'junit', version: '4.13.2'],

@@ -1,23 +1,23 @@
 package battlecode.world;
 
-import battlecode.common.GameConstants;
+// import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.UnitType;
 import battlecode.common.Team;
 
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
-import gnu.trove.TIntObjectProcedure;
-import gnu.trove.TIntProcedure;
+// import gnu.trove.TIntObjectProcedure;
+// import gnu.trove.TIntProcedure;
 
 import gnu.trove.TObjectProcedure;
-import com.infomatiq.jsi.SpatialIndex;
-import com.infomatiq.jsi.rtree.RTree;
-import com.infomatiq.jsi.Rectangle;
-import com.infomatiq.jsi.Point;
+// import com.infomatiq.jsi.SpatialIndex;
+// import com.infomatiq.jsi.rtree.RTree;
+// import com.infomatiq.jsi.Rectangle;
+// import com.infomatiq.jsi.Point;
 
-import java.util.ArrayList;
-import java.util.Collection;
+// import java.util.ArrayList;
+// import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -26,13 +26,13 @@ import java.util.Map;
  * in the game world.
  */
 public class ObjectInfo {
-    private final int mapWidth;
-    private final int mapHeight;
-    private final MapLocation mapTopLeft;
+    // private final int mapWidth;
+    // private final int mapHeight;
+    // private final MapLocation mapTopLeft;
 
     private final TIntObjectHashMap<InternalRobot> gameRobotsByID;
 
-    private SpatialIndex robotIndex;
+    // private SpatialIndex robotIndex;
 
     private final TIntArrayList dynamicBodyExecOrder;
 
@@ -41,17 +41,17 @@ public class ObjectInfo {
     private int[] robotCount = new int[3];
 
     public ObjectInfo(LiveMap gm) {
-        this.mapWidth = gm.getWidth();
-        this.mapHeight = gm.getHeight();
-        this.mapTopLeft = gm.getOrigin();
+        // this.mapWidth = gm.getWidth();
+        // this.mapHeight = gm.getHeight();
+        // this.mapTopLeft = gm.getOrigin();
 
         this.gameRobotsByID = new TIntObjectHashMap<>();
 
-        robotIndex = new RTree();
+        // robotIndex = new RTree();
 
         dynamicBodyExecOrder = new TIntArrayList();
 
-        robotIndex.init(null);
+        // robotIndex.init(null);
 
         robotTypeCount.put(Team.A, new EnumMap<>(
             UnitType.class));
@@ -131,19 +131,19 @@ public class ObjectInfo {
         return gameRobotsByID.get(id);
     }
 
-    public void moveRobot(InternalRobot robot, MapLocation newLocation) {
-        MapLocation loc = robot.getLocation();
+    // public void moveRobot(InternalRobot robot, MapLocation newLocation) {
+    //     // MapLocation loc = robot.getLocation();
 
-        robotIndex.delete(fromPoint(loc),robot.getID());
-        robotIndex.add(fromPoint(newLocation),robot.getID());
-    }
+    //     // robotIndex.delete(fromPoint(loc),robot.getID());
+    //     // robotIndex.add(fromPoint(newLocation),robot.getID());
+    // }
 
     public void clearRobotIndex(InternalRobot robot) {
-        robotIndex.delete(fromPoint(robot.getLocation()), robot.getID());
+        // robotIndex.delete(fromPoint(robot.getLocation()), robot.getID());
     }
 
     public void addRobotIndex(InternalRobot robot, MapLocation newLocation) {
-        robotIndex.add(fromPoint(newLocation),robot.getID());
+        // robotIndex.add(fromPoint(newLocation),robot.getID());
     }
 
     // ****************************
@@ -159,8 +159,8 @@ public class ObjectInfo {
 
         dynamicBodyExecOrder.add(id);
 
-       MapLocation loc = robot.getLocation();
-       robotIndex.add(fromPoint(loc),robot.getID());
+    //    MapLocation loc = robot.getLocation();
+    //    robotIndex.add(fromPoint(loc),robot.getID());
     }
 
     // ****************************
@@ -192,7 +192,7 @@ public class ObjectInfo {
         }
 
         if (loc != null) {
-            robotIndex.delete(fromPoint(loc),id);
+            // robotIndex.delete(fromPoint(loc),id);
         }
     }
     
@@ -200,17 +200,17 @@ public class ObjectInfo {
     // *** PLAYER METHODS *********
     // ****************************
 
-    private Rectangle fromPoint(float x, float y) {
-        return new Rectangle(x,y,x,y);
-    }
+    // private Rectangle fromPoint(float x, float y) {
+    //     return new Rectangle(x,y,x,y);
+    // }
 
-    private Rectangle fromPoint(Point p) {
-        return new Rectangle(p.x,p.y,p.x,p.y);
-    }
+    // private Rectangle fromPoint(Point p) {
+    //     return new Rectangle(p.x,p.y,p.x,p.y);
+    // }
 
-    private Rectangle fromPoint(MapLocation loc) {
-        return new Rectangle(loc.x,loc.y,loc.x,loc.y);
-    }
+    // private Rectangle fromPoint(MapLocation loc) {
+    //     return new Rectangle(loc.x,loc.y,loc.x,loc.y);
+    // }
 
     // ****************************
     // *** PRIVATE METHODS ********
