@@ -24,6 +24,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private UnitType type;
 
     private final int ID;
+    private final Direction offsetToCenter;
+    private final Direction[] offsetToAllParts;
+
     private Team team;
     private MapLocation location;
     private MapLocation diedLocation;
@@ -59,10 +62,16 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param loc  the location of the robot
      * @param team the team of the robot
      */
-    public InternalRobot(GameWorld gw, int id, Team team, UnitType type, MapLocation loc) {
+    public InternalRobot(GameWorld gw, int id, Team team, UnitType type, MapLocation loc, Direction offsetToCenter) {
         this.gameWorld = gw;
 
         this.ID = id;
+        this.offsetToCenter = offsetToCenter;
+        // TODO: instantiate this list for the center robot 
+        // This should probably be done based off UnitType + offsetToCenter?
+        Direction[] offsets = {this.offsetToCenter};
+        this.offsetToAllParts = offsets;
+
         this.team = team;
         this.type = type;
 
@@ -103,6 +112,16 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return ID;
     }
 
+
+    public boolean isCenterRobot(){
+        return this.offsetToCenter == Direction.CENTER;
+    }
+
+    public InternalRobot getCenterRobot(){
+        MapLocation centerLocation = this.location.add(offsetToCenter);
+        return this.gameWorld.getRobot(centerLocation);
+    }
+
     public Team getTeam() {
         return team;
     }
@@ -113,6 +132,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public MapLocation getLocation() {
         return location;
+    }
+
+    public MapLocation[] getAllPartLocations(){
+        assert(isCenterRobot());
+        MapLocation[] locs = new MapLocation[this.offsetToAllParts.length];
+        for (int i = 0; i < locs.length; i++){
+            locs[i] = this.location.add(this.offsetToAllParts[i]);
+        }
+        return locs;
     }
 
     public MapLocation getDiedLocation() {
@@ -167,6 +195,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public RobotInfo getRobotInfo() {
+        if (!this.isCenterRobot()){
+            return this.getCenterRobot().getRobotInfo();
+        }
+
+        // We use the ID of the center of a big robot for sensing related methods 
+        // so that IDs are consistent regardless of which part of the robot is sensed
+
         if (cachedRobotInfo != null
                 && cachedRobotInfo.ID == ID
                 && cachedRobotInfo.team == team
@@ -652,7 +687,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // *********************************
 
     public boolean canExecuteCode() {
-        return true;
+        return this.isCenterRobot();
     }
 
     public void setBytecodesUsed(int numBytecodes) {
