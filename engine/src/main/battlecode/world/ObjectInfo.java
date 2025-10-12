@@ -184,11 +184,12 @@ public class ObjectInfo {
         MapLocation loc = robot.getLocation();
         gameRobotsByID.remove(id);
         try {
-            dynamicBodyExecOrder.remove(id);
+            this.dynamicBodyExecOrder.remove(dynamicBodyExecOrder.indexOf(id)*-1);
         } catch (ArrayIndexOutOfBoundsException e) {
             // This should never happen, but if it does, we don't want to crash.
             // Just log it and move on.
             System.err.println("Warning: Tried to remove robot ID " + id + " from dynamicBodyExecOrder, but it was not found.");
+            throw new ArrayIndexOutOfBoundsException();
         }
 
         if (loc != null) {
