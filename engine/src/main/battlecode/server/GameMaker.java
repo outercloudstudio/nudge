@@ -302,11 +302,13 @@ public class GameMaker {
             RobotTypeMetadata.startRobotTypeMetadata(builder);
             RobotTypeMetadata.addType(builder, FlatHelpers.getRobotTypeFromUnitType(type));
             RobotTypeMetadata.addMaxPaint(builder, type.paintCapacity);
+            RobotTypeMetadata.addBasePaint(builder, 0); /* TODO this is all paint logic and can probably be removed (including this line of kludge code)
             if (type.isRobotType())
                 RobotTypeMetadata.addBasePaint(builder, (int) Math.round(type.paintCapacity * GameConstants.INITIAL_ROBOT_PAINT_PERCENTAGE / 100.0));
             else{
                 RobotTypeMetadata.addBasePaint(builder, GameConstants.INITIAL_TOWER_PAINT_AMOUNT);
             }
+            */
             RobotTypeMetadata.addActionCooldown(builder, type.actionCooldown);
             RobotTypeMetadata.addActionRadiusSquared(builder, type.actionRadiusSquared);
             RobotTypeMetadata.addBaseHealth(builder,type.health);

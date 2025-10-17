@@ -387,20 +387,11 @@ public class LiveMap {
                 throw new RuntimeException("Expected initial body team "  + initialBody.team + " to be team A or team B!");
             }
         }
-        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_TOWERS) {
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_TOWERS + " team A towers!");
+        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team A towers!");
         }
-        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_TOWERS) {
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_TOWERS + " team B towers!");
-        }
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_PAINT_TOWER) - 1] != GameConstants.NUMBER_INITIAL_PAINT_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_PAINT_TOWERS + " paint towers!");
-        }  
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_MONEY_TOWER) - 1] != GameConstants.NUMBER_INITIAL_MONEY_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_MONEY_TOWERS + " money towers!");
-        }
-        if (towerCountA[FlatHelpers.getRobotTypeFromUnitType(UnitType.LEVEL_ONE_DEFENSE_TOWER) - 1] != GameConstants.NUMBER_INITIAL_DEFENSE_TOWERS){
-            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_DEFENSE_TOWERS + " defense towers!");
+        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+            throw new RuntimeException("Expected to have "  + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team B towers!");
         }
         for (int i = 0; i < towerCountA.length; i++){
             if (towerCountA[i] != towerCountB[i]){
@@ -421,15 +412,6 @@ public class LiveMap {
         }
         if (numWalls * 100 >= this.width * this.height * GameConstants.MAX_WALL_PERCENTAGE){
             throw new RuntimeException("Too much of the area of the map is composed of walls!");
-        }
-
-        for (int i = 0; i < ruinLocs.size(); i++){
-            MapLocation curRuin = ruinLocs.get(i);
-            for (int j = i + 1; j < ruinLocs.size(); j++){
-                MapLocation otherRuin = ruinLocs.get(j);
-                if (curRuin.distanceSquaredTo(otherRuin) < GameConstants.MIN_RUIN_SPACING_SQUARED)
-                    throw new RuntimeException("Ruins at location " + curRuin.toString() + " and location " + otherRuin.toString() + " are too close to each other!");
-            }
         }
         for (int i = 0; i < this.width * this.height; i++){
             if (this.wallArray[i]){

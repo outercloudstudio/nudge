@@ -74,9 +74,6 @@ public class TeamInfo {
      public void addPaintedSquares(int num, Team team) {
         this.totalPaintedSquares[team.ordinal()] += num;
         int areaWithoutWalls = this.gameWorld.getAreaWithoutWalls();
-        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls * 100 >= GameConstants.PAINT_PERCENT_TO_WIN) {
-            checkWin(team);
-        }
     }    
 
     /**
@@ -108,8 +105,7 @@ public class TeamInfo {
     }
 
     private void checkWin(Team team) {
-        int areaWithoutWalls = this.gameWorld.getAreaWithoutWalls();
-        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls * 100 < GameConstants.PAINT_PERCENT_TO_WIN) {
+        if (true) { // TODO: replace with a condition for winning (e.g. all rat kings dead)
             throw new InternalError("Reporting incorrect win");
         }
         this.gameWorld.gameStats.setWinner(team);

@@ -1,7 +1,5 @@
 package battlecode.common;
 
-import java.util.Map;
-
 /**
  * A RobotController allows contestants to make their robot sense and interact
  * with the game world. When a contestant's <code>RobotPlayer</code> is
@@ -45,25 +43,6 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int getMapHeight();
-
-    /**
-     * Returns the 5x5 resource pattern.
-     * @return a boolean array of arrays, where entry [i][j] is true 
-     * if the i'th row and j'th column of the pattern should use the secondary color
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean[][] getResourcePattern();
-
-    /**
-     * Returns the 5x5 pattern needed to be drawn to build a tower of the specified type.
-     * @param type the type of tower to build. Must be a tower type.
-     * @return a boolean array of arrays, where entry [i][j] is true 
-     * if the i'th row and j'th column of the pattern should use the secondary color
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean[][] getTowerPattern(UnitType type) throws GameActionException;
 
     // *********************************
     // ****** UNIT QUERY METHODS *******
@@ -573,30 +552,6 @@ public interface RobotController {
     void removeMark(MapLocation loc) throws GameActionException;
 
     /**
-     * Checks if the robot can build a tower by marking a 5x5 pattern centered at
-     * the given location.
-     * This requires there to be a ruin at the location.
-     * 
-     * @param type which tower pattern type should be used
-     * @param loc  the center of the 5x5 pattern
-     * @return true if a tower pattern can be marked at loc
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMarkTowerPattern(UnitType type, MapLocation loc);
-
-    /**
-     * Builds a tower by marking a 5x5 pattern centered at the given location.
-     * This requires there to be a ruin at the location.
-     * 
-     * @param type the type of tower to mark the pattern for
-     * @param loc  the center of the 5x5 pattern
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void markTowerPattern(UnitType type, MapLocation loc) throws GameActionException;
-
-    /**
      * Checks if a tower can be upgraded by verifying conditions on the location, team, 
      * tower level, and cost.
      * 
@@ -614,72 +569,6 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void upgradeTower(MapLocation loc) throws GameActionException;
-
-    /**
-     * Checks if the robot can mark a 5x5 special resource pattern centered at the
-     * given location.
-     * 
-     * @param loc the center of the resource pattern
-     * @return true if an SRP can be marked at loc
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMarkResourcePattern(MapLocation loc);
-
-    /**
-     * Marks a 5x5 special resource pattern centered at the given location.
-     * 
-     * @param loc the center of the resource pattern
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void markResourcePattern(MapLocation loc) throws GameActionException;
-
-    /**
-     * Checks if the robot can build a tower at the given location.
-     * This requires there to be a ruin at the location.
-     * This also requires the 5x5 region to be painted correctly.
-     * 
-     * @param type the type of tower to build
-     * @param loc  the location to build at
-     * @return true if tower can be built at loc
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canCompleteTowerPattern(UnitType type, MapLocation loc);
-
-    /**
-     * Builds a tower at the given location.
-     * This requires there to be a ruin at the location.
-     * This also requires the 5x5 region to be painted correctly.
-     * 
-     * @param type the type of tower to build
-     * @param loc  the location to build at
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void completeTowerPattern(UnitType type, MapLocation loc) throws GameActionException;
-
-    /**
-     * Checks if the robot can complete a 5x5 special resource pattern centered at the
-     * given location. This requires the 5x5 region to be painted correctly.
-     * 
-     * @param loc the center of the resource pattern
-     * @return true if the SRP can be completed at loc
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canCompleteResourcePattern(MapLocation loc);
-
-    /**
-     * Completes a 5x5 special resource pattern centered at the given location.
-     * This requires the 5x5 region to be painted correctly.
-     * 
-     * @param loc the center of the resource pattern
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void completeResourcePattern(MapLocation loc) throws GameActionException;
 
     // ****************************
     // ***** ATTACK / HEAL ********
@@ -730,27 +619,6 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void attack(MapLocation loc) throws GameActionException;
-
-    /**
-     * Tests whether this robot (which must be a mopper) can perform
-     * a mop swing in a specific direction
-     *
-     * @param dir the direction in which to mop swing
-     * @return whether it is possible to mop swing in the given direction
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMopSwing(Direction dir);
-
-    /**
-     * Performs a mop swing in the given direction (only for moppers!)
-     *
-     * @param dir the direction in which to mop swing
-     * @throws GameActionException if conditions for attacking are not satisfied
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void mopSwing(Direction dir) throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ******
