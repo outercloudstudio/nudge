@@ -1,54 +1,54 @@
 namespace battlecode.schema;
 
+
 struct Vec {
     x: int = 0;
     y: int = 0;
 }
+
 
 table VecTable {
     xs: [int];
     ys: [int];
 }
 
+
 enum RobotType: byte {
     NONE,
-    PAINT_TOWER,
-    MONEY_TOWER,
-    DEFENSE_TOWER,
-    SOLDIER,
-    SPLASHER,
-    MOPPER
+    RAT,
+    RAT_KING,
+    CAT
 }
+
 
 enum WinType: byte {
     RESIGNATION,
-    MAJORITY_PAINTED,
-    ALL_UNITS_DESTROYED,
-    AREA_PAINTED,
-    MORE_TOWERS,
-    MORE_MONEY,
-    MORE_STORED_PAINT,
-    MORE_ROBOTS,
+    RATKING_DESTROYED,
+    BACKSTAB_RATKING_DESTROYED,
+    MORE_POINTS
+    TIE,
     COIN_FLIP
 }
+
 
 enum DieType: byte {
     UNKNOWN,
     EXCEPTION
 }
 
+
 table RobotTypeMetadata {
     type: RobotType;
     actionCooldown: int;
     movementCooldown: int;
     baseHealth: int;
-    basePaint: int;
-    maxPaint: int;
+    maxCheese: int;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     messageRadiusSquared: int;
     bytecodeLimit: int;
 }
+
 
 table TeamData {
     name: string;
@@ -56,77 +56,120 @@ table TeamData {
     teamId: byte;
 }
 
+
 table GameplayConstants {
 }
+
+
+/// Create a Rat King at the specified location
+struct CreateRatKing {
+    /// center square of the rat king
+    /// (all rats in the 3x3 square centered here get converted to the king)
+    center: ushort;
+}
+
+
+/// Cat feeds on a rat
+struct CatFeed {
+    /// the ID of the eaten rat
+    id: ushort;
+}
+
+
+/// Rat attacks another rat
+struct RatAttack {
+    /// Id of the attacked rat
+    id: ushort;
+}
+
+
+/// Kidnap a rat
+struct RatNap {
+    /// Id of the napping victim
+    id: ushort;
+}
+
+
+/// Rat Collision
+struct RatCollision {
+    id: ushort;
+    loc: ushort;
+}
+
+
+/// Indicate that a dirt wall is placed
+struct PlaceDirt {
+    loc: ushort;
+}
+
+
+/// Indicate that a dirt wall is destroyed
+struct BreakDirt {
+    loc: ushort;
+}
+
+
+/// Indicate that a cheese has been picked up from the map by a rat
+struct CheesePickup {
+    loc: ushort;  
+}
+
+
+/// Spawn a cheese at a location
+struct CheeseSpawn {
+    loc: ushort;
+    amount: ushort;
+}
+
+
+/// Cat scratch at location
+struct CatScratch {
+    loc: ushort;
+}
+
+
+/// Cat jump from start to end
+struct CatPounce {
+    startLoc: ushort;
+    endLoc: ushort;
+}
+
+
+/// Place a rat trap at location
+struct PlaceRatTrap {
+    loc: ushort;
+    team: byte;
+}
+
+
+/// Place a cat trap at location
+struct PlaceCatTrap {
+    loc: ushort;
+    team: byte;
+}
+
+
+/// Happens when a rat tries to pick up cheese on a trap
+struct TriggerRatTrap {
+    loc: ushort;
+    team: byte;
+}
+
+
+/// Happens when a cat tries to pounce on a trap
+struct TriggerCatTrap {
+    loc: ushort;
+    team: byte;
+}
+
 
 /// Generic action representing damage to a robot
 struct DamageAction {
     /// Id of the damage target
     id: ushort;
-    damage: ushort; 
+    damage: ushort;
 }
 
-/// Visually indicate a tile has been painted
-struct PaintAction {
-    loc: ushort;
-    isSecondary: byte;
-}
-
-/// Visually indicate a tile's paint has been removed
-struct UnpaintAction {
-    loc: ushort;
-}
-
-/// Visually indicate a tile marked with a color
-struct MarkAction {
-    loc: ushort;
-    isSecondary: byte;
-}
-
-/// Visually indicate a tile's marker has been removed
-struct UnmarkAction {
-    loc: ushort;
-}
-
-/// Visually indicate an attack
-struct AttackAction {
-    /// Id of the attack target
-    id: ushort;
-}
-
-/// Visually indicate a splash attack
-struct SplashAction {
-    /// Location of the splash attack
-    loc: ushort;
-}
-
-/// Visually indicate a mop attack
-struct MopAction {
-    /// Ids of the mopped targets, possibly 0
-    id0: ushort;
-    id1: ushort;
-    id2: ushort;
-}
-
-/// Visually indicate a tower being built
-struct BuildAction {
-    /// Id of the tower bot
-    id: ushort;
-}
-
-/// Visually indicate transferring paint from one robot to another
-struct TransferAction {
-    /// Id of the transfer target
-    id: ushort;
-    amount: int;
-}
-
-/// Visually indicate messaging from one robot to another
-struct MessageAction {
-    /// Id of the message target
-    id: ushort;
-    data: int;
-}
 
 /// Indicate that this robot was spawned on this turn
 struct SpawnAction {
@@ -138,6 +181,7 @@ struct SpawnAction {
     robotType: RobotType;
 }
 
+
 /// Indicates that a robot died and should be removed
 struct DieAction {
     /// Id of the robot that died
@@ -145,26 +189,19 @@ struct DieAction {
     dieType: DieType;
 }
 
-/// Visually indicate that a tower was upgraded
-struct UpgradeAction {
-    /// Id of the upgraded tower
-    id: ushort;
-    newHealth: int;
-    newMaxHealth: int;
-    newPaint: int;
-    newMaxPaint: int;
-}
 
 /// Update the indicator string for this robot
 table IndicatorStringAction {
     value: string;
 }
 
+
 /// Update the indicator dot for this robot
 struct IndicatorDotAction {
     loc: ushort;
     colorHex: int;
 }
+
 
 /// Update the indicator line for this robot
 struct IndicatorLineAction {
@@ -173,30 +210,36 @@ struct IndicatorLineAction {
     colorHex: int;
 }
 
+
 union Action {
+    CatFeed,
+    RatAttack,
+    RatNap,
+    RatCollision,
+    PlaceDirt,
+    BreakDirt,
+    CheesePickup,
+    CheeseSpawn,
+    CatScratch,
+    CatPounce,
+    PlaceRatTrap,
+    PlaceCatTrap,
+    TriggerRatTrap,
+    TriggerCatTrap,
     DamageAction,
-    PaintAction,
-    UnpaintAction,
-    MarkAction,
-    UnmarkAction,
-    AttackAction,
-    SplashAction,
-    MopAction,
-    BuildAction,
-    TransferAction, 
-    MessageAction,
     SpawnAction,
     DieAction,
-    UpgradeAction,
     IndicatorStringAction,
     IndicatorDotAction,
     IndicatorLineAction
 }
 
-// A list of initial bodies to be placed on the map.
+
+/// A list of initial bodies to be placed on the map.
 table InitialBodyTable {
     spawnActions: [SpawnAction];
 }
+
 
 table GameMap {
     name: string;
@@ -205,10 +248,10 @@ table GameMap {
     initialBodies: InitialBodyTable;
     randomSeed: int;
     walls: [bool];
-    paint: [byte];
-    ruins: VecTable;
-    paintPatterns: [int];// resource pattern, defense tower pattern, money tower pattern, paint tower pattern.
+    dirt: [bool];
+    cheeseMines: VecTable;
 }
+
 
 /// Markers for events during the game indicated by the user
 table TimelineMarker{
@@ -218,12 +261,15 @@ table TimelineMarker{
     label: string;
 }
 
+
 //========================================================================================
 // Profiler tables
+
 
 /// These tables are set-up so that they match closely with speedscope's file format documented at
 /// https://github.com/jlfwong/speedscope/wiki/Importing-from-custom-sources.
 /// The client uses speedscope to show the recorded data in an interactive interface.
+
 
 /// A single event in a profile. Represents either an open event (meaning a
 /// method has been entered) or a close event (meaning the method was exited).
@@ -236,6 +282,7 @@ table ProfilerEvent {
     frame: int;
 }
 
+
 /// A profile contains all events and is labeled with a name.
 table ProfilerProfile {
     /// The display-friendly name of the profile.
@@ -243,6 +290,7 @@ table ProfilerProfile {
     /// The events that occurred in the profile.
     events: [ProfilerEvent];
 }
+
 
 /// A profiler file is a collection of profiles.
 /// When profiling is enabled there is one of these per team per match.
@@ -253,9 +301,8 @@ table ProfilerFile {
     profiles: [ProfilerProfile];
 }
 //========================================================================================
-
-
 /// Events
+
 
 /// An Event is a single step that needs to be processed.
 /// A saved game simply consists of a long list of Events.
@@ -278,6 +325,7 @@ union Event {
     GameFooter
 }
 
+
 /// The first event sent in the game. Contains all metadata about the game.
 table GameHeader {
     specVersion: string;
@@ -286,17 +334,20 @@ table GameHeader {
     constants: GameplayConstants;
 }
 
+
 /// The final event sent in the game.
 table GameFooter {
     /// The ID of the winning team of the game.
     winner: byte;
 }
 
+
 /// Sent to start a match.
 table MatchHeader {
     map: GameMap;
     maxRounds: int;
 }
+
 
 /// Sent to end a match.
 table MatchFooter {
@@ -312,10 +363,11 @@ table MatchFooter {
     profilerFiles: [ProfilerFile];
 }
 
+
 table Turn {
     robotId: int;
     health: int;
-    paint: int;
+    cheese: int;
     moveCooldown: int;
     actionCooldown: int;
     bytecodesUsed: int;
@@ -324,17 +376,14 @@ table Turn {
     actions: [Action];
 }
 
+
 /// A single time-step in a Game, which contains a list of robot turns
 table Round {
     /// The IDs of teams in the Game.
     teamIds: [int];
-    /// The total amount of resource this round per team
-    teamResourceAmounts: [int];
-    /// The total paint coverage percent per team, mult by 10 (i.e. 70.5% is 705)
-    teamCoverageAmounts: [int];
-    /// The total number of active resource patterns per team
-    teamResourcePatternAmounts: [int];
-    
+    /// The total amount of cheese this round per team
+    teamCheeseAmounts: [int];
+   
     /// Ordered turn data for each robot during the round
     turns: [Turn];
 
@@ -347,10 +396,12 @@ table Round {
     roundId: int;
 }
 
+
 /// Necessary due to flatbuffers requiring unions to be wrapped in tables.
 table EventWrapper {
     e: Event;
 }
+
 
 /// If events are not otherwise delimited, this wrapper structure
 /// allows a game to be stored in a single buffer.
