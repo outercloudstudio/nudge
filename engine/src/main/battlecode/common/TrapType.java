@@ -6,8 +6,8 @@ package battlecode.common;
 
 public enum TrapType {
 
-    // build cost, squared radius if entered, squared radius if dug, damange if
-    // entered, damage if dug, doesDig, actionCooldownIncrease, isInvisible
+    // build cost, damage from activation, stun time from activation, global trap
+    // limit, action cooldown
 
     /**
      * Traps enemy rats
@@ -19,7 +19,7 @@ public enum TrapType {
      */
     CATTRAP(10, 2, 9, 5, 10),
 
-    NONE(100, 5, 2, 0,0);
+    NONE(100, 5, 2, 0, 0);
 
     /**
      * Crumbs cost of each trap
