@@ -117,7 +117,6 @@ export default class Bodies {
         // Update properties
         body.pos = { x: turn.x(), y: turn.y() }
         body.hp = Math.max(turn.health(), 0)
-        body.paint = turn.paint()
         body.moveCooldown = turn.moveCooldown()
         body.actionCooldown = turn.actionCooldown()
         body.bytecodesUsed = turn.bytecodesUsed()
@@ -225,8 +224,6 @@ export class Body {
     public dead: boolean = false
     public hp: number = 0
     public maxHp: number = 1
-    public paint: number = 0
-    public maxPaint: number = 0
     public level: number = 1 // For towers
     public moveCooldown: number = 0
     public actionCooldown: number = 0
@@ -268,9 +265,6 @@ export class Body {
         }
         if (focused || config.showHealthBars) {
             this.drawHealthBar(match, ctx)
-        }
-        if (focused || config.showPaintBars) {
-            this.drawPaintBar(match, ctx, focused || config.showHealthBars)
         }
 
         // Draw bytecode overage indicator
@@ -451,44 +445,6 @@ export class Body {
         ctx.fillRect(hpBarX, hpBarY, hpBarWidth * (this.hp / this.maxHp), hpBarHeight)
     }
 
-    private drawPaintBar(match: Match, ctx: CanvasRenderingContext2D, healthVisible: boolean): void {
-        const dimension = match.currentRound.map.staticMap.dimension
-        const interpCoords = this.getInterpolatedCoords(match)
-        const renderCoords = renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, dimension)
-        const paintBarWidth = 0.8
-        const paintBarHeight = 0.1
-        const paintBarYOffset = 0.4 + (healthVisible ? 0.11 : 0)
-        const paintBarX = renderCoords.x + 0.5 - paintBarWidth / 2
-        const paintBarY = renderCoords.y + 0.5 + paintBarYOffset
-        ctx.fillStyle = 'rgba(0,0,0,.3)'
-        ctx.fillRect(paintBarX, paintBarY, paintBarWidth, paintBarHeight)
-        ctx.fillStyle = '#c515ed'
-        ctx.fillRect(paintBarX, paintBarY, paintBarWidth * (this.paint / this.maxPaint), paintBarHeight)
-    }
-
-    protected drawLevel(match: Match, ctx: CanvasRenderingContext2D) {
-        if (this.level <= 1) return
-
-        const coords = renderUtils.getRenderCoords(this.pos.x, this.pos.y, match.currentRound.map.staticMap.dimension)
-
-        let numeral
-        if (this.level === 2) {
-            numeral = 'II'
-        } else {
-            numeral = 'III'
-        }
-
-        ctx.font = '0.5px serif'
-        ctx.fillStyle = this.team.color
-        ctx.textAlign = 'right'
-        ctx.shadowColor = 'black'
-        ctx.shadowBlur = 10
-        ctx.fillText(numeral, coords.x + 1 - 0.05, coords.y + 0.4)
-        ctx.shadowColor = ''
-        ctx.shadowBlur = 0
-        ctx.textAlign = 'start'
-    }
-
     public getInterpolatedCoords(match: Match): Vector {
         return renderUtils.getInterpolatedCoords(this.lastPos, this.pos, match.getInterpolationFactor())
     }
@@ -500,7 +456,6 @@ export class Body {
             `${this.robotName}${this.level === 2 ? ' (Lvl II)' : ''}${this.level >= 3 ? ' (Lvl III)' : ''}`,
             `ID: ${this.id}`,
             `HP: ${this.hp}/${this.maxHp}`,
-            `Paint: ${this.paint}/${this.maxPaint}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
             `Move Cooldown: ${this.moveCooldown}`,
             `Action Cooldown: ${this.actionCooldown}`,
@@ -537,8 +492,6 @@ export class Body {
 
         this.maxHp = metadata.baseHealth()
         this.hp = this.maxHp
-        this.maxPaint = metadata.maxPaint()
-        this.paint = metadata.basePaint()
         this.actionCooldown = metadata.actionCooldown()
         this.moveCooldown = metadata.movementCooldown()
     }
@@ -573,65 +526,15 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
         }
     },
 
-    [schema.RobotType.DEFENSE_TOWER]: class DefenseTower extends Body {
-        public robotName = 'DefenseTower'
+    [schema.RobotType.RAT]: class Rat extends Body {
+        public robotName = 'Rat'
 
         constructor(game: Game, pos: Vector, team: Team, id: number) {
             super(game, pos, team, id)
-            this.robotName = `${team.colorName} Defense Tower`
-            this.robotType = schema.RobotType.DEFENSE_TOWER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/defense_tower_64x64.png`
-            this.size = 1.5
-        }
-
-        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            super.draw(match, ctx)
-            super.drawLevel(match, ctx)
-        }
-    },
-
-    [schema.RobotType.MONEY_TOWER]: class MoneyTower extends Body {
-        public robotName = 'MoneyTower'
-
-        constructor(game: Game, pos: Vector, team: Team, id: number) {
-            super(game, pos, team, id)
-            this.robotName = `${team.colorName} Money Tower`
-            this.robotType = schema.RobotType.MONEY_TOWER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/money_tower_64x64.png`
-            this.size = 1.5
-        }
-
-        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            super.draw(match, ctx)
-            super.drawLevel(match, ctx)
-        }
-    },
-
-    [schema.RobotType.PAINT_TOWER]: class PaintTower extends Body {
-        public robotName = 'PaintTower'
-
-        constructor(game: Game, pos: Vector, team: Team, id: number) {
-            super(game, pos, team, id)
-            this.robotName = `${team.colorName} Paint Tower`
-            this.robotType = schema.RobotType.PAINT_TOWER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/paint_tower_64x64.png`
-            this.size = 1.5
-        }
-
-        public draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            super.draw(match, ctx)
-            super.drawLevel(match, ctx)
-        }
-    },
-
-    [schema.RobotType.MOPPER]: class Mopper extends Body {
-        public robotName = 'Mopper'
-
-        constructor(game: Game, pos: Vector, team: Team, id: number) {
-            super(game, pos, team, id)
-            this.robotName = `${team.colorName} Mopper`
-            this.robotType = schema.RobotType.MOPPER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/mopper_64x64.png`
+            this.robotName = `${team.colorName} Rat`
+            this.robotType = schema.RobotType.RAT
+            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_64x64.png`
+            this.size = 1
         }
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
@@ -639,14 +542,15 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
         }
     },
 
-    [schema.RobotType.SOLDIER]: class Soldier extends Body {
-        public robotName = 'Soldier'
+    [schema.RobotType.RAT_KING]: class RatKing extends Body {
+        public robotName = 'RatKing'
 
         constructor(game: Game, pos: Vector, team: Team, id: number) {
             super(game, pos, team, id)
-            this.robotName = `${team.colorName} Soldier`
-            this.robotType = schema.RobotType.SOLDIER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/soldier_64x64.png`
+            this.robotName = `${team.colorName} Rat King`
+            this.robotType = schema.RobotType.RAT_KING
+            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/rat_king_64x64.png`
+            this.size = 3
         }
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
@@ -654,14 +558,15 @@ export const BODY_DEFINITIONS: Record<schema.RobotType, typeof Body> = {
         }
     },
 
-    [schema.RobotType.SPLASHER]: class Splasher extends Body {
-        public robotName = 'Splasher'
+    [schema.RobotType.CAT]: class Cat extends Body {
+        public robotName = 'Cat'
 
         constructor(game: Game, pos: Vector, team: Team, id: number) {
             super(game, pos, team, id)
-            this.robotName = `${team.colorName} Splasher`
-            this.robotType = schema.RobotType.SPLASHER
-            this.imgPath = `robots/${this.team.colorName.toLowerCase()}/splasher_64x64.png`
+            this.robotName = 'Cat'
+            this.robotType = schema.RobotType.CAT
+            this.imgPath = `robots/cat/cat.png`
+            this.size = 2
         }
 
         public draw(match: Match, ctx: CanvasRenderingContext2D): void {
