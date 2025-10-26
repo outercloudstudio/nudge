@@ -12,17 +12,23 @@ table VecTable {
 
 enum RobotType: byte {
     NONE,
-    RAT,
-    RAT_KING,
-    CAT
+    PAINT_TOWER,
+    MONEY_TOWER,
+    DEFENSE_TOWER,
+    SOLDIER,
+    SPLASHER,
+    MOPPER
 }
 
 enum WinType: byte {
     RESIGNATION,
-    RATKING_DESTROYED,
-    BACKSTAB_RATKING_DESTROYED,
-    MORE_POINTS
-    TIE,
+    MAJORITY_PAINTED,
+    ALL_UNITS_DESTROYED,
+    AREA_PAINTED,
+    MORE_TOWERS,
+    MORE_MONEY,
+    MORE_STORED_PAINT,
+    MORE_ROBOTS,
     COIN_FLIP
 }
 
@@ -36,7 +42,8 @@ table RobotTypeMetadata {
     actionCooldown: int;
     movementCooldown: int;
     baseHealth: int;
-    maxCheese: int;
+    basePaint: int;
+    maxPaint: int;
     actionRadiusSquared: int;
     visionRadiusSquared: int;
     messageRadiusSquared: int;
@@ -52,108 +59,73 @@ table TeamData {
 table GameplayConstants {
 }
 
-// Damage
-// Cat pounce -- ruth
-// Cat scratch -- hailey
-// Cat feed -- aprilmk
-// Rat attack - Hank
-// Rat nap -- hailey
-// Rat cheese pickup -- evan
-// Rat collision -- fabian
-// Place cat trap - Hank
-// Place rat trap -- jerry
-// Trigger cat trap - Hank
-// Trigger rat trap -- ruth
-// Create rat king -- max
-// Cheese spawn -- ruth
-// Break dirt -- ivy
-
-struct CreateRatKing {
-    // center square of the rat king
-    // (all rats in the 3x3 square centered here get converted to the king)
-    center: ushort;
-}
-
-struct CatFeed {
-  // the ID of the eaten rat
-  id: ushort;
-}
-
-struct RatAttack {
-    id: ushort;
-}
-
-// Kidnap a rat
-struct RatNap {
-    // Id of the napping victim
-    id: ushort;
-}
-
-// Rat Collision
-struct RatCollision {
-    id: ushort;
-    loc: ushort;
-}
-
-// Place dirt -- hannah
-struct PlaceDirt {
-    loc: ushort;
-}
-
-/// Indicate that a dirt wall is destroyed
-struct BreakDirt {
-    loc: ushort;
-}
-
-/// Indicate that a cheese has been picked up from the map by a rat
-struct CheesePickup {
-    loc: ushort;   
-}
-
-/// spawn a cheese at a location
-struct CheeseSpawn {
-    loc: ushort;
-    amount: ushort;
-}
-
-/// cat scratch at location
-struct CatScratch {
-    loc: ushort;
-}
-
-// cat jump from start to end
-struct CatPounce {
-    startLoc: ushort;
-    endLoc: ushort;
-}
-
-
-struct PlaceRatTrap {
-    loc: ushort;
-    team: byte;
-}
-
-struct PlaceCatTrap {
-    loc: ushort;
-    team: byte;
-}
-
-/// happens when a rat tries to pick up cheese on a trap
-struct TriggerRatTrap {
-    loc: ushort;
-    team: byte;
-}
-
-struct TriggerCatTrap {
-    loc: ushort;
-    team: byte;
-}
-
 /// Generic action representing damage to a robot
 struct DamageAction {
     /// Id of the damage target
     id: ushort;
     damage: ushort; 
+}
+
+/// Visually indicate a tile has been painted
+struct PaintAction {
+    loc: ushort;
+    isSecondary: byte;
+}
+
+/// Visually indicate a tile's paint has been removed
+struct UnpaintAction {
+    loc: ushort;
+}
+
+/// Visually indicate a tile marked with a color
+struct MarkAction {
+    loc: ushort;
+    isSecondary: byte;
+}
+
+/// Visually indicate a tile's marker has been removed
+struct UnmarkAction {
+    loc: ushort;
+}
+
+/// Visually indicate an attack
+struct AttackAction {
+    /// Id of the attack target
+    id: ushort;
+}
+
+/// Visually indicate a splash attack
+struct SplashAction {
+    /// Location of the splash attack
+    loc: ushort;
+}
+
+/// Visually indicate a mop attack
+struct MopAction {
+    /// Ids of the mopped targets, possibly 0
+    id0: ushort;
+    id1: ushort;
+    id2: ushort;
+}
+
+/// Visually indicate a tower being built
+struct BuildAction {
+    /// Id of the tower bot
+    id: ushort;
+}
+
+/// Visually indicate transferring paint from one robot to another
+struct TransferAction {
+    /// Id of the transfer target
+    id: ushort;
+    amount: int;
+}
+
+/// Visually indicate messaging from one robot to another
+struct MessageAction {
+    /// Id of the message target
+    id: ushort;
+    data: int;
 }
 
 /// Indicate that this robot was spawned on this turn
@@ -171,6 +143,16 @@ struct DieAction {
     /// Id of the robot that died
     id: ushort;
     dieType: DieType;
+}
+
+/// Visually indicate that a tower was upgraded
+struct UpgradeAction {
+    /// Id of the upgraded tower
+    id: ushort;
+    newHealth: int;
+    newMaxHealth: int;
+    newPaint: int;
+    newMaxPaint: int;
 }
 
 /// Update the indicator string for this robot
@@ -192,23 +174,20 @@ struct IndicatorLineAction {
 }
 
 union Action {
-    CatFeed,
-    RatAttack,
-    RatNap,
-    RatCollision,
-    PlaceDirt,
-    BreakDirt,
-    CheesePickup,
-    CheeseSpawn,
-    CatScratch,
-    CatPounce,
-    PlaceRatTrap,
-    PlaceCatTrap,
-    TriggerRatTrap,
-    TriggerCatTrap,
     DamageAction,
+    PaintAction,
+    UnpaintAction,
+    MarkAction,
+    UnmarkAction,
+    AttackAction,
+    SplashAction,
+    MopAction,
+    BuildAction,
+    TransferAction, 
+    MessageAction,
     SpawnAction,
     DieAction,
+    UpgradeAction,
     IndicatorStringAction,
     IndicatorDotAction,
     IndicatorLineAction
@@ -226,8 +205,9 @@ table GameMap {
     initialBodies: InitialBodyTable;
     randomSeed: int;
     walls: [bool];
-    dirt: [bool];
-    cheeseMines: VecTable;
+    paint: [byte];
+    ruins: VecTable;
+    paintPatterns: [int];// resource pattern, defense tower pattern, money tower pattern, paint tower pattern.
 }
 
 /// Markers for events during the game indicated by the user
@@ -335,7 +315,7 @@ table MatchFooter {
 table Turn {
     robotId: int;
     health: int;
-    cheese: int;
+    paint: int;
     moveCooldown: int;
     actionCooldown: int;
     bytecodesUsed: int;
@@ -348,8 +328,12 @@ table Turn {
 table Round {
     /// The IDs of teams in the Game.
     teamIds: [int];
-    /// The total amount of cheese this round per team
-    teamCheeseAmounts: [int];
+    /// The total amount of resource this round per team
+    teamResourceAmounts: [int];
+    /// The total paint coverage percent per team, mult by 10 (i.e. 70.5% is 705)
+    teamCoverageAmounts: [int];
+    /// The total number of active resource patterns per team
+    teamResourcePatternAmounts: [int];
     
     /// Ordered turn data for each robot during the round
     turns: [Turn];
