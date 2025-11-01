@@ -386,20 +386,6 @@ public interface RobotController {
     MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException;
 
     /**
-     * Returns the location of all nearby ruins that are visible to the robot.
-     * If radiusSquared is greater than the robot's vision radius, uses the robot's
-     * vision radius instead.
-     * 
-     * @param radiusSquared squared radius of all locations to be returned, -1 for
-     *                      max radius
-     * @return all locations containing ruins
-     * @throws GameActionException if a radius less than -1 is provided
-     * 
-     * @battlecode.doc.costlymethod
-     **/
-    MapLocation[] senseNearbyRuins(int radiusSquared) throws GameActionException;
-
-    /**
      * Returns the location adjacent to current location in the given direction.
      *
      * @param dir the given direction
@@ -706,6 +692,26 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     boolean canAttack(MapLocation loc);
+
+    /**
+     * Tests whetehr this robot can place dirt at the given location.
+     * @param loc
+     * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean canPlaceDirt(MapLocation loc);
+
+     /**
+     * Tests whether this robot can place dirt at the given location.
+     * @param loc
+     * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean canRemoveDirt(MapLocation loc);
+
+    
 
     /** 
      * Performs the specific attack for this robot type.

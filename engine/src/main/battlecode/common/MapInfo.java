@@ -18,14 +18,13 @@ public class MapInfo {
 
     private boolean isResourcePatternCenter;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, PaintType paint, PaintType mark, boolean hasRuin, boolean isResourcePatternCenter){
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, PaintType paint, PaintType mark, boolean isResourcePatternCenter){
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
         this.isDirt = isDirt;
         this.paint = paint;
         this.mark = mark;
-        this.hasRuin = hasRuin;
         this.isResourcePatternCenter = isResourcePatternCenter;
     }
 
