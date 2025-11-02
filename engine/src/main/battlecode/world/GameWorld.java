@@ -1005,8 +1005,10 @@ public class GameWorld {
     // *********************************
 
     public int spawnRobot(int ID, UnitType type, MapLocation location, Team team){
-        InternalRobot robot = new InternalRobot(this, ID, team, type, location, Direction.CENTER);
-        addRobot(location, robot);
+        InternalRobot robot = new InternalRobot(this, ID, team, type, location);
+        for (MapLocation loc : type.getAllLocations(location)){
+            addRobot(loc, robot);
+        }
         objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
         if (type.isTowerType()){

@@ -441,7 +441,7 @@ public final class RobotControllerImpl implements RobotController {
             if (!onTheMap(loc))
                 throw new GameActionException(OUT_OF_RANGE,
                         "Can only move to locations on the map; " + loc + " is not on the map.");
-            if (isLocationOccupied(loc) && this.gameWorld.getRobot(loc).getCenterRobot().getID() != robot.getCenterRobot().getID())
+            if (isLocationOccupied(loc) && this.gameWorld.getRobot(loc).getID() != robot.getID())
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
             if (!this.gameWorld.isPassable(loc))
@@ -465,23 +465,19 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
-
+        
         // calculate set of next map locations 
         MapLocation[] curLocs = robot.getAllPartLocations();
-        InternalRobot[] allRobotParts = new InternalRobot[curLocs.length];
         MapLocation[] newLocs = new MapLocation[curLocs.length];
         for (int i = 0; i < newLocs.length; i++){
             MapLocation curLoc = curLocs[i];
-            allRobotParts[i] = this.gameWorld.getRobot(curLoc);
             newLocs[i] = curLoc.add(dir);
             this.gameWorld.removeRobot(curLoc);
         }
-        // for all parts, update location 
+        this.robot.setLocation(this.getLocation().add(dir)); 
         for (int i = 0; i < newLocs.length; i++){
-            InternalRobot curRobotPart = allRobotParts[i];
             MapLocation newLoc = newLocs[i];
-            this.gameWorld.addRobot(newLoc, curRobotPart);
-            curRobotPart.setInternalLocationOnly(newLoc);
+            this.gameWorld.addRobot(newLoc, this.robot);
         }
 
         this.robot.addMovementCooldownTurns();

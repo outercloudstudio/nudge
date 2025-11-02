@@ -93,6 +93,20 @@ public enum UnitType {
         }
     }
 
+    public MapLocation[] getAllLocations(MapLocation center){
+        // TODO: don't hardcode size
+        int size = 1;
+        MapLocation[] locs = new MapLocation[size * size];
+        int c = 0;
+        for (int i = - size / 2; i <= size / 2; i++){
+            for (int j = - size / 2; j <= size / 2; j++){
+                locs[c] = new MapLocation(center.x + i, center.y + j);
+                c += 1;
+            }
+        }
+        return locs;
+    }
+
     UnitType(int paintCost, int moneyCost, int attackCost, int health, int level, int paintCapacity, int actionCooldown, int actionRadiusSquared, int attackStrength, int aoeAttackStrength, int paintPerTurn, int moneyPerTurn, int attackMoneyBonus) {
         this.paintCost = paintCost;
         this.moneyCost = moneyCost;
