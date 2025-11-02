@@ -29,9 +29,6 @@ public class GameConstants {
 
     /** The maximum percentage of the map that can be walls */
     public static final int MAX_WALL_PERCENTAGE = 20;
-    
-    /** The maximum percentage of the map that can be dirt */
-    public static final int MAX_DIRT_PERCENTAGE = 25;
 
     // *********************************
     // ****** GAME PARAMETERS **********
