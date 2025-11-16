@@ -24,8 +24,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private UnitType type;
 
     private final int ID;
-    private final Direction offsetToCenter;
-    private final Direction[] offsetToAllParts;
 
     private Team team;
     private MapLocation location;
@@ -66,11 +64,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld = gw;
 
         this.ID = id;
-        this.offsetToCenter = offsetToCenter;
-        // TODO: instantiate this list for the center robot 
-        // This should probably be done based off UnitType + offsetToCenter?
-        Direction[] offsets = {this.offsetToCenter};
-        this.offsetToAllParts = offsets;
 
         this.team = team;
         this.type = type;
@@ -136,13 +129,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return location;
     }
 
-    public MapLocation[] getAllPartLocations(){
-        assert(isCenterRobot());
-        MapLocation[] locs = new MapLocation[this.offsetToAllParts.length];
-        for (int i = 0; i < locs.length; i++){
-            locs[i] = this.location.add(this.offsetToAllParts[i]);
-        }
-        return locs;
+    public MapLocation[] getAllPartLocations(){ 
+        return this.getType().getAllLocations(this.location);
     }
 
     public MapLocation getDiedLocation() {

@@ -468,18 +468,24 @@ public final class RobotControllerImpl implements RobotController {
     private void assertCanMove(Direction dir) throws GameActionException {
         assertNotNull(dir);
         assertIsMovementReady();
-        MapLocation loc = adjacentLocation(dir);
-        if (!onTheMap(loc))
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Can only move to locations on the map; " + loc + " is not on the map.");
-        if (isLocationOccupied(loc))
-            throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to an occupied location; " + loc + " is occupied.");
-        if (!this.gameWorld.isPassable(loc))
-            throw new GameActionException(CANT_MOVE_THERE,
-                    "Cannot move to an impassable location; " + loc + " is impassable.");
-        if (this.getType().isTowerType())
-            throw new GameActionException(CANT_DO_THAT, "Towers cannot move!");
+        MapLocation[] curLocs = robot.getAllPartLocations();
+        MapLocation[] newLocs = new MapLocation[curLocs.length];
+        for (int i = 0; i < newLocs.length; i++){
+            newLocs[i] = curLocs[i].add(dir);
+        }
+        for (MapLocation loc : newLocs){
+            if (!onTheMap(loc))
+                throw new GameActionException(OUT_OF_RANGE,
+                        "Can only move to locations on the map; " + loc + " is not on the map.");
+            if (isLocationOccupied(loc) && this.gameWorld.getRobot(loc).getID() != robot.getID())
+                throw new GameActionException(CANT_MOVE_THERE,
+                        "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
+            if (!this.gameWorld.isPassable(loc))
+                throw new GameActionException(CANT_MOVE_THERE,
+                        "Cannot move to an impassable location; " + loc + " is impassable.");
+            if (this.getType().isTowerType())
+                throw new GameActionException(CANT_DO_THAT, "Towers cannot move!");
+        }
     }
 
     @Override
@@ -495,8 +501,21 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void move(Direction dir) throws GameActionException {
         assertCanMove(dir);
-        MapLocation nextLoc = adjacentLocation(dir);
-        this.robot.setLocation(nextLoc);
+        
+        // calculate set of next map locations 
+        MapLocation[] curLocs = robot.getAllPartLocations();
+        MapLocation[] newLocs = new MapLocation[curLocs.length];
+        for (int i = 0; i < newLocs.length; i++){
+            MapLocation curLoc = curLocs[i];
+            newLocs[i] = curLoc.add(dir);
+            this.gameWorld.removeRobot(curLoc);
+        }
+        this.robot.setLocation(this.getLocation().add(dir)); 
+        for (int i = 0; i < newLocs.length; i++){
+            MapLocation newLoc = newLocs[i];
+            this.gameWorld.addRobot(newLoc, this.robot);
+        }
+
         this.robot.addMovementCooldownTurns();
     }
 
