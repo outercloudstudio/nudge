@@ -13,10 +13,10 @@ import static battlecode.common.GameActionExceptionType.*;
 public class TeamInfo {
 
     private GameWorld gameWorld;
-    private int[] moneyCounts;
+    private int[] globalCheese;
     private int[] totalPaintedSquares;
     private int[] totalNumberOfTowers;
-    private int[] oldMoneyCounts;
+    private int[] oldCheeseCounts;
 
     /**
      * Create a new representation of TeamInfo
@@ -25,8 +25,8 @@ public class TeamInfo {
      */
     public TeamInfo(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        this.moneyCounts = new int[2];
-        this.oldMoneyCounts = new int[2];
+        this.globalCheese = new int[2];
+        this.oldCheeseCounts = new int[2];
         this.totalPaintedSquares = new int[2];
         this.totalNumberOfTowers = new int[2];
     }
@@ -36,57 +36,62 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Get the amount of money.
+     * Get the amount of cheese.
      * 
      * @param team the team to query
-     * @return the team's money count
+     * @return the team's cheese count
      */
 
-    public int getMoney(Team team) {
-        return this.moneyCounts[team.ordinal()];
+    public int getCheese(Team team) {
+        return this.globalCheese[team.ordinal()];
     }
 
     /**
      * Get the total number of squares painted by the team over the game
+     * 
      * @param team the team to query
      * @return the number of squares painted
      */
 
-     public int getNumberOfPaintedSquares(Team team) {
+    public int getNumberOfPaintedSquares(Team team) {
         return this.totalPaintedSquares[team.ordinal()];
     }
 
     /**
      * Get the total number of towers belonging to a team
+     * 
      * @param team the team to query
      * @return the number of towers the team has
      */
 
-     public int getTotalNumberOfTowers(Team team) {
+    public int getTotalNumberOfTowers(Team team) {
         return this.totalNumberOfTowers[team.ordinal()];
     }
 
     /**
      * Change the total number of squares painted by the team over the game
+     * 
      * @param team the team to query
      */
 
-     public void addPaintedSquares(int num, Team team) {
+    public void addPaintedSquares(int num, Team team) {
         this.totalPaintedSquares[team.ordinal()] += num;
         int areaWithoutWalls = this.gameWorld.getAreaWithoutWalls();
-        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls * 100 >= GameConstants.PAINT_PERCENT_TO_WIN) {
+        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls
+                * 100 >= GameConstants.PAINT_PERCENT_TO_WIN) {
             checkWin(team);
         }
-    }    
+    }
 
     /**
      * Change the total number of towers belonging to a team
+     * 
      * @param team the team to query
      */
 
-     public void addTowers(int num, Team team) {
+    public void addTowers(int num, Team team) {
         this.totalNumberOfTowers[team.ordinal()] += num;
-    }    
+    }
 
     // *********************************
     // ***** UPDATE METHODS ************
@@ -100,30 +105,30 @@ public class TeamInfo {
      * @param amount the change in the money count
      * @throws IllegalArgumentException if the resulting amount of money is negative
      */
-    public void addMoney(Team team, int amount) throws IllegalArgumentException {
-        if (this.moneyCounts[team.ordinal()] + amount < 0) {
-            throw new IllegalArgumentException("Invalid bread change");
+    public void addCheese(Team team, int amount) throws IllegalArgumentException {
+        if (this.globalCheese[team.ordinal()] + amount < 0) {
+            throw new IllegalArgumentException("Invalid cheese change");
         }
-        this.moneyCounts[team.ordinal()] += amount;
+        this.globalCheese[team.ordinal()] += amount;
     }
 
     private void checkWin(Team team) {
         int areaWithoutWalls = this.gameWorld.getAreaWithoutWalls();
-        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls * 100 < GameConstants.PAINT_PERCENT_TO_WIN) {
+        if (this.totalPaintedSquares[team.ordinal()] / (double) areaWithoutWalls
+                * 100 < GameConstants.PAINT_PERCENT_TO_WIN) {
             throw new InternalError("Reporting incorrect win");
         }
         this.gameWorld.gameStats.setWinner(team);
         this.gameWorld.gameStats.setDominationFactor(DominationFactor.PAINT_ENOUGH_AREA);
     }
 
-    public int getRoundMoneyChange(Team team) {
-        return this.moneyCounts[team.ordinal()] - this.oldMoneyCounts[team.ordinal()];
+    public int getRoundCheeseChange(Team team) {
+        return this.globalCheese[team.ordinal()] - this.oldCheeseCounts[team.ordinal()];
     }
 
     public void processEndOfRound() {
-        this.oldMoneyCounts[0] = this.moneyCounts[0];
-        this.oldMoneyCounts[1] = this.moneyCounts[1];
+        this.oldCheeseCounts[0] = this.globalCheese[0];
+        this.oldCheeseCounts[1] = this.globalCheese[1];
     }
-
 
 }

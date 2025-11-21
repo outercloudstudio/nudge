@@ -33,18 +33,18 @@ public class RobotInfo {
     public final MapLocation location;
 
     /**
-     * The current paint amount of the robot.
+     * The current cheese this robot holds
      */
-    public final int paintAmount;
+    public final int cheeseAmount;
 
-    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, int paintAmount) {
+    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.health = health;
         this.location = location;
-        this.paintAmount = paintAmount;
+        this.cheeseAmount = 0;
     }
 
     /**
@@ -88,30 +88,34 @@ public class RobotInfo {
      * 
      * @return the type of this robot.
      */
-    public UnitType getType(){
+    public UnitType getType() {
         return this.type;
     }
 
     /**
-     * Returns the paint amount of this robot. 
+     * Returns the paint amount of this robot.
      * 
      * @return the paint amount of the robot
      */
-    public int getPaintAmount(){
-        return this.paintAmount;
+    public int getCheeseAmount() {
+        return this.cheeseAmount;
     }
-
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         RobotInfo robotInfo = (RobotInfo) o;
 
-        if (ID != robotInfo.ID) return false;
-        if (team != robotInfo.team) return false;
-        if (health != robotInfo.health) return false;
+        if (ID != robotInfo.ID)
+            return false;
+        if (team != robotInfo.team)
+            return false;
+        if (health != robotInfo.health)
+            return false;
         return location.equals(robotInfo.location);
     }
 
@@ -132,7 +136,7 @@ public class RobotInfo {
                 ", team=" + team +
                 ", health=" + health +
                 ", location=" + location +
-                ", paint amount=" + paintAmount +
+                ", paint amount=" + cheeseAmount +
                 '}';
     }
 }

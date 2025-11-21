@@ -34,7 +34,7 @@ public class GameConstants {
     public static final int MAX_WALL_PERCENTAGE = 20;
 
     /** The 32 bit representation of the special resource pattern. */
-    public static final int RESOURCE_PATTERN = 28873275; 
+    public static final int RESOURCE_PATTERN = 28873275;
 
     /** The 32 bit representation of the paint tower pattern. */
     public static final int PAINT_TOWER_PATTERN = 18157905;
@@ -88,15 +88,23 @@ public class GameConstants {
     /** The maximum number of towers that a team can have. */
     public static final int MAX_NUMBER_OF_TOWERS = 25;
 
-    /** 
-     * The maximum execution time that can be spent on a team in one match. If the total time spent executing a team's bots
-     * exceeds this limit, the team will immediately lose the game. Execution time is measured in ns.
+    /**
+     * The maximum execution time that can be spent on a team in one match. If the
+     * total time spent executing a team's bots
+     * exceeds this limit, the team will immediately lose the game. Execution time
+     * is measured in ns.
      */
     public static final long MAX_TEAM_EXECUTION_TIME = 1200000000000L;
 
     // *********************************
     // ****** GAME MECHANICS ***********
     // *********************************
+
+    /** The amount of cheese the ratking consumes each round. */
+    public static final int RATKING_CHEESE_CONSUMPTION = 10;
+
+    /** The amount of health the ratking loses by not eating cheese. */
+    public static final int RATKING_HEALTH_LOSS = 10;
 
     /** The number of towers a player starts with. */
     public static final int NUMBER_INITIAL_TOWERS = 2;
@@ -128,22 +136,31 @@ public class GameConstants {
     /** The extra resources per turn that resource patterns give */
     public static final int EXTRA_RESOURCES_FROM_PATTERN = 3;
 
-    /** Resource patterns must exist for this many turns before they start producing resources */
+    /**
+     * Resource patterns must exist for this many turns before they start producing
+     * resources
+     */
     public static final int RESOURCE_PATTERN_ACTIVE_DELAY = 50;
 
     /** The extra damage all ally towers get for each level 1 defense tower */
     public static final int EXTRA_DAMAGE_FROM_DEFENSE_TOWER = 5;
 
-    /** The increase in extra damage for ally towers for upgrading a defense tower */
+    /**
+     * The increase in extra damage for ally towers for upgrading a defense tower
+     */
     public static final int EXTRA_TOWER_DAMAGE_LEVEL_INCREASE = 2;
 
-    /** The percent of the defense tower damage buff that is applied to AoE attacks */
+    /**
+     * The percent of the defense tower damage buff that is applied to AoE attacks
+     */
     public static final int DEFENSE_ATTACK_BUFF_AOE_EFFECTIVENESS = 0;
 
     /** DEPRECATED: See NO_PAINT_DAMAGE */
     public static final int MAX_TURNS_WITHOUT_PAINT = 10;
 
-    /** Percent of paint capacity at which a robot begins to face increased cooldowns */
+    /**
+     * Percent of paint capacity at which a robot begins to face increased cooldowns
+     */
     public static final int INCREASED_COOLDOWN_THRESHOLD = 50;
 
     /** Intercept in the formula for the increased cooldown */
@@ -152,7 +169,9 @@ public class GameConstants {
     /** Slope of paint in the formula for the increased cooldown */
     public static final int INCREASED_COOLDOWN_SLOPE = -2;
 
-    /** Multiplier for paint penalties moppers face for ending on non-ally territory. */
+    /**
+     * Multiplier for paint penalties moppers face for ending on non-ally territory.
+     */
     public static final int MOPPER_PAINT_PENALTY_MULTIPLIER = 2;
 
     /** The maximum distance from a robot where information can be sensed */
@@ -161,7 +180,9 @@ public class GameConstants {
     /** The maximum distance for marking a map location or removing a marker */
     public static final int MARK_RADIUS_SQUARED = 2;
 
-    /** The maximum distance for transferring paint from/to an ally robot or tower */
+    /**
+     * The maximum distance for transferring paint from/to an ally robot or tower
+     */
     public static final int PAINT_TRANSFER_RADIUS_SQUARED = 2;
 
     /** The maximum distance from a tower for building robots */
@@ -170,7 +191,9 @@ public class GameConstants {
     /** The maximum distance from a robot for building and upgrading towers */
     public static final int BUILD_TOWER_RADIUS_SQUARED = 2;
 
-    /** The maximum distance from a robot for completing special resource patterns */
+    /**
+     * The maximum distance from a robot for completing special resource patterns
+     */
     // this is 8 so that the robot can complete the pattern anywhere on the 5x5 grid
     public static final int RESOURCE_PATTERN_RADIUS_SQUARED = 8;
 
@@ -204,10 +227,16 @@ public class GameConstants {
     /** A robot takes this much damage every time it ends a turn with 0 paint */
     public static final int NO_PAINT_DAMAGE = 20;
 
-    /** The area effected by the splasher's attack. Within this radius, empty tiles are painted and towers are damaged */
+    /**
+     * The area effected by the splasher's attack. Within this radius, empty tiles
+     * are painted and towers are damaged
+     */
     public static final int SPLASHER_ATTACK_AOE_RADIUS_SQUARED = 4;
 
-    /** The smaller area within the splasher's attack at which enemy paint is also replaced by allied paint */
+    /**
+     * The smaller area within the splasher's attack at which enemy paint is also
+     * replaced by allied paint
+     */
     public static final int SPLASHER_ATTACK_ENEMY_PAINT_RADIUS_SQUARED = 2;
 
     // *********************************
@@ -223,14 +252,17 @@ public class GameConstants {
     /**
      * The amount added to the movement cooldown counter when moving
      */
-     public static final int MOVEMENT_COOLDOWN = 10;
+    public static final int MOVEMENT_COOLDOWN = 10;
 
     /**
      * The amount added to the action cooldown counter after a tower builds a robot
      */
-     public static final int BUILD_ROBOT_COOLDOWN = 10;
+    public static final int BUILD_ROBOT_COOLDOWN = 10;
 
-    /** The amount added to the action cooldown counter after attacking (as a mopper for the swing attack) */
+    /**
+     * The amount added to the action cooldown counter after attacking (as a mopper
+     * for the swing attack)
+     */
     public static final int ATTACK_MOPPER_SWING_COOLDOWN = 20;
 
     /** THe amount added to the action cooldown counter after transferring paint */
