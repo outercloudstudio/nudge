@@ -42,7 +42,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private InternalRobot carryingRobot; // robot being carried by this robot, if any
     private InternalRobot grabbedByRobot; // robot that is carrying this robot, if any
-    private boolean beingThrown;
+    private Direction thrownDir;
 
     private Queue<Message> incomingMessages;
 
@@ -88,7 +88,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.carryingRobot = null;
         this.grabbedByRobot = null;
-        this.beingThrown = false;
+        this.thrownDir = null;
 
         this.indicatorString = "";
 
@@ -175,7 +175,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public boolean isBeingThrown() {
-        return beingThrown;
+        return thrownDir != null;
     }
 
     public RobotInfo getRobotInfo() {
@@ -500,7 +500,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             throw new RuntimeException("Cannot grab while being carried");
         }
 
-        if(this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getType().isThrowableType()) {
+        if(this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getType().isThrowableType() && !this.gameWorld.getRobot(loc).isBeingThrown()) {
             boolean canGrab = false;
             if(false) { // TODO replace with checking if the enemy robot is facing away from us
                 canGrab = true; // We can always grab robots facing away from us
@@ -545,24 +545,30 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private void getThrown(Direction dir) {
         this.grabbedByRobot = null;
-        this.beingThrown = true;
+        this.thrownDir = dir;
         this.setLocation(this.getLocation().add(dir));
         this.gameWorld.addRobot(this.getLocation(), this);
-        this.beingThrown = false;
     }
 
     public void hitGround() {
-        this.beingThrown = false;
+        this.thrownDir = null;
         this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TURN * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN);
         this.movementCooldownTurns = GameConstants.THROW_STUN_DURATION;
         this.actionCooldownTurns = GameConstants.THROW_STUN_DURATION;
     }
 
     public void travelFlying() {
-        // TODO Move in the same direction as before
-        // Check if we hit a wall or rat
-        // If we hit a wall, call hitGround() (also damage the rat)
-        // Otherwise, move forward one tile
+        MapLocation newLoc = this.getLocation().add(this.thrownDir);
+        if(!this.gameWorld.getGameMap().onTheMap(newLoc) || this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
+            this.hitGround();
+            return;
+        }
+
+        this.setLocation(newLoc);
+        
+        if (this.actionCooldownTurns <= GameConstants.THROW_STUN_DURATION) {
+            this.hitGround();
+        }
     }
 
     /**
@@ -711,12 +717,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (!this.isGrabbedByRobot()) {
             this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
-            if (this.beingThrown) {
-                if (this.actionCooldownTurns <= GameConstants.THROW_STUN_DURATION) {
-                    this.hitGround();
-                } else {
-                    this.travelFlying(); // This will call hitGround if we hit something
-                }
+            if (this.isBeingThrown()) {
+                this.travelFlying(); // This will call hitGround if we hit something or run out of time
             }
         }
         this.currentBytecodeLimit = this.type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT : GameConstants.TOWER_BYTECODE_LIMIT;
