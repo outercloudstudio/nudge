@@ -45,6 +45,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // the number of messages this robot/tower has sent this turn
     private int sentMessagesCount;
 
+    private boolean crouching;
+
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
      */

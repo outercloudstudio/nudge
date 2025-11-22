@@ -360,10 +360,8 @@ public final class GameMapIO {
                 if (teamsReversed){
                     bodyTeam = bodyTeam.opponent();
                 }
-                int initialPaint = 0; // TODO GameConstants.INITIAL_TOWER_PAINT_AMOUNT;
-                if (bodyType.isRobotType())
-                    initialPaint = 0; // TODO (int) Math.round(bodyType.paintCapacity * GameConstants.INITIAL_ROBOT_PAINT_PERCENTAGE / 100.0);
-                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialPaint));
+                boolean initialCrouching = false;
+                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCrouching));
             }
         }
 

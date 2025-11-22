@@ -33,18 +33,18 @@ public class RobotInfo {
     public final MapLocation location;
 
     /**
-     * The current paint amount of the robot.
+     * Whether or not the robot is crouching
      */
-    public final int paintAmount;
+    public final boolean crouching;
 
-    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, int paintAmount) {
+    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, boolean crouching) {
         super();
         this.ID = ID;
         this.team = team;
         this.type = type;
         this.health = health;
         this.location = location;
-        this.paintAmount = paintAmount;
+        this.crouching = crouching;
     }
 
     /**
@@ -93,12 +93,12 @@ public class RobotInfo {
     }
 
     /**
-     * Returns the paint amount of this robot. 
-     * 
-     * @return the paint amount of the robot
+     * Returns whether or not the robot is crouching
+     *
+     * @return if the robot is a cat and is crouching
      */
-    public int getPaintAmount(){
-        return this.paintAmount;
+    public boolean isCrouching(){
+        return this.type.isCatType() && crouching;
     }
 
 
@@ -132,7 +132,7 @@ public class RobotInfo {
                 ", team=" + team +
                 ", health=" + health +
                 ", location=" + location +
-                ", paint amount=" + paintAmount +
+                ", crouching=" + crouching +
                 '}';
     }
 }
