@@ -107,6 +107,21 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     }
 
     /**
+     * Computes the squared distance from the 2x2 robot at this location
+     * (centered at this location + (0.5, 0.5)) to the specified location.
+     *
+     * @param location the location to compute the squared distance to
+     * @return the ceiling of the squared distance to the given location
+     *
+     * @battlecode.doc.costlymethod
+     */
+    public final int bottomRightDistanceSquaredTo(MapLocation location) {
+        double dx = this.x + 0.5 - location.x;
+        double dy = this.y + 0.5 - location.y;
+        return (int) Math.ceil(dx * dx + dy * dy);
+    }
+
+    /**
      * Determines whether this location is within a specified distance
      * from target location.
      *

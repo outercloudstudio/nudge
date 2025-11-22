@@ -210,6 +210,9 @@ public class GameConstants {
     /** The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a wall after 1 turn take 45 damage) */
     public static final int THROW_DAMAGE_PER_TURN = 5;
 
+    /** The damage a robot takes after being scratched by a cat */
+    public static final int CAT_SCRATCH_DAMAGE = 50;
+
     /** The minimum gap between an enemy robot's health and our own before we can grab it from all angles */
     public static final int HEALTH_GRAB_THRESHOLD = 0;
 

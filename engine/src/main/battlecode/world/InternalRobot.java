@@ -350,141 +350,19 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return this.gameWorld.locationToIndex(loc);
     }
 
-    public void soldierAttack(MapLocation loc, boolean useSecondaryColor) {
-        if(this.type != UnitType.SOLDIER)
-            throw new RuntimeException("Unit must be a soldier");
-        int paintType = (useSecondaryColor ? this.gameWorld.getSecondaryPaint(this.team) : this.gameWorld.getPrimaryPaint(this.team));
-        
-        // This attack costs some paint
-        addPaint(-UnitType.SOLDIER.attackCost);
+    public void scratch(MapLocation loc) {
+        if(this.type != UnitType.CAT)
+            throw new RuntimeException("Unit must be a cat!");
 
-        // Attack if it's a tower
-        if(this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getType().isTowerType()) {
-            InternalRobot tower = this.gameWorld.getRobot(loc);
-            if(this.team != tower.getTeam()){
-                tower.addHealth(-UnitType.SOLDIER.attackStrength);
-                this.gameWorld.getMatchMaker().addDamageAction(tower.ID, UnitType.SOLDIER.attackStrength);
-                this.gameWorld.getMatchMaker().addAttackAction(tower.ID);
-            }
-        } else { // otherwise, maybe paint
-            // If the tile is empty or same team paint, paint it
-            if(this.gameWorld.isPaintable(loc) && 
-            (this.gameWorld.getPaint(loc) == 0 || this.gameWorld.teamFromPaint(paintType) == this.gameWorld.teamFromPaint(this.gameWorld.getPaint(loc)))) {
-                this.gameWorld.setPaint(loc, paintType);
-                this.gameWorld.getMatchMaker().addPaintAction(loc, useSecondaryColor);
-            }
-        }
-
-    }
-    public void soldierAttack(MapLocation loc) {
-        soldierAttack(loc, false);
-    }
-
-    public void splasherAttack(MapLocation loc, boolean useSecondaryColor) {
-        if(this.type != UnitType.SPLASHER)
-            throw new RuntimeException("Unit must be a splasher");
-        this.gameWorld.getMatchMaker().addSplashAction(loc);
-        int paintType = (useSecondaryColor ? this.gameWorld.getSecondaryPaint(this.team) : this.gameWorld.getPrimaryPaint(this.team));
-
-        // This attack costs some paint
-        addPaint(-UnitType.SPLASHER.attackCost);
-
-        MapLocation[] allLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(loc, GameConstants.SPLASHER_ATTACK_AOE_RADIUS_SQUARED);
-        for(MapLocation newLoc : allLocs) {
-            // Attack if it's a tower (only if different team)
-            if(this.gameWorld.getRobot(newLoc) != null && this.gameWorld.getRobot(newLoc).getType().isTowerType()) {
-                InternalRobot tower = this.gameWorld.getRobot(newLoc);
-                if(this.team != tower.getTeam()){
-                    tower.addHealth(-UnitType.SPLASHER.aoeAttackStrength);
-                    this.gameWorld.getMatchMaker().addDamageAction(tower.ID, UnitType.SPLASHER.aoeAttackStrength);
-                    this.gameWorld.getMatchMaker().addAttackAction(tower.ID);
-                }
-            }  
-            // If the tile is empty or same team paint, paint it
-            if (!this.gameWorld.isPaintable(newLoc)) continue;
-            if(this.gameWorld.getPaint(newLoc) == 0 || getTeam() == this.gameWorld.teamFromPaint(this.gameWorld.getPaint(newLoc))) {
-                this.gameWorld.setPaint(newLoc, paintType);
-                this.gameWorld.getMatchMaker().addPaintAction(newLoc, useSecondaryColor);
-            } else { // If the tile has opposite enemy team, paint only if within sqrt(2) radius
-                if(loc.isWithinDistanceSquared(newLoc, GameConstants.SPLASHER_ATTACK_ENEMY_PAINT_RADIUS_SQUARED)){
-                    this.gameWorld.setPaint(newLoc, paintType);
-                    this.gameWorld.getMatchMaker().addPaintAction(newLoc, useSecondaryColor);
-                }
-            }
-        }
-    }
-    public void splasherAttack(MapLocation loc) {
-        splasherAttack(loc, false);
-    }
-
-    // This is the first kind of attack for moppers which only targets one location
-    public void mopperAttack(MapLocation loc, boolean useSecondaryColor) {
-        if(this.type != UnitType.MOPPER)
-            throw new RuntimeException("Unit must be a mopper");
-        int paintType = (useSecondaryColor ? this.gameWorld.getSecondaryPaint(this.team) : this.gameWorld.getPrimaryPaint(this.team));
-
-        // This attack should be free (but this is here just in case)
-        addPaint(-UnitType.MOPPER.attackCost);
-
-        // If there's a robot on the tile, remove 10 from their paint stash and add 5 to ours
-        if(this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getType().isRobotType()) {
+        // If there's a robot on the tile, deal large damage to it
+        if(this.gameWorld.getRobot(loc) != null) {
             InternalRobot robot = this.gameWorld.getRobot(loc);
             if(this.team != robot.getTeam()) {
-                robot.addPaint(-GameConstants.MOPPER_ATTACK_PAINT_DEPLETION);
-                addPaint(GameConstants.MOPPER_ATTACK_PAINT_ADDITION);
+                robot.addHealth(-GameConstants.CAT_SCRATCH_DAMAGE);
                 this.gameWorld.getMatchMaker().addAttackAction(robot.getID());
-                this.gameWorld.getMatchMaker().addRemovePaintAction(robot.getID(), GameConstants.MOPPER_ATTACK_PAINT_DEPLETION);
             }
         }
-        
-        // Either way, mop this tile if it has enemy paint
-        if(this.gameWorld.isPaintable(loc) && this.gameWorld.teamFromPaint(paintType) != this.gameWorld.teamFromPaint(this.gameWorld.getPaint(loc))) {
-            this.gameWorld.setPaint(loc, 0);
-            this.gameWorld.getMatchMaker().addUnpaintAction(loc);
-        }
 
-    }
-    public void mopperAttack(MapLocation loc) {
-        mopperAttack(loc, false);
-    }
-
-    public void towerAttack(MapLocation loc) {
-        if(!this.type.isTowerType())
-            throw new RuntimeException("Unit must be a tower");
-
-        boolean hitRobot = false;
-        if(loc == null) { // area attack
-            int aoeDamage = this.type.aoeAttackStrength + (int) Math.round(this.gameWorld.getDefenseTowerDamageIncrease(team) * GameConstants.DEFENSE_ATTACK_BUFF_AOE_EFFECTIVENESS/100.0);
-
-            MapLocation[] allLocs = this.gameWorld.getAllLocationsWithinRadiusSquared(this.getLocation(), this.type.actionRadiusSquared);
-            
-            for(MapLocation newLoc : allLocs) {
-                // Attack if there is a unit (only if different team)
-                if(this.gameWorld.getRobot(newLoc) != null) {
-                    InternalRobot unit = this.gameWorld.getRobot(newLoc);
-                    if(this.team != unit.getTeam()){
-                        hitRobot = true;
-                        unit.addHealth(-aoeDamage);
-                        this.gameWorld.getMatchMaker().addAttackAction(unit.getID());
-                        this.gameWorld.getMatchMaker().addDamageAction(unit.getID(), aoeDamage);
-                    }
-                }
-            }
-        } else { // single attack
-            if(this.gameWorld.getRobot(loc) != null) {
-                InternalRobot unit = this.gameWorld.getRobot(loc);
-                if(this.team != unit.getTeam()){
-                    hitRobot = true;
-                    int damage = this.type.attackStrength + this.gameWorld.getDefenseTowerDamageIncrease(team);
-                    unit.addHealth(-damage);
-                    this.gameWorld.getMatchMaker().addAttackAction(unit.getID());
-                    this.gameWorld.getMatchMaker().addDamageAction(unit.getID(), damage);
-                }
-            }
-        }
-        if(hitRobot) {
-            this.gameWorld.getTeamInfo().addMoney(this.team, this.type.attackMoneyBonus);
-        }
     }
 
     public void grabRobot(MapLocation loc) {
@@ -582,6 +460,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
             case RAT:
                 // TODO bite(loc);
                 break; 
+            case CAT:
+                scratch(loc);
+                break;
             default:
                 // TODO
                 break;

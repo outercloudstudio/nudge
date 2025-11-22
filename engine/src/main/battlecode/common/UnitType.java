@@ -17,7 +17,9 @@ public enum UnitType {
     LEVEL_TWO_DEFENSE_TOWER(0, 2500,  0, 2500, 2, 1000, 10, 16, 50, 25, 0, 0, 30),
     LEVEL_THREE_DEFENSE_TOWER(0, 5000, 0, 3000, 3, 1000, 10, 16, 60, 30, 0, 0, 40),
     
-    RAT(0, 5000, 0, 3000, 3, 1000, 10, 16, 60, 30, 0, 0, 40); // TODO change all these numbers!
+    RAT(0, 5000, 0, 3000, 3, 1000, 10, 16, 60, 30, 0, 0, 40), // TODO change all these numbers!
+    CAT(0, 5000, 0, 3000, 3, 1000, 10, 16, 60, 30, 0, 0, 40), // TODO change all these numbers!
+    KING_RAT(0, 5000, 0, 3000, 3, 1000, 10, 16, 60, 30, 0, 0, 40); // TODO change all these numbers!
 
 
     // the paint cost to build the unit
@@ -60,7 +62,7 @@ public enum UnitType {
     public final int attackMoneyBonus;
 
     public boolean isRobotType(){
-        return this == SOLDIER || this == SPLASHER || this == MOPPER || this == RAT;
+        return this == SOLDIER || this == SPLASHER || this == MOPPER || this == RAT || this == CAT || this == KING_RAT;
     }
 
     public boolean isThrowableType(){

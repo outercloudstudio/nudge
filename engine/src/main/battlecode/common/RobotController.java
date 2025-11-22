@@ -731,27 +731,6 @@ public interface RobotController {
      */
     void attack(MapLocation loc) throws GameActionException;
 
-    /**
-     * Tests whether this robot (which must be a mopper) can perform
-     * a mop swing in a specific direction
-     *
-     * @param dir the direction in which to mop swing
-     * @return whether it is possible to mop swing in the given direction
-     *
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMopSwing(Direction dir);
-
-    /**
-     * Performs a mop swing in the given direction (only for moppers!)
-     *
-     * @param dir the direction in which to mop swing
-     * @throws GameActionException if conditions for attacking are not satisfied
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void mopSwing(Direction dir) throws GameActionException;
-
     // ***********************************
     // ****** COMMUNICATION METHODS ******
     // ***********************************

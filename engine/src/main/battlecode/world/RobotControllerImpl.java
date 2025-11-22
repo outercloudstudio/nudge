@@ -198,6 +198,16 @@ public final class RobotControllerImpl implements RobotController {
                     "Target location is not on the map");
     }
 
+    private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
+        assertNotNull(loc);
+        if (getLocation().bottomRightDistanceSquaredTo(loc) > maxRadiusSquared)
+            throw new GameActionException(OUT_OF_RANGE,
+                    "Target location not within action range");
+        if (!this.gameWorld.getGameMap().onTheMap(loc))
+            throw new GameActionException(CANT_SENSE_THAT,
+                    "Target location is not on the map");
+    }
+
     @Override
     public boolean canSenseLocation(MapLocation loc) {
         try {
@@ -886,6 +896,20 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Moppers cannot attack squares with walls or ruins on them!");
     }
 
+    private void assertCanAttackRat(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        assertCanActLocation(loc, UnitType.RAT.actionRadiusSquared);
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
+    }
+
+    private void assertCanAttackCat(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        assertCanActOffCenterLocation(loc, UnitType.CAT.actionRadiusSquared);
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_DO_THAT, "Cats cannot attack squares with walls or dirt on them!");
+    }
+
     private void assertCanAttackTower(MapLocation loc) throws GameActionException {
         if(loc == null) { // area attack
             if (this.robot.hasTowerAreaAttacked()){
@@ -914,6 +938,12 @@ public final class RobotControllerImpl implements RobotController {
                 break;
             case MOPPER:
                 assertCanAttackMopper(loc);
+                break;
+            case RAT:
+                assertCanAttackRat(loc);
+                break;
+            case CAT:
+                assertCanAttackCat(loc);
                 break; 
             default:
                 assertCanAttackTower(loc);
