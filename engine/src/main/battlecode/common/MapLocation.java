@@ -115,7 +115,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      *
      * @battlecode.doc.costlymethod
      */
-    public final int bottomRightDistanceSquaredTo(MapLocation location) {
+    public final int topRightDistanceSquaredTo(MapLocation location) {
         double dx = this.x + 0.5 - location.x;
         double dy = this.y + 0.5 - location.y;
         return (int) Math.ceil(dx * dx + dy * dy);

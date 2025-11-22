@@ -34,7 +34,6 @@ public enum UnitType {
 
     public boolean isThrowingType(){
         return this == RAT;
-        return this == RAT || this == RAT_KING || this == CAT;
     }
 
     public boolean isRatType(){
