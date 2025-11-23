@@ -45,6 +45,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private InternalRobot carryingRobot; // robot being carried by this robot, if any
     private InternalRobot grabbedByRobot; // robot that is carrying this robot, if any
     private Direction thrownDir;
+    private int throwDuration;
 
     private Queue<Message> incomingMessages;
 
@@ -93,6 +94,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.carryingRobot = null;
         this.grabbedByRobot = null;
         this.thrownDir = null;
+        this.throwDuration = 0;
 
         this.indicatorString = "";
 
@@ -443,8 +445,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private void getGrabbed(InternalRobot grabber) {
         this.grabbedByRobot = grabber;
-        this.movementCooldownTurns = GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.movementCooldownTurns += GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.actionCooldownTurns += GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
         this.gameWorld.removeRobot(getLocation());
     }
 
@@ -467,27 +469,30 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private void getThrown(Direction dir) {
         this.grabbedByRobot = null;
         this.thrownDir = dir;
+        this.throwDuration = GameConstants.THROW_DURATION/10;
         this.setLocation(this.getLocation().add(dir));
         this.gameWorld.addRobot(this.getLocation(), this);
     }
 
     public void hitGround() {
         this.thrownDir = null;
-        this.movementCooldownTurns = GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
+        this.throwDuration = 0;
+        this.movementCooldownTurns -= GameConstants.THROW_STUN_DURATION - GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
+        this.actionCooldownTurns -= GameConstants.THROW_STUN_DURATION - GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
     }
 
     public void hitTarget(boolean isSecondMove) {
         if (this.gameWorld.getRobot(this.getLocation().add(this.thrownDir)) != null) {
             InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
-            robot.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN) + (isSecondMove ? 0 : 1));
+            robot.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.throwDuration + (isSecondMove ? 0 : 1)));
             robot.movementCooldownTurns += GameConstants.THROW_STUN_DURATION;
             robot.actionCooldownTurns += GameConstants.THROW_STUN_DURATION;
         }
         this.thrownDir = null;
-        this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN) + (isSecondMove ? 0 : 1));
-        this.movementCooldownTurns = GameConstants.THROW_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_STUN_DURATION;
+        this.throwDuration = 0;
+        this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.throwDuration + (isSecondMove ? 0 : 1)));
+        this.movementCooldownTurns -= (this.throwDuration-1) * 10;
+        this.actionCooldownTurns -= (this.throwDuration-1) * 10;
         this.gameWorld.getMatchMaker().addImpactAction(this.ID);
     }
 
@@ -601,8 +606,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             if (this.isBeingThrown()) {
-                this.travelFlying(false); // This will call hitGround if we hit something or run out of time
-                this.travelFlying(true); // Thrown robots move 2x per turn
+                this.travelFlying(false); // This will call hitTarget or hitGround if we hit something or run out of time
+                if (this.isBeingThrown()) {
+                    this.travelFlying(true); // Thrown robots move 2x per turn
+                    if (this.isBeingThrown()) {
+                        this.throwDuration -= 1;
+                    }
+                }
             }
         }
         this.currentBytecodeLimit = this.type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT : GameConstants.TOWER_BYTECODE_LIMIT;
