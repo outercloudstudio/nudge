@@ -189,7 +189,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
         assertNotNull(loc);
-        if (getLocation().bottomRightDistanceSquaredTo(loc) > maxRadiusSquared)
+        if (getLocation().topRightDistanceSquaredTo(loc) > maxRadiusSquared)
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
         if (!this.gameWorld.getGameMap().onTheMap(loc))
