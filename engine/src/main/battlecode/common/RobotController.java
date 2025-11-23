@@ -478,27 +478,25 @@ public interface RobotController {
     // ***********************************
 
     /**
-     * Checks if a tower can spawn a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the tower.
+     * Checks if a rat king can spawn a robot at the given location.
+     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param type the type of robot to spawn
      * @param loc  the location to spawn the robot at
      * @return true if robot can be built at loc
      * 
      * @battlecode.doc.costlymethod
      */
-    boolean canBuildRobot(UnitType type, MapLocation loc);
+    boolean canBuildRobot(MapLocation loc);
 
     /**
      * Spawns a robot at the given location.
-     * Robots can spawn within a circle of radius of sqrt(4) of the tower.
+     * Robots can spawn within a circle of radius of sqrt(4) of the rat king.
      * 
-     * @param type the type of robot to spawn
      * @param loc  the location to spawn the robot at
      * 
      * @battlecode.doc.costlymethod
      */
-    void buildRobot(UnitType type, MapLocation loc) throws GameActionException;
+    void buildRobot(MapLocation loc) throws GameActionException;
 
     /**
      * Checks if the location can be marked.

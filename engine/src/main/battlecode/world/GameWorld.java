@@ -975,6 +975,9 @@ public class GameWorld {
         }
         objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
+        if (type.isRatType()){
+            this.teamInfo.addRats(1, team);
+        }
         if (type.isTowerType()) {
             this.teamInfo.addTowers(1, team);
             // TODO robot.addPaint(GameConstants.INITIAL_TOWER_PAINT_AMOUNT);
@@ -1006,6 +1009,9 @@ public class GameWorld {
         MapLocation loc = robot.getLocation();
 
         if (loc != null) {
+            if (robot.getType().isRatType()){
+                this.teamInfo.addRats(-1, robot.getTeam());
+            }
             if (robot.getType().isTowerType()) {
                 this.towersByLoc[locationToIndex(loc)] = Team.NEUTRAL;
                 this.towerLocations.remove(loc);

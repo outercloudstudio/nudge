@@ -89,6 +89,15 @@ public class GameConstants {
     /** The maximum distance from a rat king for building robots */
     public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;
 
+    /** The base cheese cost for spawning a rat */
+    public static final int BUILD_ROBOT_BASE_COST = 4;
+
+    /** The amount by which the cost to spawn a rat increases by for every NUM_ROBOTS_FOR_COST_INCREASE allied rats */
+    public static final int BUILD_ROBOT_COST_INCREASE = 4;
+
+    /** The number of allied rats needed to increase the base cost of a rat by BUILD_ROBOT_COST_INCREASE */
+    public static final int NUM_ROBOTS_FOR_COST_INCREASE = 4;
+
     /** The maximum amount of bytes that can be encoded in a message */
     public static final int MAX_MESSAGE_BYTES = 4; // TODO need to spec messages as a whole!
 

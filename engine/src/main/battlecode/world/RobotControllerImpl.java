@@ -195,6 +195,7 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.gameWorld.getGameMap().onTheMap(loc))
             throw new GameActionException(CANT_SENSE_THAT,
                     "Target location is not on the map");
+    }
     
     private void assertCanPlaceDirt(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
@@ -532,20 +533,19 @@ public final class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanBuildRobot(UnitType type, MapLocation loc) throws GameActionException {
+    private void assertCanBuildRobot(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
-        assertNotNull(type);
         assertCanActLocation(loc, GameConstants.BUILD_ROBOT_RADIUS_SQUARED);
         assertIsActionReady();
-        assertIsTowerType(this.robot.getType());
-        assertIsRobotType(type);
-
-        if (this.robot.getPaint() < type.paintCost){
-            throw new GameActionException(CANT_DO_THAT, "Not enough paint to build new robot!");
+        if (!this.robot.getType().isRatKingType()){
+            throw new GameActionException(CANT_DO_THAT, "Only rat kings can spawn other robots!");
         }
+        int cost = GameConstants.BUILD_ROBOT_BASE_COST + 
+        GameConstants.BUILD_ROBOT_COST_INCREASE*(this.gameWorld.getTeamInfo().getNumRats(getTeam())/GameConstants.NUM_ROBOTS_FOR_COST_INCREASE);
 
-        if (this.gameWorld.getTeamInfo().getMoney(this.robot.getTeam()) < type.moneyCost){
-            throw new GameActionException(CANT_DO_THAT, "Not enough money to build new robot!");
+        /** TODO: change this to a check on cheese */
+        if (this.robot.getPaint() < cost){
+            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build new robot!");
         }
 
         if (isLocationOccupied(loc)){
@@ -558,9 +558,9 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canBuildRobot(UnitType type, MapLocation loc) {
+    public boolean canBuildRobot(MapLocation loc) {
         try {
-            assertCanBuildRobot(type, loc);
+            assertCanBuildRobot(loc);
             return true;
         } catch (GameActionException e) {
             return false;
@@ -568,14 +568,15 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void buildRobot(UnitType type, MapLocation loc) throws GameActionException {
-        assertCanBuildRobot(type, loc);
+    public void buildRobot(MapLocation loc) throws GameActionException {
+        assertCanBuildRobot(loc);
         this.robot.addActionCooldownTurns(GameConstants.BUILD_ROBOT_COOLDOWN);
-        this.gameWorld.spawnRobot(type, loc, this.robot.getTeam());
-        this.robot.addPaint(-type.paintCost);
-        this.gameWorld.getTeamInfo().addMoney(this.robot.getTeam(), -type.moneyCost);
+        this.gameWorld.spawnRobot(UnitType.RAT, loc, this.robot.getTeam());
+        int cost = GameConstants.BUILD_ROBOT_BASE_COST + 
+        GameConstants.BUILD_ROBOT_COST_INCREASE*(this.gameWorld.getTeamInfo().getNumRats(getTeam())/GameConstants.NUM_ROBOTS_FOR_COST_INCREASE);
+        this.robot.addPaint(-cost);
         InternalRobot robotSpawned = this.gameWorld.getRobot(loc);
-        this.gameWorld.getMatchMaker().addSpawnAction(robotSpawned.getID(), loc, getTeam(), type);
+        this.gameWorld.getMatchMaker().addSpawnAction(robotSpawned.getID(), loc, getTeam(), UnitType.RAT);
     }
 
     private void assertCanMark(MapLocation loc) throws GameActionException {
