@@ -112,6 +112,15 @@ public interface RobotController {
     int getChips();
 
     /**
+     * Returns the amount of dirt that this robot's team has.
+     * 
+     * @return the amount of dirt this robot's team has
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    int getDirt();
+
+    /**
      * Returns what UnitType this robot is. 
      * 
      * @return the UnitType of this robot
