@@ -114,7 +114,7 @@ public class GameConstants {
     public static final int THROW_DAMAGE = 20;
 
     /** The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a wall after 1 turn take 45 damage) */
-    public static final int THROW_DAMAGE_PER_TURN = 5;
+    public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being scratched by a cat */
     public static final int CAT_SCRATCH_DAMAGE = 50;
@@ -169,9 +169,12 @@ public class GameConstants {
     public static final int BUILD_COOLDOWN = 35; // TODO need to specify!
 
     /** The total time a rat can travel for while thrown (rats are stunned while thrown) */
-    public static final int THROW_DURATION = 40;
+    public static final int THROW_DURATION = 20;
 
-    /** The total time a rat is stunned after hitting the ground or a target */
+    /** The total time a rat is stunned after hitting a target */
     public static final int THROW_STUN_DURATION = 30;
+
+    /** The total time a rat is stunned after hitting the ground */
+    public static final int THROW_SAFE_LANDING_STUN_DURATION = 10;
 
 }

@@ -473,15 +473,31 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public void hitGround() {
         this.thrownDir = null;
-        this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TURN * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN);
-        this.movementCooldownTurns = GameConstants.THROW_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_STUN_DURATION;
+        this.movementCooldownTurns = GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
+        this.actionCooldownTurns = GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
     }
 
-    public void travelFlying() {
+    public void hitTarget(boolean isSecondMove) {
+        if (this.gameWorld.getRobot(this.getLocation().add(this.thrownDir)) != null) {
+            InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
+            robot.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN) + (isSecondMove ? 0 : 1));
+            robot.movementCooldownTurns += GameConstants.THROW_STUN_DURATION;
+            robot.actionCooldownTurns += GameConstants.THROW_STUN_DURATION;
+        }
+        this.thrownDir = null;
+        this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN) + (isSecondMove ? 0 : 1));
+        this.movementCooldownTurns = GameConstants.THROW_STUN_DURATION;
+        this.actionCooldownTurns = GameConstants.THROW_STUN_DURATION;
+        this.gameWorld.getMatchMaker().addImpactAction(this.ID);
+    }
+
+    public void travelFlying(boolean isSecondMove) {
         MapLocation newLoc = this.getLocation().add(this.thrownDir);
-        if(!this.gameWorld.getGameMap().onTheMap(newLoc) || this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
+        if(!this.gameWorld.getGameMap().onTheMap(newLoc)) {
             this.hitGround();
+            return;
+        } else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
+            this.hitTarget(isSecondMove);
             return;
         }
 
@@ -585,7 +601,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             if (this.isBeingThrown()) {
-                this.travelFlying(); // This will call hitGround if we hit something or run out of time
+                this.travelFlying(false); // This will call hitGround if we hit something or run out of time
+                this.travelFlying(true); // Thrown robots move 2x per turn
             }
         }
         this.currentBytecodeLimit = this.type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT : GameConstants.TOWER_BYTECODE_LIMIT;
