@@ -257,6 +257,8 @@ public final class RobotControllerImpl implements RobotController {
 
         if (!this.gameWorld.hasRatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "No rat trap to remove at that location!");
+        if( this.gameWorld.getTrap(loc).getTeam() != this.getTeam())
+            throw new GameActionException(CANT_DO_THAT, "Can't remove an enemy team's rat trap!");
     }
 
     private void assertCanPlaceCatTrap(MapLocation loc) throws GameActionException {

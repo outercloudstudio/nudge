@@ -688,12 +688,16 @@ public interface RobotController {
     /**
      * Tests whether this robot can place a rat trap at the given location.
      * @param loc
+     * 
+     * @battlecode.doc.costlymethod
      */
     public boolean canPlaceRatTrap(MapLocation loc);
 
     /**
      * Places a rat trap at the given location.
      * @param loc
+     * 
+     * @battlecode.doc.costlymethod
      */
     public void placeRatTrap(MapLocation loc) throws GameActionException;
 
@@ -701,6 +705,8 @@ public interface RobotController {
      * Tests whether this robot can remove a rat trap at the given location.
      * @param loc
      * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
      */
     public boolean canRemoveRatTrap(MapLocation loc);
 
@@ -708,6 +714,8 @@ public interface RobotController {
      * Removes the rat trap at the given location.
      * @param loc
      * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
      */
     public void removeRatTrap(MapLocation loc) throws GameActionException;
 
