@@ -17,6 +17,7 @@ public class TeamInfo {
     private int[] dirtCounts;
     private int[] oldCheeseCounts;
     private int[] totalNumRats;
+    private int[] points;
 
     /**
      * Create a new representation of TeamInfo
@@ -29,6 +30,7 @@ public class TeamInfo {
         this.dirtCounts = new int[2];
         this.oldCheeseCounts = new int[2];
         this.totalNumRats = new int[2];
+        this.points = new int[2];
     }
 
     // *********************************
@@ -66,6 +68,15 @@ public class TeamInfo {
     }
 
     /**
+     * Get the amount of points belonging to a team
+     * @param team the team to query
+     * @return the number of points the team has
+     */
+    public int getPoints(Team team){
+        return this.points[team.ordinal()];
+    }
+
+    /**
      * Change the total number of rats belonging to a team
      * @param team the team to change
      */
@@ -78,18 +89,28 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Add to the amount of money. If amount is negative, subtract from money
+     * Add to the amount of cheese. If amount is negative, subtract from cheese
      * instead.
      * 
      * @param team   the team to query
-     * @param amount the change in the money count
-     * @throws IllegalArgumentException if the resulting amount of money is negative
+     * @param amount the change in the cheese count
+     * @throws IllegalArgumentException if the resulting amount of cheese is negative
      */
     public void addCheese(Team team, int amount) throws IllegalArgumentException {
         if (this.globalCheese[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid cheese change");
         }
         this.globalCheese[team.ordinal()] += amount;
+    }
+
+    /**
+     * Get the amount of points.
+     * 
+     * @param team the team to query
+     * @param amount the change in the amount of points
+     */
+    public int addPoints(Team team, int amount) {
+        this.points[team.ordinal()] += amounts;
     }
 
     /**
