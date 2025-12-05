@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import battlecode.common.CatStateType;
 import battlecode.common.Direction;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
@@ -63,6 +64,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private ArrayList<Trap> trapsToTrigger;
     private ArrayList<Boolean> enteredTraps;
 
+    private int currentWaypoint;
+    private CatStateType catState;
+    private MapLocation[] catWaypoints;
 
     /**
      * Create a new internal representation of a robot
@@ -107,6 +111,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.indicatorString = "";
 
         this.controller = new RobotControllerImpl(gameWorld, this);
+
+        this.currentWaypoint = 0;
+        this.catState = CatStateType.EXPLORE;
+
+        this.catWaypoints = gw.getGameMap().getCatWaypointsOrdered(id);
 
     }
 
@@ -222,7 +231,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
             return cachedRobotInfo;
         }
 
-        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, cheeseAmount, carryingRobot != null ? carryingRobot.getRobotInfo() : null, crouching);
+        this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, cheeseAmount,
+                carryingRobot != null ? carryingRobot.getRobotInfo() : null, crouching);
         return this.cachedRobotInfo;
     }
 
@@ -278,7 +288,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param toSense the MapLocation to sense
      */
     public boolean canSenseLocation(MapLocation toSense) {
-        return this.location.isWithinDistanceSquared(toSense, getVisionRadiusSquared(), this.dir, getVisionConeAngle(), this.type.usesTopRightLocationForDistance());
+        return this.location.isWithinDistanceSquared(toSense, getVisionRadiusSquared(), this.dir, getVisionConeAngle(),
+                this.type.usesTopRightLocationForDistance());
     }
 
     /**
@@ -321,7 +332,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param dy # amount to translate in y direction
      */
     public void setLocation(int dx, int dy) {
-        for(MapLocation partLoc : this.getAllPartLocations()){
+        for (MapLocation partLoc : this.getAllPartLocations()) {
             this.gameWorld.moveRobot(partLoc, partLoc.translate(dx, dy));
         }
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
@@ -427,7 +438,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     /**
      * Method callable by (baby) rat robots to deal small
-     * damage to opponent team's (baby) rat robots. 
+     * damage to opponent team's (baby) rat robots.
      *
      * @param loc the MapLocation to attempt to bite
      */
@@ -437,19 +448,19 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         if (!this.canSenseLocation(loc)) {
-            return; 
+            return;
         }
 
         // Must be an immediate neighbor
         int distSq = this.location.distanceSquaredTo(loc);
         if (distSq > 2 || distSq <= 0) {
-            return; 
+            return;
         }
 
         // Determine the direction from this rat to the target tile.
         Direction toTarget = this.location.directionTo(loc);
         if (toTarget == Direction.CENTER) {
-            return; 
+            return;
         }
 
         // If the rat has no facing direction, disallow biting
@@ -565,7 +576,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         this.setLocation(this.thrownDir.dx, this.thrownDir.dy);
-        
+
         if (this.actionCooldownTurns <= GameConstants.THROW_STUN_DURATION) {
             this.hitGround();
         }
@@ -588,6 +599,31 @@ public class InternalRobot implements Comparable<InternalRobot> {
             default:
                 // TODO
                 break;
+        }
+    }
+
+    public void canPounce(MapLocation loc){
+        //check if cat can pounce to this location; tries using all 4 parts of the cat landing on loc
+        
+    }
+
+    public void pounce(MapLocation loc) {
+        // Must be a cat
+        if (this.type != UnitType.CAT) {
+            throw new RuntimeException("Unit must be a cat to pounce!");
+        }
+        // disallow pounce to current tile or extremely far tiles
+        int distSq = this.location.distanceSquaredTo(loc);
+        if (distSq <= 0) {
+            return;
+        }
+        if (distSq > GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED) {
+            return;
+        }
+        // Landing tile must be on map and passable (no walls/dirt)
+
+        if (!this.gameWorld.isPassable(loc)) {
+            return;
         }
     }
 
@@ -636,7 +672,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // ****************************
     // ****** GETTER METHODS ******
     // ****************************
-    
 
     // *********************************
     // ****** GAMEPLAY METHODS *********
@@ -698,6 +733,31 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.bytecodesUsed, this.location);
         this.roundsAlive++;
+
+        // cat algo
+        if (this.type == UnitType.CAT) {
+            switch (this.catState) {
+                case EXPLORE:
+                    MapLocation waypoint = catWaypoints[currentWaypoint];
+                    Direction toWaypoint = this.location.directionTo(waypoint);
+                    if (this.location.equals(waypoint)) {
+                        currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
+                    } else {
+                        // move to waypoint
+                        
+                    }
+                    break;
+                case CHASE:
+                    // TODO
+                    break;
+                case SEARCH:
+                    // TODO
+                    break;
+                case ATTACK:
+                    // TODO
+                    break;
+            }
+        }
     }
 
     // *********************************
