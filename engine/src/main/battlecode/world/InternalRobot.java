@@ -64,6 +64,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private ArrayList<Trap> trapsToTrigger;
     private ArrayList<Boolean> enteredTraps;
 
+    private boolean hasTurned;
+
     /**
      * Create a new internal representation of a robot
      *
@@ -139,6 +141,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public Direction getDirection() {
         return dir;
+    }
+
+    public void setDirection(Direction newDir) {
+        this.dir = newDir;
     }
 
     public MapLocation[] getAllPartLocations() {
@@ -262,6 +268,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public int getVisionConeAngle() {
         return this.type.getVisionAngle();
+    }
+
+    public boolean hasTurned() {
+        return hasTurned;
+    }
+
+    public void setHasTurned(boolean hasTurned) {
+        this.hasTurned = hasTurned;
     }
 
     /**

@@ -447,22 +447,20 @@ public interface RobotController {
     // ***********************************
 
     /**
-     * Checks whether this robot can move one step in the given direction.
+     * Checks whether this robot can move one step in the direction it is facing.
      * Returns false if the robot is not in a mode that can move, if the target
      * location is not on the map, if the target location is occupied, if the target
      * location is impassible, or if there are cooldown turns remaining.
      *
-     * @param dir the direction to move in
      * @return true if it is possible to call <code>move</code> without an exception
      *
      * @battlecode.doc.costlymethod
      */
-    boolean canMove(Direction dir);
+    boolean canMoveForward();
 
     /**
-     * Moves one step in the given direction.
+     * Moves one step in the direction the robot is facing.
      *
-     * @param dir the direction to move in
      * @throws GameActionException if the robot cannot move one step in this
      *                             direction, such as cooldown being too high, the
      *                             target location being
@@ -472,7 +470,35 @@ public interface RobotController {
      *
      * @battlecode.doc.costlymethod
      */
-    void move(Direction dir) throws GameActionException;
+    void moveForward() throws GameActionException;
+
+    /**
+     * Checks whether this robot can turn a certain number of 45 degree steps clockwise.
+     * @param steps 
+     * @return
+     */
+    boolean canTurnCW(int steps);
+
+    /**
+     * Turns a certain number of 45 degree steps clockwise.
+     * @param steps
+     * @throws GameActionException
+     */
+    void turnCW(int steps) throws GameActionException;
+
+    /**
+     * Checks whether this robot can turn a certain number of 45 degree steps counter-clockwise.
+     * @param steps 
+     * @return
+     */
+    boolean canTurnCCW(int steps);
+
+    /**
+     * Turns a certain number of 45 degree steps counter-clockwise.
+     * @param steps
+     * @throws GameActionException
+     */
+    void turnCCW(int steps) throws GameActionException;
 
     // ***********************************
     // *********** BUILDING **************

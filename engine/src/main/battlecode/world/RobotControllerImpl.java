@@ -586,13 +586,12 @@ public final class RobotControllerImpl implements RobotController {
     // ****** MOVEMENT METHODS ***********
     // ***********************************
 
-    private void assertCanMove(Direction dir) throws GameActionException {
-        assertNotNull(dir);
+    private void assertCanMoveForward() throws GameActionException {
         assertIsMovementReady();
         MapLocation[] curLocs = robot.getAllPartLocations();
         MapLocation[] newLocs = new MapLocation[curLocs.length];
         for (int i = 0; i < newLocs.length; i++) {
-            newLocs[i] = curLocs[i].add(dir);
+            newLocs[i] = curLocs[i].add(robot.getDirection());
         }
         for (MapLocation loc : newLocs) {
             if (!onTheMap(loc))
@@ -608,9 +607,9 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public boolean canMove(Direction dir) {
+    public boolean canMoveForward() {
         try {
-            assertCanMove(dir);
+            assertCanMoveForward();
             return true;
         } catch (GameActionException e) {
             return false;
@@ -618,12 +617,13 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void move(Direction dir) throws GameActionException {
-        assertCanMove(dir);
+    public void moveForward() throws GameActionException {
+        assertCanMoveForward();
 
         // calculate set of next map locations
         MapLocation[] curLocs = robot.getAllPartLocations();
         MapLocation[] newLocs = new MapLocation[curLocs.length];
+        Direction dir = robot.getDirection();
         for (int i = 0; i < newLocs.length; i++) {
             MapLocation curLoc = curLocs[i];
             newLocs[i] = curLoc.add(dir);
@@ -636,18 +636,70 @@ public final class RobotControllerImpl implements RobotController {
 
             for(int j = this.gameWorld.getTrapTriggers(newLoc).size()-1; j >= 0; j--){
                 Trap trap = this.gameWorld.getTrapTriggers(newLoc).get(j);
-                if (trap.getTeam() == this.robot.getTeam()){
+                if (trap.getTeam() == this.robot.getTeam() || t.getType() == TrapType.RATTRAP){
                     continue;
                 }
                 this.robot.addTrapTrigger(trap, true);
-            }
-            for(Trap t : this.gameWorld.getTrapTriggers(newLoc)){
-                if(t.getType() == TrapType.RATTRAP && t.getTeam() != this.getTeam()){
-                    this.gameWorld.trapTriggered(t, robot);
-                }
-            }
-        }
+            }        }
+        
         this.robot.addMovementCooldownTurns();
+    }
+
+    private void assertCanTurn(int steps) throws GameActionException {
+        if (steps < 0) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Number of steps to turn must be non-negative");
+        }
+        if (steps > 2) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "Can only turn up to 2 steps (90 degrees) at a time");
+        }
+        if (this.robot.hasTurned()) {
+            throw new GameActionException(CANT_DO_THAT,
+                    "This robot has already turned this turn");
+        }
+    }
+
+    @Override
+    public boolean canTurnCW(int steps) {
+        try {
+            assertCanTurn(steps);
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void turnCW(int steps) throws GameActionException {
+        assertCanTurn(steps);
+        Direction newDir = this.robot.getDirection();
+        for (int i = 0; i < steps; i++) {
+            newDir = newDir.rotateRight();
+        }
+        this.robot.setDirection(newDir);
+        this.robot.setHasTurned(true);
+    }
+
+    @Override
+    public boolean canTurnCCW(int steps) {
+        try {
+            assertCanTurn(steps);
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void turnCCW(int steps) throws GameActionException {
+        assertCanTurn(steps);
+        Direction newDir = this.robot.getDirection();
+        for (int i = 0; i < steps; i++) {
+            newDir = newDir.rotateLeft();
+        }
+        this.robot.setDirection(newDir);
+        this.robot.setHasTurned(true);
     }
 
     // ***********************************
