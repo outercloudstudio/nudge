@@ -54,8 +54,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private int sentMessagesCount;
 
     private boolean crouching;
-    private int chirality; // 
-
+    private int chirality; //
 
     /**
      * Used to avoid recreating the same RobotInfo object over and over.
@@ -70,6 +69,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private int currentWaypoint;
     private CatStateType catState;
     private MapLocation[] catWaypoints;
+    private MapLocation catTargetLoc;
+    private int catTurns;
+    private InternalRobot catTarget;
 
     /**
      * Create a new internal representation of a robot
@@ -119,6 +121,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.catState = CatStateType.EXPLORE;
 
         this.catWaypoints = gw.getGameMap().getCatWaypointsOrdered(id);
+        this.catTargetLoc = this.catWaypoints[0];
+        this.catTurns = 0;
 
     }
 
@@ -340,6 +344,16 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = this.location.translate(dx, dy);
+    }
+
+    public boolean canMove(int dx, int dy) {
+        for (MapLocation partLoc : this.getAllPartLocations()) {
+            MapLocation newLoc = partLoc.translate(dx, dy);
+            if (!this.gameWorld.isPassable(newLoc)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void setInternalLocationOnly(MapLocation loc) {
@@ -605,7 +619,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-    public void pounce(MapLocation loc) {
+    public boolean canPounce(MapLocation loc) {
         // Must be a cat
         if (this.type != UnitType.CAT) {
             throw new RuntimeException("Unit must be a cat to pounce!");
@@ -613,70 +627,77 @@ public class InternalRobot implements Comparable<InternalRobot> {
         // disallow pounce to current tile or extremely far tiles
         int distSq = this.location.distanceSquaredTo(loc);
         if (distSq <= 0) {
-            return;
+            return false;
         }
         if (distSq > GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED) {
-            return;
+            return false;
         }
         // Landing tile must be on map and passable (no walls/dirt)
 
         if (!this.gameWorld.isPassable(loc)) {
-            return;
+            return false;
         }
 
-        // Check each part of the robot to see if we can pounce so that the part lands on the target location
-        MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
-        
+        return true;
+    }
+
+    public void pounce(MapLocation loc) {
+        if (!canPounce(loc))
+            return;
+
         MapLocation cornerToTest;
         Direction rotateDir;
+        // Check each part of the robot to see if we can pounce so that the part lands
+        // on the target location
+        MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
 
-        if (chirality==0){
+        if (chirality == 0) {
             cornerToTest = this.getLocation();
             rotateDir = Direction.EAST;
-        }
-        else{
+        } else {
             switch (symmetry) {
-                case VERTICAL: 
+                case VERTICAL:
                     cornerToTest = loc.add(Direction.EAST);
                     rotateDir = Direction.WEST;
-                case HORIZONTAL: 
+                case HORIZONTAL:
                     cornerToTest = loc.add(Direction.SOUTH);
                     rotateDir = Direction.NORTH;
                 case ROTATIONAL:
                     cornerToTest = loc.add(Direction.SOUTHEAST);
                     rotateDir = Direction.WEST;
-                default: 
+                default:
                     throw new RuntimeException("Invalid symmetry");
             }
         }
-        for(int i=0; i<4; i+=1){
+
+        for (int i = 0; i < 4; i += 1) {
             // attempt pounce that matches cornerToTest to target location
             Direction directionFromCornerToTestToCenter = cornerToTest.directionTo(this.getLocation());
 
-            // dx and dy from top left corner 
+            // dx and dy from top left corner
             // assuming getLocation returns the top left corner of the cat
-            int dx = directionFromCornerToTestToCenter.dx + (loc.x - this.getLocation().x); 
-            int dy = directionFromCornerToTestToCenter.dy + (loc.y - this.getLocation().y); 
+            int dx = directionFromCornerToTestToCenter.dx + (loc.x - this.getLocation().x);
+            int dy = directionFromCornerToTestToCenter.dy + (loc.y - this.getLocation().y);
 
-            boolean isWithinPounceDistance = (this.getLocation().topRightDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
+            boolean isWithinPounceDistance = (this.getLocation()
+                    .topRightDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
             boolean landingTilesPassable = true;
 
             // check passability of all landing tiles
-            for (MapLocation tile : this.getAllPartLocations()){
-                if(!this.gameWorld.isPassable(tile)){
+            for (MapLocation tile : this.getAllPartLocations()) {
+                if (!this.gameWorld.isPassable(tile)) {
                     landingTilesPassable = false;
                 }
             }
-            if(isWithinPounceDistance && landingTilesPassable){
+            if (isWithinPounceDistance && landingTilesPassable) {
                 this.setLocation(dx, dy);
             }
             // try another robot part
             cornerToTest.add(rotateDir);
-            if (chirality == 0){
+            if (chirality == 0) {
                 rotateDir = rotateDir.rotateRight();
                 rotateDir = rotateDir.rotateRight();
-            }
-            else{
+            } else {
                 rotateDir = rotateDir.rotateLeft();
                 rotateDir = rotateDir.rotateLeft();
             }
@@ -793,26 +814,146 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.roundsAlive++;
 
         // cat algo
+        // TODO: cat does not care about rats that attack it over other rats, also
+        // nothing about feeding has been added
         if (this.type == UnitType.CAT) {
             switch (this.catState) {
                 case EXPLORE:
                     MapLocation waypoint = catWaypoints[currentWaypoint];
-                    Direction toWaypoint = this.location.directionTo(waypoint);
                     if (this.location.equals(waypoint)) {
                         currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
-                    } else {
-                        // move to waypoint
-                        
                     }
+
+                    this.dir = this.location.directionTo(catWaypoints[currentWaypoint]);
+
+                    // try seeing nearby rats
+                    Message squeak = getFrontMessage();
+                    InternalRobot[] nearbyRobots = this.gameWorld.getAllRobotsWithinConeRadiusSquared(this.location,
+                            this.dir, getVisionConeAngle(), getVisionRadiusSquared(), team);
+
+                    boolean ratVisible = false;
+                    InternalRobot rat = null;
+                    for (InternalRobot r : nearbyRobots) {
+                        if (r.getType().isRatType()) {
+                            ratVisible = true;
+                            rat = r;
+                        }
+                    }
+
+                    if (ratVisible) {
+                        // upon seeing a rat immediately go to attack it, otherwise chase then search
+                        this.catTargetLoc = rat.getLocation();
+                        this.catState = CatStateType.ATTACK;
+                        this.catTarget = rat;
+                    } else if (squeak != null) {
+                        this.catTargetLoc = squeak.getSource();
+                        this.catState = CatStateType.CHASE;
+                    } else {
+                        this.catTargetLoc = waypoint;
+                    }
+
+                    Direction toWaypoint = this.location.directionTo(this.catTargetLoc);
+                    MapLocation nextLoc = waypoint.add(toWaypoint);
+                    this.dir = this.location.directionTo(this.catTargetLoc);
+
+                    if (this.movementCooldownTurns == 0 && canMove(toWaypoint.getDeltaX(), toWaypoint.getDeltaY())) {
+                        setLocation(toWaypoint.getDeltaX(), toWaypoint.getDeltaY());
+                    } else {
+                        if (this.actionCooldownTurns == 0 && (this.gameWorld.getDirt(nextLoc))) {
+                            this.gameWorld.setDirt(nextLoc, false);
+                            this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                        }
+                    }
+
                     break;
                 case CHASE:
-                    // TODO
+                    Direction toTarget = this.location.directionTo(this.catTargetLoc);
+                    this.dir = this.location.directionTo(this.catTargetLoc);
+
+                    if (this.location.equals(this.catTargetLoc)) {
+                        this.catState = CatStateType.SEARCH;
+                    }
+
+                    // pounce towards target if possible
+                    if (canActCooldown() && canPounce(this.catTargetLoc)) {
+                        pounce(this.catTargetLoc);
+                    } else if (canMoveCooldown() && canMove(this.dir.getDeltaX(), this.dir.getDeltaY())) {
+                        setLocation(this.dir.getDeltaX(), this.dir.getDeltaY());
+                    } else {
+                        if (canActCooldown() && (this.gameWorld.getDirt(nextLoc))) {
+                            this.gameWorld.setDirt(nextLoc, false);
+                            this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                        }
+                    }
                     break;
                 case SEARCH:
-                    // TODO
+                    if (this.catTurns >= 16) {
+                        this.catTurns = 0;
+                        this.catState = CatStateType.EXPLORE;
+                        break;
+                    }
+
+                    this.dir = this.dir.rotateLeft().rotateLeft();
+
+                    nearbyRobots = this.gameWorld.getAllRobotsWithinConeRadiusSquared(this.location, this.dir,
+                            getVisionConeAngle(), getVisionRadiusSquared(), team);
+
+                    ratVisible = false;
+                    rat = null;
+                    for (InternalRobot r : nearbyRobots) {
+                        if (r.getType().isRatType()) {
+                            ratVisible = true;
+                            rat = r;
+                        }
+                    }
+
+                    if (ratVisible) {
+                        this.catTargetLoc = rat.getLocation();
+                        this.catTarget = rat;
+                        this.catState = CatStateType.ATTACK;
+                    }
+
+                    this.catTurns += 1;
                     break;
                 case ATTACK:
-                    // TODO
+                    // step 1: try to find the rat it was attacking, if cannot find it go back to
+                    // explore
+                    nearbyRobots = this.gameWorld.getAllRobotsWithinConeRadiusSquared(this.location, this.dir,
+                            getVisionConeAngle(), getVisionRadiusSquared(), team);
+
+                    ratVisible = false;
+                    for (InternalRobot r : nearbyRobots) {
+                        if (r.equals(this.catTarget)) {
+                            ratVisible = true;
+                            this.catTargetLoc = this.catTarget.getLocation();
+                        }
+                    }
+
+                    if (!ratVisible) {
+                        this.catState = CatStateType.EXPLORE;
+                        break;
+                    }
+
+                    // step 2: try to attack it and move towards it
+
+                    if (canActCooldown()) {
+                        attack(this.catTarget.getLocation());
+                    }
+
+                    this.dir = this.location.directionTo(this.catTargetLoc);
+
+                    // pounce towards target if possible
+                    if (canActCooldown() && canPounce(this.catTargetLoc)) {
+                        pounce(this.catTargetLoc);
+                    } else if (canMoveCooldown() && canMove(this.dir.getDeltaX(), this.dir.getDeltaY())) {
+                        setLocation(this.dir.getDeltaX(), this.dir.getDeltaY());
+                    } else {
+                        if (canActCooldown() && (this.gameWorld.getDirt(nextLoc))) {
+                            this.gameWorld.setDirt(nextLoc, false);
+                            this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                        }
+                    }
+
                     break;
             }
         }
