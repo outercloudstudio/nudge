@@ -887,7 +887,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     }
                     break;
                 case SEARCH:
-                    if (this.catTurns >= 16) {
+                    if (this.catTurns >= 4) {
                         this.catTurns = 0;
                         this.catState = CatStateType.EXPLORE;
                         break;
