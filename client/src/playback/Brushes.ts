@@ -289,15 +289,7 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
             const cheeseMine = this.map.cheeseMines.findIndex((l) => squareIntersects(l, pos, 2))
             const dirt = this.map.initialDirt[idx]
 
-            let tower = undefined
-            for (const b of this.bodies.bodies.values()) {
-                if (squareIntersects(pos, b.pos, 2)) {
-                    tower = b
-                    break
-                }
-            }
-
-            if (tower || cheeseMine !== -1 || dirt) return true
+            if (cheeseMine !== -1 || dirt) return true
 
             this.map.walls[idx] = 1
         }
@@ -375,23 +367,10 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
             type: MapEditorBrushFieldType.ADD_REMOVE,
             value: true
         },
-        team: {
-            type: MapEditorBrushFieldType.TEAM,
-            value: 0
-        },
         radius: {
             type: MapEditorBrushFieldType.POSITIVE_INTEGER,
             value: 1,
             label: 'Radius'
-        },
-        paintType: {
-            type: MapEditorBrushFieldType.SINGLE_SELECT,
-            value: 0,
-            label: 'Paint Type',
-            options: [
-                { value: 0, label: 'Primary' },
-                { value: 1, label: 'Secondary' }
-            ]
         }
     }
 
@@ -401,14 +380,14 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
     }
 
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
-        const add = (idx: number, value: number) => {
+        const add = (idx: number) => {
             // Check if this is a valid paint location
             const pos = this.map.indexToLocation(idx)
             const cheeseMine = this.map.staticMap.cheeseMines.find((r) => r.x === pos.x && r.y === pos.y)
             const wall = this.map.staticMap.walls[idx]
             const body = this.bodies.getBodyAtLocation(pos.x, pos.y)
             if (body || cheeseMine || wall) return true
-            this.map.dirt[idx] = value
+            this.map.dirt[idx] = 1
             this.map.staticMap.initialDirt[idx] = this.map.dirt[idx]
         }
 
@@ -422,10 +401,7 @@ export class DirtBrush extends SymmetricMapEditorBrush<CurrentMap> {
         applyInRadius(this.map, x, y, radius, (idx) => {
             const prevDirt = this.map.dirt[idx]
             if (fields.shouldAdd.value) {
-                let teamIdx = robotOne ? 0 : 1
-                if (fields.team.value === 1) teamIdx = 1 - teamIdx
-                const newVal = teamIdx * 2 + 1 + fields.paintType.value
-                if (add(idx, newVal)) return
+                if (add(idx)) return
                 changes.push({ idx, prevDirt })
             } else {
                 remove(idx)
