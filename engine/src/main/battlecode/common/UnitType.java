@@ -2,9 +2,9 @@ package battlecode.common;
 
 public enum UnitType {
     // health, size, speed, visionRadius, actionCooldown
-    RAT(10, 1, 5, 250, 90, 0),
-    RAT_KING(50, 3, 1, 150, 360, -1),
-    CAT(500,2,10,0,180, 0);
+    RAT(10, 1, 5, 250, 90, 0, 17500),
+    RAT_KING(50, 3, 1, 150, 360, -1, 20000),
+    CAT(500,2,10,0,180, 0, -1);
 
     // amount of health robot initially starts with
     public final int health;
@@ -23,6 +23,9 @@ public enum UnitType {
 
     // amount action cooldown gets incremented for taking an action
     public final int actionCooldown;
+
+    // robot's bytecode limit
+    public final int bytecodeLimit;
 
     public boolean usesTopRightLocationForDistance(){
         return this.size % 2 == 0;
@@ -64,13 +67,14 @@ public enum UnitType {
         return locs;
     }
   
-    UnitType(int health, int size, int speed, int visionConeRadius, int visionConeAngle, int actionCooldown) {
+    UnitType(int health, int size, int speed, int visionConeRadius, int visionConeAngle, int actionCooldown, int bytecodeLimit) {
         this.health = health;
         this.size = size;
         this.speed = speed;
         this.visionConeRadius = visionConeRadius;
         this.visionConeAngle = visionConeAngle;
         this.actionCooldown = actionCooldown;
+        this.bytecodeLimit = bytecodeLimit;
     }
 
     // Getters 
@@ -80,4 +84,5 @@ public enum UnitType {
     public int getVisionRadius() { return visionConeRadius; }
     public int getVisionAngle() { return visionConeAngle; }
     public int getActionCooldown() { return actionCooldown; }
+    public int getBytecodeLimit() {return bytecodeLimit; }
 }

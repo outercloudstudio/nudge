@@ -92,8 +92,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.cheeseAmount = 0;
 
         this.controlBits = 0;
-        this.currentBytecodeLimit = type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT
-                : GameConstants.TOWER_BYTECODE_LIMIT;
+        this.currentBytecodeLimit = type.bytecodeLimit;
         this.bytecodesUsed = 0;
 
         this.roundsAlive = 0;
@@ -125,15 +124,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public int getID() {
         return ID;
     }
-
-    // public boolean isCenterRobot(){
-    // return this.offsetToCenter == Direction.CENTER;
-    // }
-
-    // public InternalRobot getCenterRobot(){
-    // MapLocation centerLocation = this.location.add(offsetToCenter);
-    // return this.gameWorld.getRobot(centerLocation);
-    // }
 
     public Team getTeam() {
         return team;
@@ -168,6 +158,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void addCheese(int amount) {
+        // TODO: idk if I used this method correctly in my paint -> cheese changes, maybe look through uses of this and check
         if (this.cheeseAmount + amount >= 0) {
             this.cheeseAmount += amount;
         } else {
@@ -335,31 +326,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Upgrades the level of a tower.
-     * 
-     * @param robot the tower to be upgraded
-     */
-    public void upgradeTower(UnitType newType) {
-        int damage = this.type.health - getHealth();
-        this.type = newType;
-        this.health = newType.health - damage;
-    }
-
-    /**
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int paintPercentage = (int) Math.round(this.paintAmount * 100.0 / this.type.paintCapacity);
-        /*
-         * TODO this is paint depletion logic and can probably be removed
-         * if (paintPercentage < GameConstants.INCREASED_COOLDOWN_THRESHOLD &&
-         * type.isRobotType()) {
-         * numActionCooldownToAdd += (int) Math.round(numActionCooldownToAdd
-         * (GameConstants.INCREASED_COOLDOWN_INTERCEPT +
-         * GameConstants.INCREASED_COOLDOWN_SLOPE * paintPercentage)
-         * / 100.0);
-         * }
-         */
         setActionCooldownTurns(this.actionCooldownTurns + numActionCooldownToAdd);
     }
 
@@ -368,17 +337,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public void addMovementCooldownTurns() {
         int movementCooldown = GameConstants.MOVEMENT_COOLDOWN;
-        int paintPercentage = (int) Math.round(this.paintAmount * 100.0 / this.type.paintCapacity);
-        /*
-         * TODO this is paint depletion logic and can probably be removed
-         * if (paintPercentage < GameConstants.INCREASED_COOLDOWN_THRESHOLD &&
-         * type.isRobotType()) {
-         * movementCooldown += (int) Math.round(movementCooldown
-         * (GameConstants.INCREASED_COOLDOWN_INTERCEPT +
-         * GameConstants.INCREASED_COOLDOWN_SLOPE * paintPercentage)
-         * / 100.0);
-         * }
-         */
         this.setMovementCooldownTurns(this.movementCooldownTurns + movementCooldown);
     }
 
@@ -406,11 +364,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        InternalRobot centerRobot = this.getCenterRobot();
-        centerRobot.health += healthAmount;
-        centerRobot.health = Math.min(this.health, this.type.health);
-        if (centerRobot.health <= 0) {
-            this.gameWorld.destroyRobot(centerRobot.ID, false, true);
+        health += healthAmount;
+        health = Math.min(this.health, this.type.health);
+        if (health <= 0) {
+            this.gameWorld.destroyRobot(ID, false, true);
         }
     }
 
@@ -588,7 +545,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void attack(MapLocation loc) {
         switch (this.getType()) {
             case RAT:
-                bite(loc);
+                // TODO: bite takes in an amount of cheese consumed. How are competitors going to supply this?
+                bite(loc, -1);
                 break;
             case CAT:
                 scratch(loc);
@@ -654,16 +612,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.cleanMessages();
         this.indicatorString = "";
         this.diedLocation = null;
-        if (this.type.paintPerTurn != 0)
-            addPaint(this.type.paintPerTurn);
-        if (this.type.moneyPerTurn != 0)
-            this.gameWorld.getTeamInfo().addMoney(this.team, this.type.moneyPerTurn);
-
-        // Add upgrade action for initially upgraded starting towers
-        if (this.type.isTowerType() && this.gameWorld.getCurrentRound() == 1 && this.type.level == 2) {
-            this.getGameWorld().getMatchMaker().addUpgradeAction(getID(), getHealth(),
-                    getType().health, getPaint(), getType().paintCapacity);
-        }
     }
 
     public void processBeginningOfTurn() {
@@ -675,8 +623,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 this.travelFlying(); // This will call hitGround if we hit something or run out of time
             }
         }
-        this.currentBytecodeLimit = this.type.isRobotType() ? GameConstants.ROBOT_BYTECODE_LIMIT
-                : GameConstants.TOWER_BYTECODE_LIMIT;
+        this.currentBytecodeLimit = this.getType().bytecodeLimit;
         this.gameWorld.getMatchMaker().startTurn(this.ID);
     }
 

@@ -113,6 +113,7 @@ public class RobotInfo {
      */
     public int getRawCheeseAmount() {
         return this.cheeseAmount;
+    }
 
     /**
      * Returns whether or not the robot is crouching
@@ -167,7 +168,7 @@ public class RobotInfo {
                 ", team=" + team +
                 ", health=" + health +
                 ", location=" + location +
-                ", paint amount=" + cheeseAmount +
+                ", cheese amount=" + cheeseAmount +
                 ", crouching=" + crouching +
                 ", carrying=" + carryingRobot +
                 '}';

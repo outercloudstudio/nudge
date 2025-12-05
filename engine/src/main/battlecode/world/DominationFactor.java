@@ -4,6 +4,7 @@ package battlecode.world;
  * Determines roughly by how much the winning team won.
  */
 public enum DominationFactor {
+    // TODO: update with new win conditions
     /**
      * Win by painting more than {@value battlecode.common.GameConstants#PAINT_PERCENT_TO_WIN}% of the map.
      */

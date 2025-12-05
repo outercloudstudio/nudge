@@ -15,10 +15,9 @@ public class TeamInfo {
     private GameWorld gameWorld;
     private int[] globalCheese;
     private int[] dirtCounts;
-    private int[] totalPaintedSquares;
-    private int[] totalNumberOfTowers;
     private int[] oldCheeseCounts;
     private int[] totalNumRats;
+    private int[] points;
 
     /**
      * Create a new representation of TeamInfo
@@ -30,9 +29,8 @@ public class TeamInfo {
         this.globalCheese = new int[2];
         this.dirtCounts = new int[2];
         this.oldCheeseCounts = new int[2];
-        this.totalPaintedSquares = new int[2];
-        this.totalNumberOfTowers = new int[2];
         this.totalNumRats = new int[2];
+        this.points = new int[2];
     }
 
     // *********************************
@@ -60,28 +58,6 @@ public class TeamInfo {
         return this.dirtCounts[team.ordinal()];
     }
 
-    /**
-     * Get the total number of squares painted by the team over the game
-     * 
-     * @param team the team to query
-     * @return the number of squares painted
-     */
-
-    public int getNumberOfPaintedSquares(Team team) {
-        return this.totalPaintedSquares[team.ordinal()];
-    }
-
-    /**
-     * Get the total number of towers belonging to a team
-     * 
-     * @param team the team to query
-     * @return the number of towers the team has
-     */
-
-    public int getTotalNumberOfTowers(Team team) {
-        return this.totalNumberOfTowers[team.ordinal()];
-    }
-
      /**
      * Get the total number of rats belonging to a team
      * @param team the team to query
@@ -92,24 +68,12 @@ public class TeamInfo {
     }
 
     /**
-     * Change the total number of squares painted by the team over the game
-     * 
+     * Get the amount of points belonging to a team
      * @param team the team to query
+     * @return the number of points the team has
      */
-
-    public void addPaintedSquares(int num, Team team) {
-        this.totalPaintedSquares[team.ordinal()] += num;
-        int areaWithoutWalls = this.gameWorld.getAreaWithoutWalls();
-    }    
-
-    /**
-     * Change the total number of towers belonging to a team
-     * 
-     * @param team the team to query
-     */
-
-    public void addTowers(int num, Team team) {
-        this.totalNumberOfTowers[team.ordinal()] += num;
+    public int getPoints(Team team){
+        return this.points[team.ordinal()];
     }
 
     /**
@@ -125,18 +89,28 @@ public class TeamInfo {
     // *********************************
 
     /**
-     * Add to the amount of money. If amount is negative, subtract from money
+     * Add to the amount of cheese. If amount is negative, subtract from cheese
      * instead.
      * 
      * @param team   the team to query
-     * @param amount the change in the money count
-     * @throws IllegalArgumentException if the resulting amount of money is negative
+     * @param amount the change in the cheese count
+     * @throws IllegalArgumentException if the resulting amount of cheese is negative
      */
     public void addCheese(Team team, int amount) throws IllegalArgumentException {
         if (this.globalCheese[team.ordinal()] + amount < 0) {
             throw new IllegalArgumentException("Invalid cheese change");
         }
         this.globalCheese[team.ordinal()] += amount;
+    }
+
+    /**
+     * Get the amount of points.
+     * 
+     * @param team the team to query
+     * @param amount the change in the amount of points
+     */
+    public int addPoints(Team team, int amount) {
+        this.points[team.ordinal()] += amounts;
     }
 
     /**

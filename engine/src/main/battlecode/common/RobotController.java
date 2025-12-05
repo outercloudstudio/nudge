@@ -112,24 +112,6 @@ public interface RobotController {
     public int getAllCheese();
 
     /**
-     * Returns the amount of money that this robot's team has.
-     *
-     * @return the amount of money this robot's team has
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getMoney();
-
-    /**
-     * Alias for getMoney
-     *
-     * @return the amount of money this robot's team has
-     *
-     * @battlecode.doc.costlymethod
-     */
-    int getChips();
-
-    /**
      * Returns the amount of dirt that this robot's team has.
      * 
      * @return the amount of dirt this robot's team has
@@ -146,15 +128,6 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     UnitType getType();
-
-    /**
-     * Returns how many allied towers are currently alive.
-     * 
-     * @return the number of alive allied towers.
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    int getNumberTowers();
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****
@@ -527,64 +500,6 @@ public interface RobotController {
     void buildRobot(MapLocation loc) throws GameActionException;
 
     /**
-     * Checks if the location can be marked.
-     * 
-     * @param loc the location to mark
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canMark(MapLocation loc);
-
-    /**
-     * Adds a mark at the given location.
-     * 
-     * @param loc       the location to mark
-     * @param secondary whether the secondary color should be used
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void mark(MapLocation loc, boolean secondary) throws GameActionException;
-
-    /**
-     * Checks if a mark at the location can be removed.
-     * 
-     * @param loc the location that has the mark
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canRemoveMark(MapLocation loc);
-
-    /**
-     * Removes the mark at the given location.
-     * 
-     * @param loc the location that has the mark
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void removeMark(MapLocation loc) throws GameActionException;
-
-    /**
-     * Checks if a tower can be upgraded by verifying conditions on the location,
-     * team,
-     * tower level, and cost.
-     * 
-     * @param loc the location to upgrade the tower at
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canUpgradeTower(MapLocation loc);
-
-    /**
-     * Upgrades a tower if possible; subtracts the corresponding amount of money
-     * from the team.
-     * 
-     * @param loc the location to upgrade the tower at
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void upgradeTower(MapLocation loc) throws GameActionException;
-
-    /**
      * Tests whether this robot can place dirt at the given location.
      * 
      * @param loc
@@ -687,16 +602,6 @@ public interface RobotController {
     // ****************************
 
     /**
-     * Tests whether this robot can paint the given location.
-     * 
-     * @param loc target location to paint
-     * @return true if rc.attack(loc) will paint the given location
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    boolean canPaint(MapLocation loc);
-
-    /**
      * Tests whether this robot can attack the given location. Types of
      * attacks for specific units determine whether or not towers, other
      * robots, or empty tiles can be attacked.
@@ -708,6 +613,7 @@ public interface RobotController {
      */
     boolean canAttack(MapLocation loc);
 
+    // TODO: updaate docstrings from paint related stuff to rat related stuff
     /**
      * Performs the specific attack for this robot type, defaulting to the
      * primary color
@@ -752,34 +658,30 @@ public interface RobotController {
     // ***********************************
 
     /**
-     * Tests whether you can transfer paint to a given robot/tower.
+     * Tests whether you can transfer cheese to a given rat king.
      * 
-     * You can give paint to an allied robot/tower if you are a mopper and can act
-     * at the
-     * given location.
-     * You can take paint from allied towers regardless of type, if you can act
-     * at the location. Pass in a negative number to take paint.
+     * You can give cheese to an allied rat king if you are a rat, can act
+     * at the given location, and have enough raw cheese in your local stash.
      * 
-     * @param loc    the location of the robot/tower to transfer paint to
-     * @param amount the amount of paint to transfer. Positive to give paint,
-     *               negative to take paint.
-     * @return true if the robot can transfer paint to a robot/tower at the given
+     * @param loc    the location of the rat king to transfer cheese to
+     * @param amount the amount of cheese to transfer. Positive to give cheese.
+     * @return true if the robot can transfer cheese to a rat king at the given
      *         location
      */
-    boolean canTransferPaint(MapLocation loc, int amount);
+    boolean canTransferCheese(MapLocation loc, int amount);
 
     /**
-     * Transfers paint from the robot's stash to the stash of the allied
-     * robot or tower at loc. Pass in a negative number to take paint, positive
-     * to give paint.
+     * Transfers raw cheese from the robot's stash to the stash of the allied
+     * rat king at loc. Pass in a negative number to take paint, positive
+     * to give paint. Raw cheese transferred to a rat king becomes global cheese,
+     * usable by any robot.
      * 
-     * @param loc    the location of the robot/tower to transfer paint to
-     * @param amount the amount of paint to transfer. Positive to give paint,
-     *               negative to take paint.
-     * @throws GameActionException if the robot is not able to transfer paint to the
+     * @param loc    the location of the rat king to transfer cheese to
+     * @param amount the amount of cheese to give. Should be > 0
+     * @throws GameActionException if the robot is not able to transfer cheese to the
      *                             location
      */
-    void transferPaint(MapLocation loc, int amount) throws GameActionException;
+    void transferCheese(MapLocation loc, int amount) throws GameActionException;
 
     /**
      * Destroys the robot.
@@ -853,3 +755,4 @@ public interface RobotController {
      */
     void setTimelineMarker(String label, int red, int green, int blue);
 }
+// TODO: update bytecode costs, particularly for new methods + methods that got renamed from last year

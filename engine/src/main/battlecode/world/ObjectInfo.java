@@ -138,6 +138,8 @@ public class ObjectInfo {
     //     // robotIndex.add(fromPoint(newLocation),robot.getID());
     // }
 
+    // TODO: do we need this robot index stuff anymore? can we just delete it?
+
     public void clearRobotIndex(InternalRobot robot) {
         // robotIndex.delete(fromPoint(robot.getLocation()), robot.getID());
     }

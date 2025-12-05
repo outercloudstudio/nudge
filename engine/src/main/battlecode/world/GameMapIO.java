@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
+// TODO: map serialization and deserialization
 /**
  * This class contains the code for reading a flatbuffer map file and converting
  * it
@@ -33,9 +33,9 @@ public final class GameMapIO {
     private static final ClassLoader BACKUP_LOADER = GameMapIO.class.getClassLoader();
 
     /**
-     * The file extension for battlecode 2025 match files.
+     * The file extension for battlecode 2026 match files.
      */
-    public static final String MAP_EXTENSION = ".map25";
+    public static final String MAP_EXTENSION = ".map26";
 
     /**
      * The package we check for maps in if they can't be found in the file system.

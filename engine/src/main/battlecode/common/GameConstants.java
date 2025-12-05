@@ -43,12 +43,6 @@ public class GameConstants {
     /** The maximum number of rounds in a game. **/
     public static final int GAME_MAX_NUMBER_OF_ROUNDS = 2000;
 
-    /** The maximum number of bytecodes a robot is allowed to use in one turn */
-    public static final int ROBOT_BYTECODE_LIMIT = 17500;
-
-    /** The maximum number of bytecodes a tower is allowed to use in one turn */
-    public static final int TOWER_BYTECODE_LIMIT = 20000;
-
     /**
      * The maximum length of indicator strings that a player can associate with a
      * robot.
@@ -61,8 +55,8 @@ public class GameConstants {
     /** The bytecode penalty that is imposed each time an exception is thrown. */
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
-    /** The amount of money each team starts with. */
-    public static final int INITIAL_TEAM_MONEY = 2500; // TODO need to specify!
+    /** The amount of cheese each team starts with. */
+    public static final int INITIAL_TEAM_CHEESE = 2500; // TODO need to specify!
 
     /** The maximum number of rat kings that a team can have. */
     public static final int MAX_NUMBER_OF_RAT_KINGS = 5; // TODO need to specify!
@@ -97,18 +91,15 @@ public class GameConstants {
     /** The number of rat kings a player starts with. */
     public static final int NUMBER_INITIAL_RAT_KINGS = 1;
 
-    /** The maximum distance for marking a map location or removing a marker */
-    public static final int MARK_RADIUS_SQUARED = 2;
-
-    /**
-     * The maximum distance for transferring paint from/to an ally robot or tower
-     */
-    public static final int PAINT_TRANSFER_RADIUS_SQUARED = 2;
     /** The maximum distance for transferring cheese to an allied rat king or dropping it on the ground */
     public static final int CHEESE_DROP_RADIUS_SQUARED = 2;
 
     /** The maximum number of traps a team can have at a given time */
     public static final int MAX_TRAP_COUNT = 25;
+
+    // TODO: this is a meaningless number that I added to remove compilation errors
+    // We should go through every usage of this and either make it a game constant or part of unit type
+    public static final int ACTION_RADIUS_SQUARED = -1;
 
     /** The maximum distance from a rat king for building robots */
     public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;
@@ -121,6 +112,7 @@ public class GameConstants {
 
     /** The number of allied rats needed to increase the base cost of a rat by BUILD_ROBOT_COST_INCREASE */
     public static final int NUM_ROBOTS_FOR_COST_INCREASE = 4;
+
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
 
@@ -139,14 +131,8 @@ public class GameConstants {
     /** The maximum number of messages a robot can send per turn */
     public static final int MAX_MESSAGES_SENT_ROBOT = 1; // TODO need to spec messages as a whole!
 
-    /** The maximum number of messages a tower can send per turn */
-    public static final int MAX_MESSAGES_SENT_TOWER = 20;
-
     /** The maximum squared radius a robot can squeak to */
     public static final int SQUEAK_RADIUS_SQUARED = 16;
-
-    /** A robot takes this much damage every time it ends a turn with 0 paint */
-    public static final int NO_PAINT_DAMAGE = 20;
 
     /** The damage a thrown rat takes upon hitting the ground or a target */
     public static final int THROW_DAMAGE = 20;
@@ -162,10 +148,6 @@ public class GameConstants {
 
     /** The minimum gap between an enemy robot's health and our own before we can grab it from all angles */
     public static final int HEALTH_GRAB_THRESHOLD = 0;
-
-    /** The area effected by the splasher's attack. Within this radius, empty tiles are painted and towers are damaged */
-    public static final int SPLASHER_ATTACK_AOE_RADIUS_SQUARED = 4;
-    public static final int MAX_MESSAGES_SENT_TOWER = 20; // TODO need to spec messages as a whole!
 
     /** The area effected by the cat's attack. */
     public static final int CAT_ATTACK_AOE_RADIUS_SQUARED = 4; // TODO need to specify!

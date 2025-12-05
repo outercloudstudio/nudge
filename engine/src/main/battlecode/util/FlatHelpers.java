@@ -18,6 +18,8 @@ import gnu.trove.TIntArrayList;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 
+// TODO; update as necessary for whatever's need with GameMaker stuff
+
 /**
  * Misc. helper functions for working with flatbuffers.
  *
