@@ -254,7 +254,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanPlaceRatTrap(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.ACTION_RADIUS_SQUARED);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (this.gameWorld.getWall(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place rat trap on a wall!");
@@ -268,7 +268,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanRemoveRatTrap(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.ACTION_RADIUS_SQUARED);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (!this.gameWorld.hasRatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "No rat trap to remove at that location!");
@@ -278,7 +278,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanPlaceCatTrap(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.ACTION_RADIUS_SQUARED);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (this.gameWorld.getWall(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place cat trap on a wall!");
@@ -292,7 +292,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanRemoveCatTrap(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.ACTION_RADIUS_SQUARED);
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (!this.gameWorld.hasCatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "No cat trap to remove at that location!");

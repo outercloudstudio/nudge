@@ -6,29 +6,13 @@ package battlecode.world;
 public enum DominationFactor {
     // TODO: update with new win conditions
     /**
-     * Win by painting more than {@value battlecode.common.GameConstants#PAINT_PERCENT_TO_WIN}% of the map.
+     * Win by killing all opponent rat kings.
      */
-    PAINT_ENOUGH_AREA,
+    KILL_ALL_RAT_KINGS,
     /**
-     * Win by destroying all of the enemy team's robots and towers.
+     * Win by having more cheese at the end of the game.
      */
-    DESTROY_ALL_UNITS,
-    /**
-     * Win by having more squares painted than the other team at the end of the game (tiebreak 1).
-     */
-    MORE_SQUARES_PAINTED,
-    /**
-     * Win by having more allied towers alive at the end of the game (tiebreak 2).
-     */
-    MORE_TOWERS_ALIVE,
-    /**
-     * Win by having more money at the end of the game (tiebreak 3).
-     */
-    MORE_MONEY,
-    /**
-     * Win by having more paint stored in robots and towers (tiebreak 4).
-     */
-    MORE_PAINT_IN_UNITS,
+    MORE_CHEESE,
     /**
      * Win by having more robots alive (tiebreak 5).
      */

@@ -17,6 +17,7 @@ public class TeamInfo {
     private int[] dirtCounts;
     private int[] oldCheeseCounts;
     private int[] totalNumRats;
+    private int[] numRatKings;
     private int[] points;
 
     /**
@@ -67,6 +68,15 @@ public class TeamInfo {
         return this.totalNumRats[team.ordinal()];
     }
 
+     /**
+     * Get the total number of rat kings belonging to a team
+     * @param team the team to query
+     * @return the number of rats the team has
+     */
+    public int getNumRatKings(Team team){
+        return this.numRatKings[team.ordinal()];
+    }
+
     /**
      * Get the amount of points belonging to a team
      * @param team the team to query
@@ -82,6 +92,14 @@ public class TeamInfo {
      */
     public void addRats(int num, Team team){
         this.totalNumRats[team.ordinal()] += num;
+    }
+
+    /**
+     * Change the total number of rat kings belonging to a team
+     * @param team the team to change
+     */
+    public void addRatKings(int num, Team team){
+        this.numRatKings[team.ordinal()] += num;
     }
 
     // *********************************
@@ -104,13 +122,22 @@ public class TeamInfo {
     }
 
     /**
-     * Get the amount of points.
+     * Return number of points team has.
      * 
-     * @param team the team to query
+     * @param team team to query
+     */
+    public void addPoints(Team team) {
+        return this.points[team.ordinal()];
+    }
+
+    /**
+     * Add points to teams.
+     * 
+     * @param team team to add points to
      * @param amount the change in the amount of points
      */
-    public int addPoints(Team team, int amount) {
-        this.points[team.ordinal()] += amounts;
+    public void addPoints(Team team, int amount) {
+        this.points[team.ordinal()] += amount;
     }
 
     /**
@@ -128,11 +155,16 @@ public class TeamInfo {
     }
 
     private void checkWin(Team team) {
-        if (true) { // TODO: replace with a condition for winning (e.g. all rat kings dead)
-            throw new InternalError("Reporting incorrect win");
-        }
-        this.gameWorld.gameStats.setWinner(team);
-        this.gameWorld.gameStats.setDominationFactor(DominationFactor.PAINT_ENOUGH_AREA);
+        // TODO: replace with a condition for winning (e.g. all rat kings dead)
+        if (!this.gameWorld.isCooperation()) { 
+            // backstabbing mode
+            if (getNumRatKings(team.opponent()) == 0){
+                this.gameWorld.gameStats.setWinner(team);
+                this.gameWorld.gameStats.setDominationFactor(DominationFactor.KILL_ALL_RAT_KINGS);
+            }
+        }  
+        // TODO: if cooperation, even if cat dies, game continues?    
+        throw new InternalError("Reporting incorrect win");
     }
 
     public int getRoundCheeseChange(Team team) {

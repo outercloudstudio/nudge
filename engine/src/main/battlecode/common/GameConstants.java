@@ -97,10 +97,6 @@ public class GameConstants {
     /** The maximum number of traps a team can have at a given time */
     public static final int MAX_TRAP_COUNT = 25;
 
-    // TODO: this is a meaningless number that I added to remove compilation errors
-    // We should go through every usage of this and either make it a game constant or part of unit type
-    public static final int ACTION_RADIUS_SQUARED = -1;
-
     /** The maximum distance from a rat king for building robots */
     public static final int BUILD_ROBOT_RADIUS_SQUARED = 4;
 

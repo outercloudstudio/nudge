@@ -666,6 +666,9 @@ public class GameWorld {
         if (type.isRatType()){
             this.teamInfo.addRats(1, team);
         }
+        else if(type.isRatKingType()){
+            this.teamInfo.addRatKings(1, team);
+        }
         this.currentNumberUnits[team.ordinal()] += 1;
         return ID;
     }
@@ -704,6 +707,9 @@ public class GameWorld {
         if (loc != null) {
             if (robot.getType().isRatType()){
                 this.teamInfo.addRats(-1, robot.getTeam());
+            }
+            else if (robot.getType().isRatKingType()){
+                this.teamInfo.addRatKings(-1, robot.getTeam());
             }
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
