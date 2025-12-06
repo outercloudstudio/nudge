@@ -614,10 +614,10 @@ public class GameMaker {
             });
         }
 
-        /// Visually indicate a tower being built
-        public void addBuildAction(int towerID) {
+        /// Visually indicate dirt wall or trap being built
+        public void addBuildAction(int trapID) {
             applyToBuilders((builder) -> {
-                int action = BuildAction.createBuildAction(builder, towerID);
+                int action = BuildAction.createBuildAction(builder, trapID);
                 builder.addAction(action, Action.BuildAction);
             });
         }

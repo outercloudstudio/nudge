@@ -788,7 +788,8 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.addActionCooldownTurns(type.actionCooldown);
         this.robot.addCheese(-type.buildCost);
         this.gameWorld.placeTrap(loc, type, getTeam());
-        this.gameWorld.getMatchMaker().addBuildAction(type, loc, getTeam());
+        int ID = this.gameWorld.idGenerator.nextID();
+        this.gameWorld.getMatchMaker().addBuildAction(ID);
     }
 
     // *****************************

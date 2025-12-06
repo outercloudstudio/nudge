@@ -232,14 +232,10 @@ public final class GameMapIO {
             boolean[] wallArray = new boolean[size];
             boolean[] dirtArray = new boolean[size];
             boolean[] ruinArray = new boolean[size];
-            byte[] paintArray = new byte[size];
-            int[] patternArray = new int[4];
+            boolean[] cheeseMineArray = new boolean[size];
+            int[] cheeseArray = new int[size];
             for (int i = 0; i < wallArray.length; i++) {
                 wallArray[i] = raw.walls(i);
-                paintArray[i] = possiblyReversePaint(raw.paint(i), teamsReversed);
-            }
-            for (int i = 0; i < patternArray.length; i++) {
-                patternArray[i] = raw.paintPatterns(i);
             }
             battlecode.schema.VecTable ruins = raw.ruins();
             int num_ruins = ruins.xsLength();
@@ -255,8 +251,8 @@ public final class GameMapIO {
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
             return new LiveMap(
-                    width, height, origin, seed, rounds, mapName, symmetry, wallArray, dirtArray, paintArray, ruinArray,
-                    patternArray, initialBodies);
+                    width, height, origin, seed, rounds, mapName, symmetry, wallArray, dirtArray,
+                    cheeseMineArray, cheeseArray, initialBodies);
         }
 
         /**
@@ -270,9 +266,7 @@ public final class GameMapIO {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
             boolean[] wallArray = gameMap.getWallArray();
-            byte[] paintArray = gameMap.getPaintArray();
             boolean[] ruinArray = gameMap.getCheeseMineArray();
-            int[] patternArray = gameMap.getPatternArray();
 
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
@@ -299,15 +293,11 @@ public final class GameMapIO {
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
                 wallArrayList.add(wallArray[i]);
-                paintArrayList.add(paintArray[i]);
                 if (ruinArray[i]) {
                     MapLocation loc = gameMap.indexToLocation(i);
                     ruinXs.add(loc.x);
                     ruinYs.add(loc.y);
                 }
-            }
-            for (int i = 0; i < 4; i++) {
-                patternArrayList.add(patternArray[i]);
             }
 
             int[] ruinsXsArray = new int[ruinXs.size()];
@@ -344,7 +334,6 @@ public final class GameMapIO {
             battlecode.schema.GameMap.addRuins(builder, ruinLocations);
             battlecode.schema.GameMap.addInitialBodies(builder, initialBodyOffset);
             battlecode.schema.GameMap.addPaint(builder, paintArrayInt);
-            battlecode.schema.GameMap.addPaintPatterns(builder, patternArrayInt);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
@@ -365,7 +354,9 @@ public final class GameMapIO {
                     bodyTeam = bodyTeam.opponent();
                 }
                 boolean initialCrouching = false;
-                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCrouching));
+                int initialCheese = 0;
+                RobotInfo carryingRobot = null;
+                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCheese, carryingRobot, initialCrouching));
             }
         }
 

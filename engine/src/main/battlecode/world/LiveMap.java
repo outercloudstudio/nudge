@@ -94,6 +94,7 @@ public class LiveMap {
         this.symmetry = MapSymmetry.ROTATIONAL;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
         int numSquares = width * height;
+        this.dirtArray = new boolean[numSquares];
         this.wallArray = new boolean[numSquares];
         this.cheeseMineArray = new boolean[numSquares];
         this.cheeseArray = new int[numSquares];
@@ -111,10 +112,8 @@ public class LiveMap {
             MapSymmetry symmetry,
             boolean[] wallArray,
             boolean[] dirtArray,
-            byte[] paintArray,
             boolean[] cheeseMineArray,
             int[] cheeseArray,
-            int[] patternArray,
             RobotInfo[] initialBodies) {
         this.width = width;
         this.height = height;
@@ -146,7 +145,7 @@ public class LiveMap {
      */
     public LiveMap(LiveMap gm) {
         this(gm.width, gm.height, gm.origin, gm.seed, gm.rounds, gm.mapName, gm.symmetry,
-                gm.wallArray, gm.dirtArray, gm.paintArray, gm.cheeseMineArray, gm.cheeseArray, gm.patternArray,
+                gm.wallArray, gm.dirtArray, gm.cheeseMineArray, gm.cheeseArray,
                 gm.initialBodies);
     }
 
