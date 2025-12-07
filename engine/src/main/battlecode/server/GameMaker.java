@@ -534,13 +534,23 @@ public class GameMaker {
             });
         }
 
-        /// Visually indicate an attack
-        public void addAttackAction(int otherID) {
+        /// Visually indicate an rat bite
+        public void addBiteAction(int otherID) {
             applyToBuilders((builder) -> {
-                int action = AttackAction.createAttackAction(builder, otherID);
+                int action = RatAttack.createRatAttack(builder, otherID);
                 builder.addAction(action, Action.RatAttack);
             });
         }
+
+        /// Visually indicate an cat scratch
+        public void addScratchAction(int otherID) {
+            applyToBuilders((builder) -> {
+                int action = CatScratch.createCatScratch(builder, otherID);
+                builder.addAction(action, Action.RatAttack);
+            });
+        }
+
+        // TODO: add the rest
 
         public void addPlaceTrapAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {

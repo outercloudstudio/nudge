@@ -648,8 +648,8 @@ public class GameWorld {
         }
 
         // TODO: new team info stuff in matchmaker
-        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getCheese(Team.A), -1, -1);
-        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getCheese(Team.B), -1,-1);
+        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getCheese(Team.A));
+        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getCheese(Team.B));
         this.teamInfo.processEndOfRound();
 
         this.getMatchMaker().endRound();

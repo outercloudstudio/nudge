@@ -504,7 +504,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 this.addCheese(-cheeseConsumed);
                 targetRobot.addHealth(-GameConstants.RAT_BITE_DAMAGE -
                         (int) Math.ceil(Math.log(cheeseConsumed)));
-                this.gameWorld.getMatchMaker().addAttackAction(targetRobot.getID());
+                this.gameWorld.getMatchMaker().addBiteAction(targetRobot.getID());
             }
         }
     }
@@ -518,7 +518,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             InternalRobot robot = this.gameWorld.getRobot(loc);
             if (this.team != robot.getTeam()) {
                 robot.addHealth(-GameConstants.CAT_SCRATCH_DAMAGE);
-                this.gameWorld.getMatchMaker().addAttackAction(robot.getID());
+                this.gameWorld.getMatchMaker().addScratchAction(robot.getID());
             }
         }
 
