@@ -307,7 +307,8 @@ export class StaticMap {
         public readonly dimension: Dimension,
         public readonly walls: Int8Array,
         public readonly cheeseMines: Vector[],
-        public readonly initialDirt: Int8Array
+        public readonly initialDirt: Int8Array,
+        public readonly catWaypoints: Map<number, Vector[]>
     ) {
         if (symmetry < 0 || symmetry > 2 || !Number.isInteger(symmetry)) {
             throw new Error(`Invalid symmetry ${symmetry}`)
@@ -346,7 +347,16 @@ export class StaticMap {
         const walls = schemaMap.wallsArray() ?? assert.fail('wallsArray() is null')
         const cheeseMines = parseVecTable(schemaMap.cheeseMines() ?? assert.fail('cheeseMines() is null'))
         const initialDirt = schemaMap.dirtArray() ?? assert.fail('dirtArray() is null')
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt)
+        const catWaypointIds = schemaMap.catWaypointIdsArray() ?? assert.fail('catWaypointIdsArray() is null')
+        const catWaypoints = new Map<number, Vector[]>()
+        catWaypointIds.forEach((id, idx) => {
+            catWaypoints.set(
+                id,
+                parseVecTable(schemaMap.catWaypointVecs(idx) ?? assert.fail(`catWaypointVecs(${idx}) is null`))
+            )
+        })
+
+        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt, catWaypoints)
     }
 
     static fromParams(width: number, height: number, symmetry: Symmetry) {
@@ -365,7 +375,8 @@ export class StaticMap {
         const walls = new Int8Array(width * height)
         const cheeseMines: Vector[] = []
         const initialDirt = new Int8Array(width * height)
-        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt)
+        const catWaypoints = new Map<number, Vector[]>()
+        return new StaticMap(name, randomSeed, symmetry, dimension, walls, cheeseMines, initialDirt, catWaypoints)
     }
 
     get width(): number {
