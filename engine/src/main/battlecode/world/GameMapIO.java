@@ -349,6 +349,9 @@ public final class GameMapIO {
             battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
             battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
             battlecode.schema.GameMap.addInitialBodies(builder, initialBodyOffset);
+            battlecode.schema.GameMap.addCheeseMines(builder, initialBodyOffset);
+            battlecode.schema.GameMap.addCatWaypointVecs(builder, initialBodyOffset);
+            battlecode.schema.GameMap.addCatWaypointIds(builder, initialBodyOffset);
             return battlecode.schema.GameMap.endGameMap(builder);
         }
 
