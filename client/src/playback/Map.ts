@@ -218,14 +218,25 @@ export class CurrentMap {
             bodies.hasId(selectedBodyID) &&
             bodies.getById(selectedBodyID).robotType === schema.RobotType.CAT
         ) {
-            console.log('Rendering cat waypoints')
             const waypoints = this.staticMap.catWaypoints.get(selectedBodyID)
             waypoints?.forEach((waypoint, idx) => {
                 const coords = renderUtils.getRenderCoords(waypoint.x, waypoint.y, this.dimension)
-                ctx.fillStyle = 'rgba(0, 255, 0, 0.5)'
                 ctx.beginPath()
-                ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.3, 0, 2 * Math.PI)
+                ctx.arc(coords.x + 0.5, coords.y + 0.5, 0.1, 0, 2 * Math.PI)
                 ctx.fill()
+            })
+            waypoints?.forEach((waypoint, idx) => {
+                let prevWaypoint = bodies.getById(selectedBodyID).pos
+                if (idx > 0) {
+                    prevWaypoint = waypoints[idx - 1]
+                }
+                const startCoords = renderUtils.getRenderCoords(prevWaypoint.x, prevWaypoint.y, this.dimension)
+                const endCoords = renderUtils.getRenderCoords(waypoint.x, waypoint.y, this.dimension)
+                renderUtils.renderLine(ctx, startCoords, endCoords, {
+                    lineWidth: 0.06,
+                    opacity: 0.5,
+                    renderArrow: true
+                })
             })
         }
     }

@@ -473,12 +473,36 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
                 const symmetricPoint = this.map.applySymmetry(this.bodies.getById(this.lastSelectedCat)!.pos)
                 currentCat = this.bodies.getBodyAtLocation(symmetricPoint.x, symmetricPoint.y)!.id
             }
+
+            // if undoing a waypoint addition
+            if (fields.isCat.value === false) {
+                if (!this.map.catWaypoints.has(currentCat)) {
+                    return null
+                }
+                this.map.catWaypoints.set(
+                    currentCat,
+                    this.map.catWaypoints.get(currentCat)!.filter((wp) => wp.x !== x || wp.y !== y)
+                )
+                return () => {
+                    this.map.catWaypoints.set(currentCat, this.map.catWaypoints.get(currentCat)!.concat({ x, y }))
+                }
+            }
+
+            // if adding a waypoint
+            if (this.bodies.getBodyAtLocation(x, y)) {
+                return null
+            }
             if (!this.map.catWaypoints.has(currentCat)) {
                 this.map.catWaypoints.set(currentCat, [])
             }
             this.map.catWaypoints.get(currentCat)?.push({ x, y })
 
-            return () => {}
+            return () => {
+                this.map.catWaypoints.set(
+                    currentCat,
+                    this.map.catWaypoints.get(currentCat)!.filter((wp) => wp.x !== x || wp.y !== y)
+                )
+            }
         }
 
         const add = (x: number, y: number, team: Team) => {
