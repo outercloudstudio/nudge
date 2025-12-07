@@ -807,6 +807,70 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.attack(loc);
     }
 
+
+    public void assertCanUpgradeRats(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
+        assertCanActLocation(loc, UnitType.RAT.actionRadiusSquared);
+        if (this.gameWorld.getTeamInfo().getMoney(this.robot.getTeam()) < 50) {
+            throw new GameActionException(CANT_DO_THAT, "Not enough money to upgrade to a rat king");
+        }
+
+        Direction[] directions = {
+            Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST,
+            Direction.WEST, Direction.EAST,
+            Direction.SOUTHWEST, Direction.SOUTH, Direction.SOUTHEAST
+            
+        };
+        InternalRobot robot = this.gameWorld.getRobot(loc);
+        int numRats = 0;
+        for (Direction d: directions) {
+            MapLocation currentMapLoc = loc.add(d);
+            InternalRobot currentRobot = this.gameWorld.getRobot(currentMapLoc);
+            if (currentRobot != null && robot.getTeam() == currentRobot.getTeam()) {
+                numRats++;
+            }
+            MapInfo mapInfo = this.getMapInfo(loc);
+            if (mapInfo.isPassable()) {
+                throw new GameActionException(CANT_DO_THAT, "Can only upgrade if all squares in the 3x3 vicinity are passable");
+            }
+        }
+        if (numRats < 7) {
+            throw new GameActionException(CANT_DO_THAT, "Not enough rats in the 3x3 square");
+        }
+    }
+
+
+    @Override
+    public boolean canUpgradeRats(MapLocation loc) {
+        try {
+            assertCanUpgradeRats(loc);
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void upgradeRats(MapLocation loc) {
+        assertCanUpgradeRats(loc);
+        int health = 0;
+        Direction[] directions = {
+            Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST,
+            Direction.WEST, Direction.EAST,
+            Direction.SOUTHWEST, Direction.SOUTH, Direction.SOUTHEAST
+            
+        };
+        InternalRobot robot = this.gameWorld.getRobot(loc);
+        for (Direction d: directions) {
+            InternalRobot currentRobot = this.gameWorld.getRobot(loc.add(d));
+            if (robot.getTeam() == currentRobot.getTeam()) {
+                health += currentRobot.getHealth();
+            }
+            currentRobot.die_exception();
+        }
+        robot.becomeRatKing(health);
+    }
+
     // ***********************************
     // ****** COMMUNICATION METHODS ******
     // ***********************************
@@ -1026,4 +1090,6 @@ public final class RobotControllerImpl implements RobotController {
         }
         this.gameWorld.getMatchMaker().addTimelineMarker(this.getTeam(), label, red, green, blue);
     }
+
+
 }

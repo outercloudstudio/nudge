@@ -806,4 +806,9 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     void setTimelineMarker(String label, int red, int green, int blue);
+
+
+    boolean canUpgradeRats(MapLocation loc);
+
+    void upgradeRats(MapLocation loc);
 }

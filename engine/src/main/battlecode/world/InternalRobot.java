@@ -311,6 +311,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.location = loc;
     }
 
+    public void becomeRatKing(int health) {
+        this.type = RAT_KING;
+        this.health = health;
+    } 
+    
+
     /**
      * Upgrades the level of a tower.
      * 
