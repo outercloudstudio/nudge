@@ -11,6 +11,7 @@ import { CurrentMap, StaticMap } from './Map'
 import { Vector } from './Vector'
 import { Team } from './Game'
 import Round from './Round'
+import { GameRenderer } from './GameRenderer'
 
 const applyInRadius = (
     map: CurrentMap | StaticMap,
