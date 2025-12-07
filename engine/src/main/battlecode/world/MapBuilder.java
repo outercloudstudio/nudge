@@ -71,23 +71,6 @@ public class MapBuilder {
         return loc.x + loc.y * width;
     }
 
-    public void addTower(int id, Team team, MapLocation loc) {
-        // check if something already exists here, if so shout
-        for (RobotInfo r : bodies) {
-            if (r.location.equals(loc)) {
-                throw new RuntimeException("CANNOT ADD ROBOT TO SAME LOCATION AS OTHER ROBOT");
-            }
-        }
-        // bodies.add(new RobotInfo(
-        //         id,
-        //         team,
-        //         UnitType.LEVEL_ONE_PAINT_TOWER,
-        //         UnitType.LEVEL_ONE_PAINT_TOWER.health,
-        //         loc,
-        //         500
-        // ));
-    }
-
     // public void setWall(int x, int y, boolean value) {
     //     this.wallArray[locationToIndex(x, y)] = value;
     // }

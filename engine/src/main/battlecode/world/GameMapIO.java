@@ -375,25 +375,6 @@ public final class GameMapIO {
             }
         }
 
-        // No color = 0, Team A color 1 = 1, Team A color 2 = 2, Team B color 1 = 3,
-        // Team B color 2 = 4
-        private static byte possiblyReversePaint(byte originalPaint, boolean teamsReversed) {
-            if (!teamsReversed)
-                return originalPaint;
-            switch (originalPaint) {
-                case 1:
-                    return 3;
-                case 2:
-                    return 4;
-                case 3:
-                    return 1;
-                case 4:
-                    return 2;
-                default:
-                    return originalPaint;
-            }
-        }
-
         private static int createSpawnActionsVector(FlatBufferBuilder builder, ArrayList<Integer> ids,
                 ArrayList<Integer> xs, ArrayList<Integer> ys, ArrayList<Byte> teams, ArrayList<Byte> types) {
             InitialBodyTable.startSpawnActionsVector(builder, ids.size());

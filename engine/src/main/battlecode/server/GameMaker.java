@@ -338,8 +338,6 @@ public class GameMaker {
         // Round statistics
         private TIntArrayList teamIDs;
         private TIntArrayList teamCheeseAmounts;
-        private TIntArrayList teamPaintCoverageAmounts;
-        private TIntArrayList teamResourcePatternAmounts;
 
         private TIntArrayList diedIds; // ints
 
@@ -365,8 +363,6 @@ public class GameMaker {
         public MatchMaker() {
             this.teamIDs = new TIntArrayList();
             this.teamCheeseAmounts = new TIntArrayList();
-            this.teamPaintCoverageAmounts = new TIntArrayList();
-            this.teamResourcePatternAmounts = new TIntArrayList();
             this.diedIds = new TIntArrayList();
             this.currentRound = 0;
             this.logger = new ByteArrayOutputStream();
@@ -604,11 +600,9 @@ public class GameMaker {
             });
         }
 
-        public void addTeamInfo(Team team, int cheeseAmount, int paintCoverage, int numResourcePatterns) {
+        public void addTeamInfo(Team team, int cheeseAmount) {
             teamIDs.add(TeamMapping.id(team));
             teamCheeseAmounts.add(cheeseAmount);
-            teamPaintCoverageAmounts.add(paintCoverage);
-            teamResourcePatternAmounts.add(numResourcePatterns);
         }
 
         public void addTimelineMarker(Team team, String label, int red, int green, int blue) {
@@ -681,8 +675,6 @@ public class GameMaker {
         private void clearRoundData() {
             this.teamIDs.clear();
             this.teamCheeseAmounts.clear();
-            this.teamPaintCoverageAmounts.clear();
-            this.teamResourcePatternAmounts.clear();
             this.diedIds.clear();
         }
 

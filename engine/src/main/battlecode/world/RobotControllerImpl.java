@@ -929,7 +929,7 @@ public final class RobotControllerImpl implements RobotController {
         if (robot == null)
             throw new GameActionException(CANT_DO_THAT, "There is no robot at this location!");
         if (loc == this.robot.getLocation()) {
-            throw new GameActionException(CANT_DO_THAT, "Cannot transfer paint to yourself!");
+            throw new GameActionException(CANT_DO_THAT, "Cannot transfer cheese to yourself!");
         }
         if (amount == 0) {
             throw new GameActionException(CANT_DO_THAT, "Cannot transfer zero cheese!");
