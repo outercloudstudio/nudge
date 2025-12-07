@@ -859,6 +859,62 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.attack(loc);
     }
 
+
+    public void assertCanBecomeRatKing() throws GameActionException {
+        assertIsActionReady();
+        if (this.gameWorld.getTeamInfo().getCheese(this.robot.getTeam()) < GameConstants.RAT_KING_UPGRADE_CHEESE_COST) {
+            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to upgrade to a rat king");
+        }
+        int numAllyRats = 0;
+        for (Direction d : Direction.allDirections()){
+            MapLocation curLoc = this.adjacentLocation(d);
+            InternalRobot curRobot = this.gameWorld.getRobot(curLoc);
+            if (curRobot != null && curRobot.getTeam() == this.robot.getTeam() && curRobot.getType() == UnitType.RAT){
+                numAllyRats += 1;
+            }
+            if (curRobot != null && !curRobot.getType().isRatType()){
+                throw new GameActionException(CANT_DO_THAT, "Can't become a rat king when there are nearby cats or rat kings!");
+            }
+            MapInfo mapInfo = this.getMapInfo(loc);
+            if (!mapInfo.isPassable()) {
+                throw new GameActionException(CANT_DO_THAT, "Can only upgrade if all squares in the 3x3 vicinity are passable");
+            }
+        }
+        if (numAllyRats < 7){
+            throw new GameActionException(CANT_DO_THAT, "Not enough rats in the 3x3 square");
+        }
+    }
+
+
+    @Override
+    public boolean canBecomeRatKing() {
+        try {
+            assertCanBecomeRatKing();
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void becomeRatKing() throws GameActionException {
+        assertCanUpgradeRats(loc);
+        int health = 0;
+        for (Direction d: Direction.allDirections()) {
+            InternalRobot currentRobot = this.gameWorld.getRobot(this.adjacentLocation(d));
+            if (robot.getTeam() == currentRobot.getTeam()) {
+                health += currentRobot.getHealth();
+            }
+            if (d != Direction.CENTER){
+                currentRobot.addHealth(-currentRobot.getHealth());
+            }
+        }
+        this.gameWorld.getTeamInfo().addCheese(-GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
+        health = Math.min(health, UnitType.RAT_KING.health);
+        robot.becomeRatKing(health);
+        // TODO: becomeRatKing action?
+    }
+
     // ***********************************
     // ****** COMMUNICATION METHODS ******
     // ***********************************
@@ -1049,4 +1105,6 @@ public final class RobotControllerImpl implements RobotController {
         }
         this.gameWorld.getMatchMaker().addTimelineMarker(this.getTeam(), label, red, green, blue);
     }
+
+
 }
