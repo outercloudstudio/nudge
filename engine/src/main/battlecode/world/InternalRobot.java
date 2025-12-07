@@ -120,8 +120,44 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.currentWaypoint = 0;
         this.catState = CatStateType.EXPLORE;
 
-        this.catWaypoints = gw.getGameMap().getCatWaypointsOrdered(id);
-        this.catTargetLoc = this.catWaypoints[0];
+        if (this.type.isCatType()) {
+            // TODO fix this: are cat index and cat id the same? if not, change this line
+            // this.catWaypoints = gw.getGameMap().getCatWaypointsOrdered(id);
+            // TODO temporarily we will just find the nearest waypoint
+
+            int minDist = Integer.MAX_VALUE;
+
+            for (int i = 0; i < gw.getGameMap().getNumCats(); i++) {
+                MapLocation[] allWaypoints = gw.getGameMap().getCatWaypointsOrdered(i);
+
+                for (MapLocation waypoint : allWaypoints) {
+                    if (waypoint != null) {
+                        int dist = waypoint.distanceSquaredTo(this.location);
+
+                        if (dist < minDist) {
+                            minDist = dist;
+                            this.catWaypoints = allWaypoints;
+                        }
+                    }
+                }
+
+                ArrayList<MapLocation> validWaypoints = new ArrayList<>();
+
+                for (MapLocation waypoint : this.catWaypoints) {
+                    if (waypoint != null) {
+                        validWaypoints.add(waypoint);
+                    }
+                }
+
+                this.catWaypoints = validWaypoints.toArray(new MapLocation[validWaypoints.size()]);
+            }
+
+            this.catTargetLoc = this.catWaypoints[0];
+        } else {
+            this.catWaypoints = new MapLocation[0];
+            this.catTargetLoc = null;
+        }
+
         this.catTurns = 0;
 
     }
@@ -275,7 +311,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * Returns the robot's vision radius squared.
      */
     public int getVisionRadiusSquared() {
-        return this.type.getVisionRadius();
+        return this.type.getVisionRadiusSquared();
     }
 
     /**
@@ -518,7 +554,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             if (canGrab) {
                 this.carryingRobot = this.gameWorld.getRobot(loc);
                 this.carryingRobot.getGrabbed(this); // Notify the grabbed robot that it has been picked up
-                this.gameWorld.getMatchMaker().addGrabAction(this.carryingRobot.getID());
+                this.gameWorld.getMatchMaker().addRatNapAction(this.carryingRobot.getID());
             } else {
                 throw new RuntimeException("Cannot grab that robot");
             }
@@ -545,7 +581,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         // Throw the robot
         this.carryingRobot.getThrown(dir);
         this.gameWorld.getMatchMaker().addThrowAction(this.carryingRobot.getID(),
-                locationToInt(this.getLocation().add(dir)));
+                this.getLocation().add(dir));
         this.carryingRobot = null;
     }
 

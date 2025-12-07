@@ -45,3 +45,4 @@ public final class SplashAction extends Struct {
     public SplashAction get(SplashAction obj, int j) {  return obj.__assign(__element(j), bb); }
   }
 }
+

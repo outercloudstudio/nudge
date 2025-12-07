@@ -48,3 +48,4 @@ public final class TransferAction extends Struct {
     public TransferAction get(TransferAction obj, int j) {  return obj.__assign(__element(j), bb); }
   }
 }
+

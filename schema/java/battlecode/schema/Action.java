@@ -14,18 +14,21 @@ public final class Action {
   public static final byte BreakDirt = 6;
   public static final byte CheesePickup = 7;
   public static final byte CheeseSpawn = 8;
-  public static final byte CatScratch = 9;
-  public static final byte CatPounce = 10;
-  public static final byte PlaceTrap = 11;
-  public static final byte TriggerTrap = 12;
-  public static final byte DamageAction = 13;
-  public static final byte SpawnAction = 14;
-  public static final byte DieAction = 15;
-  public static final byte IndicatorStringAction = 16;
-  public static final byte IndicatorDotAction = 17;
-  public static final byte IndicatorLineAction = 18;
+  public static final byte CheeseTransfer = 9;
+  public static final byte CatScratch = 10;
+  public static final byte CatPounce = 11;
+  public static final byte PlaceTrap = 12;
+  public static final byte TriggerTrap = 13;
+  public static final byte ThrowRat = 14;
+  public static final byte RatSqueak = 15;
+  public static final byte DamageAction = 16;
+  public static final byte SpawnAction = 17;
+  public static final byte DieAction = 18;
+  public static final byte IndicatorStringAction = 19;
+  public static final byte IndicatorDotAction = 20;
+  public static final byte IndicatorLineAction = 21;
 
-  public static final String[] names = { "NONE", "CatFeed", "RatAttack", "RatNap", "RatCollision", "PlaceDirt", "BreakDirt", "CheesePickup", "CheeseSpawn", "CatScratch", "CatPounce", "PlaceTrap", "TriggerTrap", "DamageAction", "SpawnAction", "DieAction", "IndicatorStringAction", "IndicatorDotAction", "IndicatorLineAction", };
+  public static final String[] names = { "NONE", "CatFeed", "RatAttack", "RatNap", "RatCollision", "PlaceDirt", "BreakDirt", "CheesePickup", "CheeseSpawn", "CheeseTransfer", "CatScratch", "CatPounce", "PlaceTrap", "TriggerTrap", "ThrowRat", "RatSqueak", "DamageAction", "SpawnAction", "DieAction", "IndicatorStringAction", "IndicatorDotAction", "IndicatorLineAction", };
 
   public static String name(int e) { return names[e]; }
 }

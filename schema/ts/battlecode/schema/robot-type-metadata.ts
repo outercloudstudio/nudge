@@ -50,12 +50,12 @@ maxCheese():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-actionRadiusSquared():number {
+visionConeRadiusSquared():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-visionRadiusSquared():number {
+visionConeAngle():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
@@ -94,12 +94,12 @@ static addMaxCheese(builder:flatbuffers.Builder, maxCheese:number) {
   builder.addFieldInt32(4, maxCheese, 0);
 }
 
-static addActionRadiusSquared(builder:flatbuffers.Builder, actionRadiusSquared:number) {
-  builder.addFieldInt32(5, actionRadiusSquared, 0);
+static addVisionConeRadiusSquared(builder:flatbuffers.Builder, visionConeRadiusSquared:number) {
+  builder.addFieldInt32(5, visionConeRadiusSquared, 0);
 }
 
-static addVisionRadiusSquared(builder:flatbuffers.Builder, visionRadiusSquared:number) {
-  builder.addFieldInt32(6, visionRadiusSquared, 0);
+static addVisionConeAngle(builder:flatbuffers.Builder, visionConeAngle:number) {
+  builder.addFieldInt32(6, visionConeAngle, 0);
 }
 
 static addMessageRadiusSquared(builder:flatbuffers.Builder, messageRadiusSquared:number) {
@@ -115,15 +115,15 @@ static endRobotTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createRobotTypeMetadata(builder:flatbuffers.Builder, type:RobotType, actionCooldown:number, movementCooldown:number, baseHealth:number, maxCheese:number, actionRadiusSquared:number, visionRadiusSquared:number, messageRadiusSquared:number, bytecodeLimit:number):flatbuffers.Offset {
+static createRobotTypeMetadata(builder:flatbuffers.Builder, type:RobotType, actionCooldown:number, movementCooldown:number, baseHealth:number, maxCheese:number, visionConeRadiusSquared:number, visionConeAngle:number, messageRadiusSquared:number, bytecodeLimit:number):flatbuffers.Offset {
   RobotTypeMetadata.startRobotTypeMetadata(builder);
   RobotTypeMetadata.addType(builder, type);
   RobotTypeMetadata.addActionCooldown(builder, actionCooldown);
   RobotTypeMetadata.addMovementCooldown(builder, movementCooldown);
   RobotTypeMetadata.addBaseHealth(builder, baseHealth);
   RobotTypeMetadata.addMaxCheese(builder, maxCheese);
-  RobotTypeMetadata.addActionRadiusSquared(builder, actionRadiusSquared);
-  RobotTypeMetadata.addVisionRadiusSquared(builder, visionRadiusSquared);
+  RobotTypeMetadata.addVisionConeRadiusSquared(builder, visionConeRadiusSquared);
+  RobotTypeMetadata.addVisionConeAngle(builder, visionConeAngle);
   RobotTypeMetadata.addMessageRadiusSquared(builder, messageRadiusSquared);
   RobotTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
   return RobotTypeMetadata.endRobotTypeMetadata(builder);

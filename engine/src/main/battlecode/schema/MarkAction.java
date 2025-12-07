@@ -45,3 +45,4 @@ public final class MarkAction extends Struct {
     public MarkAction get(MarkAction obj, int j) {  return obj.__assign(__element(j), bb); }
   }
 }
+

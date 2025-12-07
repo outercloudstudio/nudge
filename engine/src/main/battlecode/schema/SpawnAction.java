@@ -35,6 +35,7 @@ public final class SpawnAction extends Struct {
   public int y() { return bb.getShort(bb_pos + 4) & 0xFFFF; }
   public byte team() { return bb.get(bb_pos + 6); }
   public byte robotType() { return bb.get(bb_pos + 7); }
+
   public static int createSpawnAction(FlatBufferBuilder builder, int id, int x, int y, byte team, byte robotType) {
     builder.prep(2, 8);
     builder.putByte(robotType);

@@ -54,3 +54,4 @@ public final class UpgradeAction extends Struct {
     public UpgradeAction get(UpgradeAction obj, int j) {  return obj.__assign(__element(j), bb); }
   }
 }
+

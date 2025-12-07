@@ -231,19 +231,40 @@ public final class GameMapIO {
             int size = width * height;
             boolean[] wallArray = new boolean[size];
             boolean[] dirtArray = new boolean[size];
-            boolean[] ruinArray = new boolean[size];
             boolean[] cheeseMineArray = new boolean[size];
             ArrayList<int[]> catWaypoints = new ArrayList<int[]>();
             int[] cheeseArray = new int[size];
+
             for (int i = 0; i < wallArray.length; i++) {
                 wallArray[i] = raw.walls(i);
                 dirtArray[i] = raw.dirt(i);
+                cheeseArray[i] = 0; // raw.cheese(i);
             }
-            battlecode.schema.VecTable ruins = raw.ruins();
-            int num_ruins = ruins.xsLength();
-            for (int i = 0; i < num_ruins; i++) {
-                MapLocation cur = new MapLocation(ruins.xs(i), ruins.ys(i));
-                ruinArray[cur.x + cur.y * width] = true;
+
+            VecTable cheeseMinesTable = raw.cheeseMines();
+
+            for (int i = 0; i < cheeseMinesTable.xsLength(); i++) {
+                int x = cheeseMinesTable.xs(i);
+                int y = cheeseMinesTable.ys(i);
+
+                int idx = x + width * y;
+                cheeseMineArray[idx] = true;
+            }
+
+            int numCats = raw.catWaypointVecsLength();
+
+            for (int i = 0; i < numCats; i++) {
+                VecTable waypointTable = raw.catWaypointVecs(i);
+                int numWaypoints = waypointTable.xsLength();
+                int[] waypoints = new int[numWaypoints];
+
+                for (int j = 0; j < numWaypoints; j++) {
+                    int x = waypointTable.xs(j);
+                    int y = waypointTable.ys(j);
+                    waypoints[j] = x + width * y;
+                }
+
+                catWaypoints.add(waypoints);
             }
 
             ArrayList<RobotInfo> initBodies = new ArrayList<>();
@@ -268,7 +289,9 @@ public final class GameMapIO {
             int name = builder.createString(gameMap.getMapName());
             int randomSeed = gameMap.getSeed();
             boolean[] wallArray = gameMap.getWallArray();
-            boolean[] ruinArray = gameMap.getCheeseMineArray();
+            boolean[] dirtArray = gameMap.getDirtArray();
+            boolean[] cheeseMineArray = gameMap.getCheeseMineArray();
+            int[] cheeseArray = gameMap.getCheeseArray();
 
             // Make body tables
             ArrayList<Integer> bodyIDs = new ArrayList<>();
@@ -278,7 +301,9 @@ public final class GameMapIO {
             ArrayList<Integer> bodyLocsYs = new ArrayList<>();
 
             ArrayList<Boolean> wallArrayList = new ArrayList<>();
-            ArrayList<Byte> paintArrayList = new ArrayList<>();
+            ArrayList<Boolean> dirtArrayList = new ArrayList<>();
+            ArrayList<Boolean> cheeseMineArrayList = new ArrayList<>();
+            ArrayList<Integer> cheeseArrayList = new ArrayList<>();
 
             ArrayList<Integer> ruinXs = new ArrayList<>();
             ArrayList<Integer> ruinYs = new ArrayList<>();
@@ -289,30 +314,20 @@ public final class GameMapIO {
                 bodyTypes.add(FlatHelpers.getRobotTypeFromUnitType(robot.type));
                 bodyLocsXs.add(robot.location.x);
                 bodyLocsYs.add(robot.location.y);
-                ruinArray[gameMap.locationToIndex(robot.location)] = true;
             }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
                 wallArrayList.add(wallArray[i]);
-                if (ruinArray[i]) {
-                    MapLocation loc = gameMap.indexToLocation(i);
-                    ruinXs.add(loc.x);
-                    ruinYs.add(loc.y);
-                }
+                dirtArrayList.add(dirtArray[i]);
+                cheeseMineArrayList.add(cheeseMineArray[i]);
+                cheeseArrayList.add(cheeseArray[i]);
             }
-
-            int[] ruinsXsArray = new int[ruinXs.size()];
-            int[] ruinYsArray = new int[ruinYs.size()];
-            for (int i = 0; i < ruinXs.size(); i++) {
-                ruinsXsArray[i] = ruinXs.get(i);
-                ruinYsArray[i] = ruinYs.get(i);
-            }
-
-            TIntArrayList ruinXsList = new TIntArrayList(ruinsXsArray);
-            TIntArrayList ruinYsList = new TIntArrayList(ruinYsArray);
 
             int wallArrayInt = battlecode.schema.GameMap.createWallsVector(builder,
                     ArrayUtils.toPrimitive(wallArrayList.toArray(new Boolean[wallArrayList.size()])));
+            int dirtArrayInt = battlecode.schema.GameMap.createDirtVector(builder,
+                    ArrayUtils.toPrimitive(dirtArrayList.toArray(new Boolean[dirtArrayList.size()])));
+
             //TODO: need to fix this stuff
             // int paintArrayInt = battlecode.schema.GameMap.createPaintVector(builder,
             //         ArrayUtils.toPrimitive(paintArrayList.toArray(new Byte[paintArrayList.size()])));
@@ -332,7 +347,7 @@ public final class GameMapIO {
             battlecode.schema.GameMap.addSymmetry(builder, gameMap.getSymmetry().ordinal());
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
             battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
-            // TODO add dirt here?
+            battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
             battlecode.schema.GameMap.addInitialBodies(builder, initialBodyOffset);
             return battlecode.schema.GameMap.endGameMap(builder);
         }

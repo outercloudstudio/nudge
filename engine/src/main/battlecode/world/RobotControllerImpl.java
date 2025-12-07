@@ -266,7 +266,7 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Can't place rat trap on an occupied tile!");
         if (this.gameWorld.hasRatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "Tile already has a rat trap!");
-        if (this.gameWorld.getTrapCount(TrapType.RATTRAP) >= TrapType.RATTRAP.maxCount)
+        if (this.gameWorld.getTrapCount(TrapType.RAT_TRAP) >= TrapType.RAT_TRAP.maxCount)
             throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of rat traps on the map!");
     }
 
@@ -290,7 +290,7 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Can't place cat trap on an occupied tile!");
         if (this.gameWorld.hasCatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "Tile already has a cat trap!");
-        if (this.gameWorld.getTrapCount(TrapType.CATTRAP) >= TrapType.CATTRAP.maxCount)
+        if (this.gameWorld.getTrapCount(TrapType.CAT_TRAP) >= TrapType.CAT_TRAP.maxCount)
             throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of cat traps on the map!");
     }
 
@@ -315,7 +315,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void placeRatTrap(MapLocation loc) throws GameActionException {
         assertCanPlaceRatTrap(loc);
-        this.gameWorld.placeTrap(loc, TrapType.RATTRAP, getTeam());
+        this.gameWorld.placeTrap(loc, TrapType.RAT_TRAP, getTeam());
     }
 
     @Override
@@ -347,7 +347,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void placeCatTrap(MapLocation loc) throws GameActionException {
         assertCanPlaceCatTrap(loc);
-        this.gameWorld.placeTrap(loc, TrapType.CATTRAP, getTeam());
+        this.gameWorld.placeTrap(loc, TrapType.CAT_TRAP, getTeam());
     }
 
     @Override
@@ -509,8 +509,8 @@ public final class RobotControllerImpl implements RobotController {
     public MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? UnitType.RAT.visionConeRadius
-                : Math.min(radiusSquared, UnitType.RAT.visionConeRadius);
+        int actualRadiusSquared = radiusSquared == -1 ? UnitType.RAT.visionConeRadiusSquared
+                : Math.min(radiusSquared, UnitType.RAT.visionConeRadiusSquared);
         MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
         List<MapInfo> validSensedMapInfo = new ArrayList<>();
         for (MapLocation mapLoc : allSensedLocs) {
@@ -643,7 +643,7 @@ public final class RobotControllerImpl implements RobotController {
 
             for(int j = this.gameWorld.getTrapTriggers(newLoc).size()-1; j >= 0; j--){
                 Trap trap = this.gameWorld.getTrapTriggers(newLoc).get(j);
-                if (trap.getTeam() == this.robot.getTeam() || trap.getType() == TrapType.RATTRAP){
+                if (trap.getTeam() == this.robot.getTeam() || trap.getType() == TrapType.RAT_TRAP){
                     continue;
                 }
                 this.robot.addTrapTrigger(trap, true);
@@ -801,7 +801,7 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.addCheese(-type.buildCost);
         this.gameWorld.placeTrap(loc, type, getTeam());
         int ID = this.gameWorld.idGenerator.nextID();
-        this.gameWorld.getMatchMaker().addBuildAction(ID);
+        this.gameWorld.getMatchMaker().addPlaceTrapAction(ID, loc, getTeam(), type);
     }
 
     // *****************************
@@ -966,7 +966,7 @@ public final class RobotControllerImpl implements RobotController {
         InternalRobot robot = this.gameWorld.getRobot(loc);
         this.gameWorld.getTeamInfo().addCheese(getTeam(), amount);
         this.robot.addActionCooldownTurns(GameConstants.CHEESE_TRANSFER_COOLDOWN);
-        this.gameWorld.getMatchMaker().addTransferAction(robot.getID(), amount);
+        this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), amount);
     }
 
     public void assertCanThrowRat(Direction dir) throws GameActionException {

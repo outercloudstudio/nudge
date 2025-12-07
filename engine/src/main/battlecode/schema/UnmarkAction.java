@@ -42,3 +42,4 @@ public final class UnmarkAction extends Struct {
     public UnmarkAction get(UnmarkAction obj, int j) {  return obj.__assign(__element(j), bb); }
   }
 }
+

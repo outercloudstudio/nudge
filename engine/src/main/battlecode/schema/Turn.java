@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class Turn extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_23_5_26(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static Turn getRootAsTurn(ByteBuffer _bb) { return getRootAsTurn(_bb, new Turn()); }
   public static Turn getRootAsTurn(ByteBuffer _bb, Turn obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -29,7 +29,7 @@ public final class Turn extends Table {
 
   public int robotId() { int o = __offset(4); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int health() { int o = __offset(6); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
-  public int paint() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
+  public int cheese() { int o = __offset(8); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int moveCooldown() { int o = __offset(10); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int actionCooldown() { int o = __offset(12); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
   public int bytecodesUsed() { int o = __offset(14); return o != 0 ? bb.getInt(o + bb_pos) : 0; }
@@ -49,7 +49,7 @@ public final class Turn extends Table {
   public static int createTurn(FlatBufferBuilder builder,
       int robotId,
       int health,
-      int paint,
+      int cheese,
       int moveCooldown,
       int actionCooldown,
       int bytecodesUsed,
@@ -63,7 +63,7 @@ public final class Turn extends Table {
     Turn.addBytecodesUsed(builder, bytecodesUsed);
     Turn.addActionCooldown(builder, actionCooldown);
     Turn.addMoveCooldown(builder, moveCooldown);
-    Turn.addPaint(builder, paint);
+    Turn.addCheese(builder, cheese);
     Turn.addHealth(builder, health);
     Turn.addRobotId(builder, robotId);
     Turn.addY(builder, y);
@@ -74,7 +74,7 @@ public final class Turn extends Table {
   public static void startTurn(FlatBufferBuilder builder) { builder.startTable(10); }
   public static void addRobotId(FlatBufferBuilder builder, int robotId) { builder.addInt(0, robotId, 0); }
   public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(1, health, 0); }
-  public static void addPaint(FlatBufferBuilder builder, int paint) { builder.addInt(2, paint, 0); }
+  public static void addCheese(FlatBufferBuilder builder, int cheese) { builder.addInt(2, cheese, 0); }
   public static void addMoveCooldown(FlatBufferBuilder builder, int moveCooldown) { builder.addInt(3, moveCooldown, 0); }
   public static void addActionCooldown(FlatBufferBuilder builder, int actionCooldown) { builder.addInt(4, actionCooldown, 0); }
   public static void addBytecodesUsed(FlatBufferBuilder builder, int bytecodesUsed) { builder.addInt(5, bytecodesUsed, 0); }

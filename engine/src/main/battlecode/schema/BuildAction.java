@@ -26,6 +26,7 @@ import java.nio.ByteOrder;
 public final class BuildAction extends Struct {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public BuildAction __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
   /**
    * Id of the tower bot
    */

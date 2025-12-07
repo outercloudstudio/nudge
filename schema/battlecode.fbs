@@ -30,6 +30,8 @@ enum WinType: byte {
     RATKING_DESTROYED,
     BACKSTAB_RATKING_DESTROYED,
     MORE_POINTS,
+    MORE_ROBOTS,
+    MORE_CHEESE,
     TIE,
     COIN_FLIP
 }
@@ -47,8 +49,8 @@ table RobotTypeMetadata {
     movementCooldown: int;
     baseHealth: int;
     maxCheese: int;
-    actionRadiusSquared: int;
-    visionRadiusSquared: int;
+    visionConeRadiusSquared: int;
+    visionConeAngle: int;
     messageRadiusSquared: int;
     bytecodeLimit: int;
 }
@@ -94,6 +96,14 @@ struct RatNap {
 }
 
 
+/// Throw a rat
+struct ThrowRat {
+    /// Id of the thrown rat
+    id: ushort;
+    loc: ushort;
+}
+
+
 /// Rat Collision
 struct RatCollision {
     loc: ushort;
@@ -125,6 +135,14 @@ struct CheeseSpawn {
 }
 
 
+/// Transfer a cheese between rats
+struct CheeseTransfer {
+    /// Id of the rat which receives the cheese
+    id: ushort;
+    amount: ushort;
+}
+
+
 /// Cat scratch at location
 struct CatScratch {
     loc: ushort;
@@ -150,6 +168,13 @@ struct TriggerTrap {
     loc: ushort;
     team: byte;
 }
+
+
+/// Rat squeak action
+struct RatSqueak {
+    loc: ushort;
+}
+
 
 /// Generic action representing damage to a robot
 struct DamageAction {
@@ -208,10 +233,13 @@ union Action {
     BreakDirt,
     CheesePickup,
     CheeseSpawn,
+    CheeseTransfer,
     CatScratch,
     CatPounce,
     PlaceTrap,
     TriggerTrap,
+    ThrowRat,
+    RatSqueak,
     DamageAction,
     SpawnAction,
     DieAction,

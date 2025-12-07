@@ -130,23 +130,17 @@ public class LiveMap {
         this.mapName = mapName;
         this.symmetry = symmetry;
         this.initialBodies = Arrays.copyOf(initialBodies, initialBodies.length);
-        this.wallArray = new boolean[wallArray.length];
-        for (int i = 0; i < wallArray.length; i++) {
-            this.wallArray[i] = wallArray[i];
-        }
-        for (int i = 0; i < dirtArray.length; i++) {
-            this.dirtArray[i] = dirtArray[i];
-        }
-        this.cheeseMineArray = new boolean[cheeseMineArray.length];
-        for (int i = 0; i < cheeseMineArray.length; i++) {
-            this.cheeseMineArray[i] = cheeseMineArray[i];
-        }
-        for (int i = 0; i < cheeseArray.length; i++) {
-            this.cheeseArray[i] = cheeseArray[i];
-        }
+
+        this.wallArray = Arrays.copyOf(wallArray, wallArray.length);
+        this.dirtArray = Arrays.copyOf(dirtArray, dirtArray.length);
+        this.cheeseMineArray = Arrays.copyOf(cheeseMineArray, cheeseMineArray.length);
+        this.cheeseArray = Arrays.copyOf(cheeseArray, cheeseArray.length);
+        this.catWaypoints = new ArrayList<int[]>();
+
         for (int i = 0; i < catWaypoints.size(); i++) {
             this.catWaypoints.add(Arrays.copyOf(catWaypoints.get(i), catWaypoints.get(i).length));
         }
+
         // invariant: bodies is sorted by id
         Arrays.sort(this.initialBodies, (a, b) -> Integer.compare(a.getID(), b.getID()));
     }
@@ -357,6 +351,14 @@ public class LiveMap {
 
     /**
      * @param catIndex
+     * @return the number of cats on the map
+     */
+    public int getNumCats() {
+        return catWaypoints.size();
+    }
+
+    /**
+     * @param catIndex
      * @return the waypoints for the cat with the given index
      */
     public int[] getCatWaypoints(int catIndex) {
@@ -369,17 +371,21 @@ public class LiveMap {
      */
     public MapLocation[] getCatWaypointsOrdered(int catIndex) {
         int max_len = 0;
+        
         for (int i = 0; i < (catWaypoints.get(catIndex)).length; i++) {
             if (catWaypoints.get(catIndex)[i] > max_len) {
                 max_len = catWaypoints.get(catIndex)[i];
             }
         }
+
         MapLocation[] ordered = new MapLocation[max_len];
+
         for (int i = 0; i < (catWaypoints.get(catIndex)).length; i++) {
             if (catWaypoints.get(catIndex)[i] > 0) {
                 ordered[catWaypoints.get(catIndex)[i] - 1] = indexToLocation(i);
             }
         }
+
         return ordered;
     }
 
@@ -415,37 +421,40 @@ public class LiveMap {
         if (this.height < GameConstants.MAP_MIN_HEIGHT) {
             throw new RuntimeException("MAP HEIGHT BENEATH GameConstants.MAP_MIN_HEIGHT");
         }
+
         // TODO: update initial body stuff to be rat king related
-        int[] towerCountA = new int[3];
-        int[] towerCountB = new int[3];
-        int initialBodyCountTeamA = 0;
-        int initialBodyCountTeamB = 0;
-        for (RobotInfo initialBody : initialBodies) {
-            if (initialBody.team == Team.A) {
-                towerCountA[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
-                initialBodyCountTeamA++;
-            } else if (initialBody.team == Team.B) {
-                towerCountB[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
-                initialBodyCountTeamB++;
-            } else {
-                throw new RuntimeException(
-                        "Expected initial body team " + initialBody.team + " to be team A or team B!");
-            }
-        }
-        if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
-            throw new RuntimeException(
-                    "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team A towers!");
-        }
-        if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
-            throw new RuntimeException(
-                    "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " team B towers!");
-        }
-        for (int i = 0; i < towerCountA.length; i++) {
-            if (towerCountA[i] != towerCountB[i]) {
-                throw new RuntimeException("Expected both teams to have the same number of towers of type "
-                        + FlatHelpers.getUnitTypeFromRobotType((byte) (i + 1)));
-            }
-        }
+        // int[] towerCountA = new int[3];
+        // int[] towerCountB = new int[3];
+        // int initialBodyCountTeamA = 0;
+        // int initialBodyCountTeamB = 0;
+        // for (RobotInfo initialBody : initialBodies) {
+        //     if (initialBody.team == Team.A) {
+        //         towerCountA[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
+        //         initialBodyCountTeamA++;
+        //     } else if (initialBody.team == Team.B) {
+        //         towerCountB[FlatHelpers.getRobotTypeFromUnitType(initialBody.type) - 1] += 1;
+        //         initialBodyCountTeamB++;
+        //     } else {
+        //         throw new RuntimeException(
+        //                 "Expected initial body team " + initialBody.team + " to be team A or team B!");
+        //     }
+        // }
+
+        // TODO uncomment when maps have rat kings
+        // if (initialBodyCountTeamA != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+        //     throw new RuntimeException(
+        //             "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team A rat kings!");
+        // }
+        // if (initialBodyCountTeamB != GameConstants.NUMBER_INITIAL_RAT_KINGS) {
+        //     throw new RuntimeException(
+        //             "Expected to have " + GameConstants.NUMBER_INITIAL_RAT_KINGS + " initial team B rat kings!");
+        // }
+        // for (int i = 0; i < towerCountA.length; i++) {
+        //     if (towerCountA[i] != towerCountB[i]) {
+        //         throw new RuntimeException("Expected both teams to have the same number of towers of type "
+        //                 + FlatHelpers.getUnitTypeFromRobotType((byte) (i + 1)));
+        //     }
+        // }
 
         ArrayList<MapLocation> cheeseMineLocs = new ArrayList<>();
         int numWalls = 0;
@@ -466,7 +475,6 @@ public class LiveMap {
             }
         }
 
-        // TODO are walls still a thing?
         if (numWalls * 100 >= this.width * this.height * GameConstants.MAX_WALL_PERCENTAGE) {
             throw new RuntimeException("Too much of the area of the map is composed of walls!");
         }

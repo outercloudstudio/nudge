@@ -31,6 +31,7 @@ public class TeamInfo {
         this.dirtCounts = new int[2];
         this.oldCheeseCounts = new int[2];
         this.totalNumRats = new int[2];
+        this.numRatKings = new int[2];
         this.points = new int[2];
     }
 
@@ -155,11 +156,12 @@ public class TeamInfo {
             // backstabbing mode
             if (getNumRatKings(team.opponent()) == 0){
                 this.gameWorld.gameStats.setWinner(team);
-                this.gameWorld.gameStats.setDominationFactor(DominationFactor.KILL_ALL_RAT_KINGS);
+                this.gameWorld.gameStats.setDominationFactor(DominationFactor.KILL_ALL_RAT_KINGS_BACKSTAB);
             }
-        }  
+        }
+        
         // TODO: if cooperation, even if cat dies, game continues?    
-        throw new InternalError("Reporting incorrect win");
+        // throw new InternalError("Reporting incorrect win");
     }
 
     public int getRoundCheeseChange(Team team) {

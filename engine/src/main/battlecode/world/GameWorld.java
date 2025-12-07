@@ -111,8 +111,8 @@ public class GameWorld {
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);
         this.trapCounts = new HashMap<>();
-        trapCounts.put(TrapType.CATTRAP, 0);
-        trapCounts.put(TrapType.RATTRAP, 0);
+        trapCounts.put(TrapType.CAT_TRAP, 0);
+        trapCounts.put(TrapType.RAT_TRAP, 0);
         trapTriggers = new ArrayList[numSquares];
 
         this.profilerCollections = new HashMap<>();
@@ -380,12 +380,12 @@ public class GameWorld {
 
     public boolean hasRatTrap(MapLocation loc) {
         Trap trap = this.trapLocations[locationToIndex(loc)];
-        return (trap != null && trap.getType() == TrapType.RATTRAP);
+        return (trap != null && trap.getType() == TrapType.RAT_TRAP);
     }
 
     public boolean hasCatTrap(MapLocation loc) {
         Trap trap = this.trapLocations[locationToIndex(loc)];
-        return (trap != null && trap.getType() == TrapType.CATTRAP);
+        return (trap != null && trap.getType() == TrapType.CAT_TRAP);
     }
 
     public ArrayList<Trap> getTrapTriggers(MapLocation loc) {
@@ -534,11 +534,14 @@ public class GameWorld {
         int minY = Math.max(center.y - ceiledRadius, origin.y);
         int maxX = Math.min(center.x + ceiledRadius, origin.x + width - 1);
         int maxY = Math.min(center.y + ceiledRadius, origin.y + height - 1);
+        
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 MapLocation newLocation = new MapLocation(x, y);
-                if (center.isWithinDistanceSquared(newLocation, radiusSquared, lookDirection, angle))
+
+                if (center.isWithinDistanceSquared(newLocation, radiusSquared, lookDirection, angle)) {
                     returnLocations.add(newLocation);
+                }
             }
         }
         return returnLocations.toArray(new MapLocation[returnLocations.size()]);
@@ -665,17 +668,21 @@ public class GameWorld {
         // TODO: what direction should robots start facing?
         // IMO, towards center of the map to be fair
         InternalRobot robot = new InternalRobot(this, ID, team, type, location, Direction.NORTH);
+
         for (MapLocation loc : type.getAllLocations(location)) {
             addRobot(loc, robot);
         }
+
         objectInfo.createRobot(robot);
         controlProvider.robotSpawned(robot);
+
         if (type.isRatType()){
             this.teamInfo.addRats(1, team);
         }
         else if(type.isRatKingType()){
             this.teamInfo.addRatKings(1, team);
         }
+
         this.currentNumberUnits[team.ordinal()] += 1;
         return ID;
     }
@@ -685,15 +692,21 @@ public class GameWorld {
         return spawnRobot(ID, type, location, team);
     }
 
-    public void squeak(InternalRobot robot, Message message){
-        MapLocation[] locations = getAllLocationsWithinRadiusSquared(robot.getLocation(), GameConstants.SQUEAK_RADIUS_SQUARED);
+    public void squeak(InternalRobot robot, Message message) {
+        MapLocation robotLoc = robot.getLocation();
+        MapLocation[] locations = getAllLocationsWithinRadiusSquared(robotLoc, GameConstants.SQUEAK_RADIUS_SQUARED);
+
         for (MapLocation loc : locations){
             InternalRobot otherRobot = getRobot(loc);
-            if (otherRobot != null && otherRobot.getTeam() == robot.getTeam()){
+
+            if (otherRobot != null && otherRobot.getTeam() == robot.getTeam()) {
                 otherRobot.addMessage(message.copy());
             }
+            
             //TODO alert cats
         }
+
+        matchMaker.addSqueakAction(robotLoc);
     }
 
     public void writeSharedArray(int index, int value) {
@@ -758,5 +771,4 @@ public class GameWorld {
         }
         profilerCollections.put(team, profilerCollection);
     }
-
 }

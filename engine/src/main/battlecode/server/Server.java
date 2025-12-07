@@ -178,6 +178,7 @@ public class Server implements Runnable {
             boolean teamsReversed = false;
             for (int matchIndex = 0; matchIndex < currentGame.getMaps().length; matchIndex++) {
                 Team winner;
+
                 try {
                     winner = runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, teamsReversed);
                     if (alternateOrder) {teamsReversed = !teamsReversed;}
@@ -378,7 +379,6 @@ public class Server implements Runnable {
      * @return A string representing the match's winner.
      */
     public String getWinnerString(GameInfo game, Team winner, int roundNumber) {
-
         String teamName;
 
         switch (winner) {
@@ -405,23 +405,17 @@ public class Server implements Runnable {
         DominationFactor dom = stats.getDominationFactor();
 
         switch (dom) {
-            case PAINT_ENOUGH_AREA:
-                sb.append("The winning team painted enough of the map.");
+            case KILL_ALL_RAT_KINGS_BACKSTAB:
+                sb.append("The winning team destroyed all of the enemy team's rat kings.");
                 break;
-            case DESTROY_ALL_UNITS:
-                sb.append("The winning team destroyed all of the enemy team's units.");
+            case KILL_ALL_RAT_KINGS_COOPERATION:
+                sb.append("The cat destroyed all of the enemy team's rat kings.");
                 break;
-            case MORE_SQUARES_PAINTED:
-                sb.append("The winning team won on tiebreakers (painted more of the map).");
+            case MORE_POINTS:
+                sb.append("The winning team had more points at the end of the game.");
                 break;
-            case MORE_TOWERS_ALIVE:
-                sb.append("The winning team won on tiebreakers (more towers alive).");
-                break;
-            case MORE_MONEY:
-                sb.append("The winning team won on tiebreakers (more money)");
-                break;
-            case MORE_PAINT_IN_UNITS:
-                sb.append("The winning team won on tiebreakers (more paint stored in units).");
+            case MORE_CHEESE:
+                sb.append("The winning team won on tiebreakers (more cheese)");
                 break;
             case MORE_ROBOTS_ALIVE:
                 sb.append("The winning team won on tiebreakers (more robots alive).");

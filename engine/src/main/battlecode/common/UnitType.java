@@ -16,7 +16,7 @@ public enum UnitType {
     public final int speed;
 
     // robot's vision radius
-    public final int visionConeRadius;
+    public final int visionConeRadiusSquared;
 
     // robot's vision cone angle (in degrees)
     public final int visionConeAngle;
@@ -71,7 +71,7 @@ public enum UnitType {
         this.health = health;
         this.size = size;
         this.speed = speed;
-        this.visionConeRadius = visionConeRadius;
+        this.visionConeRadiusSquared = visionConeRadius;
         this.visionConeAngle = visionConeAngle;
         this.actionCooldown = actionCooldown;
         this.bytecodeLimit = bytecodeLimit;
@@ -81,7 +81,7 @@ public enum UnitType {
     public int getHealth() { return health; }
     public int getSize() { return size; }
     public int getSpeed() { return speed; }
-    public int getVisionRadius() { return visionConeRadius; }
+    public int getVisionRadiusSquared() { return visionConeRadiusSquared; }
     public int getVisionAngle() { return visionConeAngle; }
     public int getActionCooldown() { return actionCooldown; }
     public int getBytecodeLimit() {return bytecodeLimit; }
