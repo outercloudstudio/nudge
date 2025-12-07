@@ -134,8 +134,59 @@ class GameMap(object):
             return obj
         return None
 
+    # GameMap
+    def CatWaypointIds(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            a = self._tab.Vector(o)
+            return self._tab.Get(flatbuffers.number_types.Uint16Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 2))
+        return 0
+
+    # GameMap
+    def CatWaypointIdsAsNumpy(self):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint16Flags, o)
+        return 0
+
+    # GameMap
+    def CatWaypointIdsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # GameMap
+    def CatWaypointIdsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        return o == 0
+
+    # GameMap
+    def CatWaypointVecs(self, j: int) -> Optional[VecTable]:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        if o != 0:
+            x = self._tab.Vector(o)
+            x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
+            x = self._tab.Indirect(x)
+            obj = VecTable()
+            obj.Init(self._tab.Bytes, x)
+            return obj
+        return None
+
+    # GameMap
+    def CatWaypointVecsLength(self) -> int:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        if o != 0:
+            return self._tab.VectorLen(o)
+        return 0
+
+    # GameMap
+    def CatWaypointVecsIsNone(self) -> bool:
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        return o == 0
+
 def GameMapStart(builder: flatbuffers.Builder):
-    builder.StartObject(8)
+    builder.StartObject(10)
 
 def Start(builder: flatbuffers.Builder):
     GameMapStart(builder)
@@ -199,6 +250,30 @@ def GameMapAddCheeseMines(builder: flatbuffers.Builder, cheeseMines: int):
 
 def AddCheeseMines(builder: flatbuffers.Builder, cheeseMines: int):
     GameMapAddCheeseMines(builder, cheeseMines)
+
+def GameMapAddCatWaypointIds(builder: flatbuffers.Builder, catWaypointIds: int):
+    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(catWaypointIds), 0)
+
+def AddCatWaypointIds(builder: flatbuffers.Builder, catWaypointIds: int):
+    GameMapAddCatWaypointIds(builder, catWaypointIds)
+
+def GameMapStartCatWaypointIdsVector(builder, numElems: int) -> int:
+    return builder.StartVector(2, numElems, 2)
+
+def StartCatWaypointIdsVector(builder, numElems: int) -> int:
+    return GameMapStartCatWaypointIdsVector(builder, numElems)
+
+def GameMapAddCatWaypointVecs(builder: flatbuffers.Builder, catWaypointVecs: int):
+    builder.PrependUOffsetTRelativeSlot(9, flatbuffers.number_types.UOffsetTFlags.py_type(catWaypointVecs), 0)
+
+def AddCatWaypointVecs(builder: flatbuffers.Builder, catWaypointVecs: int):
+    GameMapAddCatWaypointVecs(builder, catWaypointVecs)
+
+def GameMapStartCatWaypointVecsVector(builder, numElems: int) -> int:
+    return builder.StartVector(4, numElems, 4)
+
+def StartCatWaypointVecsVector(builder, numElems: int) -> int:
+    return GameMapStartCatWaypointVecsVector(builder, numElems)
 
 def GameMapEnd(builder: flatbuffers.Builder) -> int:
     return builder.EndObject()

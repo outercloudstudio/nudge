@@ -236,6 +236,8 @@ table GameMap {
     walls: [bool];
     dirt: [bool];
     cheeseMines: VecTable;
+    catWaypointIds: [ushort];
+    catWaypointVecs: [VecTable];
 }
 
 

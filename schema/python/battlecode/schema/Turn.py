@@ -5,7 +5,6 @@
 import flatbuffers
 from flatbuffers.compat import import_numpy
 from typing import Any
-from typing import Optional
 np = import_numpy()
 
 class Turn(object):
@@ -110,7 +109,7 @@ class Turn(object):
         return o == 0
 
     # Turn
-    def Actions(self, j: int) -> Optional[*flatbuffers.Table]:
+    def Actions(self, j):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             x = self._tab.Vector(o)
