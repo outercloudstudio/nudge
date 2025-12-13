@@ -435,6 +435,9 @@ public class GameWorld {
         
         robot.setMovementCooldownTurns(type.stunTime);
         robot.addHealth(-type.damage);
+        if (robot.getType().isCatType()){
+            this.teamInfo.addDamageToCats(trap.getTeam(), type.damage);
+        }
         //TODO once the cat exists, alert cat of trap trigger
         //TODO once backstab status exists, update that
 

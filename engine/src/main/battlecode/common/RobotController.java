@@ -535,6 +535,27 @@ public interface RobotController {
     void buildRobot(MapLocation loc) throws GameActionException;
 
     /**
+     * Checks if a rat can become a rat king, when 7 allied rats are in the 3x3 square
+     * centered at this rat's location and the ally team has 50 cheese. 
+     * All tiles in the 3x3 square must be passible.
+     * 
+     * @return true if this rat can become a rat king
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean canBecomeRatKing();
+
+    /**
+     * Upgrades this rat into a rat king if possible, when 7 allied rats are in the 3x3 square
+     * centered at this rat's location and the ally team has 50 cheese.
+     * 
+     * Other rats in the 3x3 square will be killed.
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void becomeRatKing() throws GameActionException;
+
+    /**
      * Tests whether this robot can place dirt at the given location.
      * 
      * @param loc
@@ -759,7 +780,7 @@ public interface RobotController {
      * @param dir the location 
      * @battlecode.doc.costlymethod
      */
-    void throwRat(Direction dir);
+    void throwRat(Direction dir) throws GameActionException;
 
     /**
      * Tests whether the robot can throw a carried robot in the specified direction.
@@ -768,7 +789,23 @@ public interface RobotController {
      * @throws GameActionException if the robot is not able to transfer cheese to the
      *                             location
      */
-    boolean canThrowRat(Direction dir);
+    boolean canThrowRat(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can grab (carry) a robot at the specified location.
+     *
+     * @param loc the location to grab from (must be adjacent)
+     * @return true if this robot can pick up a robot at loc
+     */
+    boolean canCarryRat(MapLocation loc);
+
+    /**
+     * Causes this robot to pick up (grab) a robot at the specified location.
+     *
+     * @param loc the location to pick up from (must be adjacent)
+     * @throws GameActionException if this robot cannot pick up the target
+     */
+    void carryRat(MapLocation loc) throws GameActionException;
 
     /**
      * Destroys the robot.
