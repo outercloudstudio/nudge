@@ -121,7 +121,7 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
 
     // Validate initial bodies
     for (const body of bodies.bodies.values()) {
-        // Check distance to nearby ruins, towers, and walls
+        // Check distance from cat to other cats and cheese mines
 
         for (const checkCheeseMine of map.staticMap.cheeseMines) {
             if (squareIntersects(checkCheeseMine, body.pos, 4)) {
@@ -135,11 +135,11 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
 
         for (const checkBody of bodies.bodies.values()) {
             if (checkBody === body) continue
-            if (squareIntersects(checkBody.pos, body.pos, 4)) {
+            if (squareIntersects(checkBody.pos, body.pos, 0)) {
                 return (
-                    `Tower at (${body.pos.x}, ${body.pos.y}) is too close to ruin ` +
+                    `Cat at (${body.pos.x}, ${body.pos.y}) is too close to cat ` +
                     `at (${checkBody.pos.x}, ${checkBody.pos.y}), must be ` +
-                    `>= 5 away`
+                    `>= 1 away`
                 )
             }
         }
@@ -150,7 +150,7 @@ function verifyMap(map: CurrentMap, bodies: Bodies): string {
         if (wall !== -1) {
             const pos = map.indexToLocation(wall)
             return (
-                `Tower at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
+                `Cat at (${body.pos.x}, ${body.pos.y}) is too close to wall ` +
                 `at (${pos.x}, ${pos.y}), must be ` +
                 `>= 3 away`
             )
