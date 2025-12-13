@@ -600,11 +600,12 @@ public final class RobotControllerImpl implements RobotController {
         for (int i = 0; i < newLocs.length; i++) {
             newLocs[i] = curLocs[i].add(robot.getDirection());
         }
+        
         for (MapLocation loc : newLocs) {
             if (!onTheMap(loc))
                 throw new GameActionException(OUT_OF_RANGE,
                         "Can only move to locations on the map; " + loc + " is not on the map.");
-            if (isLocationOccupied(loc) && this.gameWorld.getRobot(loc).getID() != robot.getID())
+            if ((this.gameWorld.getRobot(loc) != null) && (this.gameWorld.getRobot(loc).getID() != robot.getID()))
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
             if (!this.gameWorld.isPassable(loc))
@@ -875,7 +876,7 @@ public final class RobotControllerImpl implements RobotController {
             if (curRobot != null && !curRobot.getType().isRatType()){
                 throw new GameActionException(CANT_DO_THAT, "Can't become a rat king when there are nearby cats or rat kings!");
             }
-            MapInfo mapInfo = this.getMapInfo(loc);
+            MapInfo mapInfo = this.getMapInfo(curLoc);
             if (!mapInfo.isPassable()) {
                 throw new GameActionException(CANT_DO_THAT, "Can only upgrade if all squares in the 3x3 vicinity are passable");
             }
@@ -898,7 +899,7 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void becomeRatKing() throws GameActionException {
-        assertCanUpgradeRats(loc);
+        canBecomeRatKing();
         int health = 0;
         for (Direction d: Direction.allDirections()) {
             InternalRobot currentRobot = this.gameWorld.getRobot(this.adjacentLocation(d));
@@ -909,7 +910,7 @@ public final class RobotControllerImpl implements RobotController {
                 currentRobot.addHealth(-currentRobot.getHealth());
             }
         }
-        this.gameWorld.getTeamInfo().addCheese(-GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
+        this.gameWorld.getTeamInfo().addCheese(this.getTeam(), -GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
         health = Math.min(health, UnitType.RAT_KING.health);
         robot.becomeRatKing(health);
         // TODO: becomeRatKing action?

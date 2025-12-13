@@ -84,9 +84,12 @@ public class RobotPlayer {
                 }
                 
                 // Try to move forward one step.
+                System.out.println("It's turn " + turnCount);
                 if (rc.canMoveForward()) {
+                    System.out.println("Turn " + turnCount + "Trying to move");
                     rc.moveForward();
                 } else {
+                    System.out.println("couldn't move forward on turn " + turnCount);
                     // If we can't move forward, try to turn a random direction.
                     int randomDirection = rng.nextInt(8);
                     

@@ -401,7 +401,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void becomeRatKing(int health) {
-        this.type = RAT_KING;
+        this.type = UnitType.RAT_KING;
         this.health = health;
     } 
     
@@ -448,7 +448,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         health += healthAmount;
         health = Math.min(this.health, this.type.health);
         if (health <= 0) {
-            this.gameWorld.destroyRobot(ID, false, true);
+            this.gameWorld.destroyRobot(this.getID(), false, true);
         }
     }
 
