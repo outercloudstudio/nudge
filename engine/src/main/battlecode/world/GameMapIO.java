@@ -386,8 +386,12 @@ public final class GameMapIO {
                 if (teamsReversed) {
                     bodyTeam = bodyTeam.opponent();
                 }
+                if(bodyType==UnitType.CAT){ //temp fix, we need Cats to be on Neutral (i.e. curSpawnAction.team() = 0)
+                    bodyTeam = Team.NEUTRAL;
+                }
+
                 boolean initialCrouching = false;
-                int initialCheese = 0;
+                int initialCheese = GameConstants.INITIAL_TEAM_CHEESE;
                 RobotInfo carryingRobot = null;
                 initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCheese, carryingRobot, initialCrouching));
             }

@@ -58,6 +58,8 @@ public class GameWorld {
     private ArrayList<CheeseMine> cheeseMines;
     private CheeseMine[] cheeseMineLocs;
 
+    private int numCats;
+
     private int[] sharedArray;
     private int[] persistentArray;
 
@@ -137,6 +139,8 @@ public class GameWorld {
         this.cheeseMines = new ArrayList<CheeseMine>();
         this.cheeseMineLocs = new CheeseMine[numSquares];
 
+        this.numCats = 0;
+
         for (int i = 0; i < numSquares; i++) {
             if (this.allCheeseMinesByLoc[i]) {
                 CheeseMine newMine = new CheeseMine(indexToLocation(i), GameConstants.SQ_CHEESE_SPAWN_RADIUS, null);
@@ -160,6 +164,7 @@ public class GameWorld {
             RobotInfo robotInfo = initialBodies[i];
             MapLocation newLocation = robotInfo.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             spawnRobot(robotInfo.ID, robotInfo.type, newLocation, robotInfo.team);
+            System.out.println("Has cheese amount" + robotInfo.cheeseAmount);
         }
     }
 
@@ -311,7 +316,7 @@ public class GameWorld {
     }
 
     public int getNumCats(){
-        return this.getObjectInfo().getRobotTypeCount(Team.NEUTRAL, UnitType.CAT);
+        return this.numCats;
     }
 
     public boolean isPassable(MapLocation loc) {
@@ -775,6 +780,7 @@ public class GameWorld {
     public int spawnRobot(int ID, UnitType type, MapLocation location, Team team) {
         // TODO: what direction should robots start facing?
         // IMO, towards center of the map to be fair
+        
         InternalRobot robot = new InternalRobot(this, ID, team, type, location, Direction.NORTH);
 
         for (MapLocation loc : type.getAllLocations(location)) {
@@ -790,13 +796,20 @@ public class GameWorld {
         else if(type.isRatKingType()){
             this.teamInfo.addRatKings(1, team);
         }
+        else if(type.isCatType()){
+            this.numCats += 1;
+        }
+            
 
-        this.currentNumberUnits[team.ordinal()] += 1;
+        if (!type.isCatType()){
+            this.currentNumberUnits[team.ordinal()] += 1;
+        }
         return ID;
     }
 
     public int spawnRobot(UnitType type, MapLocation location, Team team) {
         int ID = idGenerator.nextID();
+
         return spawnRobot(ID, type, location, team);
     }
 
@@ -854,7 +867,14 @@ public class GameWorld {
         MapLocation loc = robot.getLocation();
 
         // check win
-        checkWin(robotTeam);
+        if(robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0){
+            System.out.println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
+            checkWin(robotTeam);
+        }
+        else if(robot.getType() == UnitType.CAT && this.getNumCats() == 0){
+            System.out.println("DEBUGGING: number of cats = " + this.getNumCats());
+            checkWin(robotTeam);
+        }
 
         if (loc != null) {
             if (robot.getType().isRatType()){
@@ -862,6 +882,9 @@ public class GameWorld {
             }
             else if (robot.getType().isRatKingType()){
                 this.teamInfo.addRatKings(-1, robotTeam);
+            }
+            else if (robot.getType().isCatType()){
+                this.numCats -= 1;
             }
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);

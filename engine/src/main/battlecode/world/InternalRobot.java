@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import battlecode.world.CatStateType;
 import battlecode.common.Direction;
+import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
@@ -380,6 +381,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public void setLocation(int dx, int dy) {
         for (MapLocation partLoc : this.getAllPartLocations()) {
+            System.out.println("Moving part " + partLoc.x + ", " + partLoc.y + " to " + partLoc.translate(dx, dy).x + " " + partLoc.translate(dx, dy).y); 
             this.gameWorld.moveRobot(partLoc, partLoc.translate(dx, dy));
         }
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
@@ -387,11 +389,17 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public boolean canMove(int dx, int dy) {
-        for (MapLocation partLoc : this.getAllPartLocations()) {
-            MapLocation newLoc = partLoc.translate(dx, dy);
-            if (!this.gameWorld.isPassable(newLoc)) {
+        // for cat only
+        MapLocation[] locs = this.getAllPartLocations();
+        for (MapLocation loc : locs) {
+            MapLocation newloc = loc.translate(dx, dy);
+            if (!this.gameWorld.getGameMap().onTheMap(newloc))
+                return false;
+            if ((this.gameWorld.getRobot(newloc) != null) && (this.gameWorld.getRobot(newloc).getID() != this.getID())){
                 return false;
             }
+            if (!this.gameWorld.isPassable(newloc))
+               return false;
         }
         return true;
     }
@@ -660,7 +668,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         // Target location must be on map and passable (no walls/dirt) and within max pounce distnace
         boolean isWithinPounceDistance = (this.getLocation()
-                    .topRightDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
+                    .topLeftDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
         if (!this.gameWorld.isPassable(loc) || !isWithinPounceDistance) {
             return null;
         }
@@ -885,6 +893,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     }
 
                     Direction toWaypoint = this.location.directionTo(this.catTargetLoc);
+                    System.out.println("DEBUGGING: " + toWaypoint);
                     this.dir = this.location.directionTo(this.catTargetLoc);
 
                     if (this.movementCooldownTurns == 0 && canMove(toWaypoint.getDeltaX(), toWaypoint.getDeltaY())) {
@@ -893,7 +902,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(toWaypoint);
 
-                            if (this.actionCooldownTurns == 0 && (this.gameWorld.getDirt(nextLoc))) {
+                            if (this.actionCooldownTurns == 0 && this.gameWorld.getGameMap().onTheMap(partLoc) && (this.gameWorld.getDirt(nextLoc))) {
                                 this.gameWorld.setDirt(nextLoc, false);
                                 this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
                             }
@@ -1004,7 +1013,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
                             }
                         }
                     }
-
                     break;
             }
         }
