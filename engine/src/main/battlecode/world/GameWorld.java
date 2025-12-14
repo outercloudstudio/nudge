@@ -889,6 +889,10 @@ public class GameWorld {
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
             }
+            if (robot.isCarryingRobot()) {
+                InternalRobot carryingRobot = robot.getCarryingRobot();
+                carryingRobot.getDropped(loc);
+            }
         }
         controlProvider.robotKilled(robot);
         objectInfo.destroyRobot(id);
