@@ -21,8 +21,9 @@ class Action(object):
     UpgradeToRatKing = 15
     RatSqueak = 16
     DamageAction = 17
-    SpawnAction = 18
-    DieAction = 19
-    IndicatorStringAction = 20
-    IndicatorDotAction = 21
-    IndicatorLineAction = 22
+    StunAction = 18
+    SpawnAction = 19
+    DieAction = 20
+    IndicatorStringAction = 21
+    IndicatorDotAction = 22
+    IndicatorLineAction = 23

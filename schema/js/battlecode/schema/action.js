@@ -24,6 +24,7 @@ var rat_collision_1 = require("../../battlecode/schema/rat-collision");
 var rat_nap_1 = require("../../battlecode/schema/rat-nap");
 var rat_squeak_1 = require("../../battlecode/schema/rat-squeak");
 var spawn_action_1 = require("../../battlecode/schema/spawn-action");
+var stun_action_1 = require("../../battlecode/schema/stun-action");
 var throw_rat_1 = require("../../battlecode/schema/throw-rat");
 var trigger_trap_1 = require("../../battlecode/schema/trigger-trap");
 var upgrade_to_rat_king_1 = require("../../battlecode/schema/upgrade-to-rat-king");
@@ -47,11 +48,12 @@ var Action;
     Action[Action["UpgradeToRatKing"] = 15] = "UpgradeToRatKing";
     Action[Action["RatSqueak"] = 16] = "RatSqueak";
     Action[Action["DamageAction"] = 17] = "DamageAction";
-    Action[Action["SpawnAction"] = 18] = "SpawnAction";
-    Action[Action["DieAction"] = 19] = "DieAction";
-    Action[Action["IndicatorStringAction"] = 20] = "IndicatorStringAction";
-    Action[Action["IndicatorDotAction"] = 21] = "IndicatorDotAction";
-    Action[Action["IndicatorLineAction"] = 22] = "IndicatorLineAction";
+    Action[Action["StunAction"] = 18] = "StunAction";
+    Action[Action["SpawnAction"] = 19] = "SpawnAction";
+    Action[Action["DieAction"] = 20] = "DieAction";
+    Action[Action["IndicatorStringAction"] = 21] = "IndicatorStringAction";
+    Action[Action["IndicatorDotAction"] = 22] = "IndicatorDotAction";
+    Action[Action["IndicatorLineAction"] = 23] = "IndicatorLineAction";
 })(Action || (exports.Action = Action = {}));
 function unionToAction(type, accessor) {
     switch (Action[type]) {
@@ -73,6 +75,7 @@ function unionToAction(type, accessor) {
         case 'UpgradeToRatKing': return accessor(new upgrade_to_rat_king_1.UpgradeToRatKing());
         case 'RatSqueak': return accessor(new rat_squeak_1.RatSqueak());
         case 'DamageAction': return accessor(new damage_action_1.DamageAction());
+        case 'StunAction': return accessor(new stun_action_1.StunAction());
         case 'SpawnAction': return accessor(new spawn_action_1.SpawnAction());
         case 'DieAction': return accessor(new die_action_1.DieAction());
         case 'IndicatorStringAction': return accessor(new indicator_string_action_1.IndicatorStringAction());
@@ -101,6 +104,7 @@ function unionListToAction(type, accessor, index) {
         case 'UpgradeToRatKing': return accessor(index, new upgrade_to_rat_king_1.UpgradeToRatKing());
         case 'RatSqueak': return accessor(index, new rat_squeak_1.RatSqueak());
         case 'DamageAction': return accessor(index, new damage_action_1.DamageAction());
+        case 'StunAction': return accessor(index, new stun_action_1.StunAction());
         case 'SpawnAction': return accessor(index, new spawn_action_1.SpawnAction());
         case 'DieAction': return accessor(index, new die_action_1.DieAction());
         case 'IndicatorStringAction': return accessor(index, new indicator_string_action_1.IndicatorStringAction());

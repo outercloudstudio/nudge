@@ -27,6 +27,7 @@ class Action(object):
   UpgradeToRatKing: int
   RatSqueak: int
   DamageAction: int
+  StunAction: int
   SpawnAction: int
   DieAction: int
   IndicatorStringAction: int
