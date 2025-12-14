@@ -902,8 +902,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(toWaypoint);
 
-                            if (this.actionCooldownTurns == 0 && this.gameWorld.getGameMap().onTheMap(partLoc) && (this.gameWorld.getDirt(nextLoc))) {
-                                this.gameWorld.setDirt(nextLoc, false);
+                            if (this.controller.canRemoveDirt(nextLoc)) {
+                                this.controller.removeDirt(nextLoc);
                                 this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
                             }
                         }
