@@ -786,19 +786,32 @@ public interface RobotController {
     /**
      * Throws robot in the robot direction
      * 
-     * @param dir the location 
      * @battlecode.doc.costlymethod
      */
-    void throwRat(Direction dir) throws GameActionException;
+    void throwRat() throws GameActionException;
 
     /**
-     * Tests whether the robot can throw a carried robot in the specified direction.
+     * Tests whether the robot can throw a carried robot in the robot direction.
      * 
-     * @param dir the direction to throw the robot
-     * @throws GameActionException if the robot is not able to transfer cheese to the
+     * @throws GameActionException if the robot is not able to throw to the
      *                             location
      */
-    boolean canThrowRat(Direction dir) throws GameActionException;
+    boolean canThrowRat() throws GameActionException;
+
+    /**
+     * Safely drops robot in the specified direction
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void dropRat(Direction dir) throws GameActionException;
+
+    /**
+     * Tests whether the robot can safely drop a carried robot in the specified direction.
+     * 
+     * @throws GameActionException if the robot is not able to drop to the
+     *                             location
+     */
+    boolean canDropRat(Direction dir) throws GameActionException;
 
     /**
      * Tests whether the robot can grab (carry) a robot at the specified location.

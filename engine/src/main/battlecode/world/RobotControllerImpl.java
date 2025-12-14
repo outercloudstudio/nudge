@@ -1059,9 +1059,25 @@ public final class RobotControllerImpl implements RobotController {
         }
     }
 
-    public boolean canThrowRat(Direction dir) {
+    public void assertCanDropRat(Direction dir) throws GameActionException {
+        assertIsActionReady();
+        MapLocation nextLoc = this.getLocation().add(dir);
+        if (!this.robot.getType().isRatType()) {
+            throw new GameActionException(CANT_DO_THAT, "Only rats can drop other rats!");
+        }
+        if (!this.robot.isCarryingRobot())
+            throw new GameActionException(CANT_DO_THAT, "This rat is not carrying any rat!");
+        if (!this.gameWorld.getGameMap().onTheMap(nextLoc)) {
+            throw new RuntimeException("Cannot drop outside of map!");
+        }
+        if (!this.gameWorld.isPassable(nextLoc) || (this.gameWorld.getRobot(nextLoc) != null)) {
+            throw new RuntimeException("Can only drop rats into empty spaces!");
+        }
+    }
+
+    public boolean canThrowRat() {
         try {
-            assertCanThrowRat(dir);
+            assertCanThrowRat(this.robot.getDirection());
             return true;
         } catch (GameActionException e) {
             return false;
@@ -1069,9 +1085,24 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void throwRat(Direction dir) throws GameActionException {
-        assertCanThrowRat(dir);
-        this.robot.throwRobot(dir);
+    public void throwRat() throws GameActionException {
+        assertCanThrowRat(this.robot.getDirection());
+        this.robot.throwRobot();
+    }
+
+    public boolean canDropRat(Direction dir) {
+        try {
+            assertCanDropRat(dir);
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void dropRat(Direction dir) throws GameActionException {
+        assertCanDropRat(dir);
+        this.robot.dropRobot(dir);
     }
 
     
