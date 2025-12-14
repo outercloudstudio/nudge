@@ -274,13 +274,22 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const body = match.currentRound.bodies.getById(this.robotId)
             const pos = match.map.indexToLocation(this.actionData.loc())
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
+            const reflected = body.pos.x < pos.x
 
+            const interpolationFactor = match.getInterpolationFactor()
             ctx.strokeStyle = body.team.color
             ctx.globalAlpha = 0.3
             ctx.fillStyle = body.team.color
             ctx.beginPath()
-            ctx.arc(coords.x, coords.y, 2, 0, 2 * Math.PI)
-            ctx.fill()
+            if (reflected) {
+                ctx.arc(coords.x, coords.y, 0.5, -1 - 2 * interpolationFactor, -2 * interpolationFactor)
+                ctx.arc(coords.x - 0.1, coords.y + 0.1, 0.5, -1 - 2 * interpolationFactor, -2 * interpolationFactor)
+                ctx.arc(coords.x + 0.1, coords.y - 0.1, 0.5, -1 - 2 * interpolationFactor, -2 * interpolationFactor)
+            } else {
+                ctx.arc(coords.x, coords.y, 0.5, 2 * interpolationFactor, 1 + 2 * interpolationFactor)
+                ctx.arc(coords.x + 0.1, coords.y + 0.1, 0.5, 2 * interpolationFactor, 1 + 2 * interpolationFactor)
+                ctx.arc(coords.x - 0.1, coords.y - 0.1, 0.5, 2 * interpolationFactor, 1 + 2 * interpolationFactor)
+            }
             ctx.stroke()
             ctx.globalAlpha = 1
         }
