@@ -65,33 +65,38 @@ y():number {
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 }
 
-actionsType(index: number):Action|null {
+dir():number {
   const offset = this.bb!.__offset(this.bb_pos, 20);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+actionsType(index: number):Action|null {
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 actionsTypeLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 actionsTypeArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 actions(index: number, obj:any):any|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
 }
 
 actionsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startTurn(builder:flatbuffers.Builder) {
-  builder.startObject(10);
+  builder.startObject(11);
 }
 
 static addRobotId(builder:flatbuffers.Builder, robotId:number) {
@@ -126,8 +131,12 @@ static addY(builder:flatbuffers.Builder, y:number) {
   builder.addFieldInt8(7, y, 0);
 }
 
+static addDir(builder:flatbuffers.Builder, dir:number) {
+  builder.addFieldInt8(8, dir, 0);
+}
+
 static addActionsType(builder:flatbuffers.Builder, actionsTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, actionsTypeOffset, 0);
+  builder.addFieldOffset(9, actionsTypeOffset, 0);
 }
 
 static createActionsTypeVector(builder:flatbuffers.Builder, data:Action[]):flatbuffers.Offset {
@@ -143,7 +152,7 @@ static startActionsTypeVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActions(builder:flatbuffers.Builder, actionsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, actionsOffset, 0);
+  builder.addFieldOffset(10, actionsOffset, 0);
 }
 
 static createActionsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -163,7 +172,7 @@ static endTurn(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, dir:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset):flatbuffers.Offset {
   Turn.startTurn(builder);
   Turn.addRobotId(builder, robotId);
   Turn.addHealth(builder, health);
@@ -173,6 +182,7 @@ static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, ch
   Turn.addBytecodesUsed(builder, bytecodesUsed);
   Turn.addX(builder, x);
   Turn.addY(builder, y);
+  Turn.addDir(builder, dir);
   Turn.addActionsType(builder, actionsTypeOffset);
   Turn.addActions(builder, actionsOffset);
   return Turn.endTurn(builder);

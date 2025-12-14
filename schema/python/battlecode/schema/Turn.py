@@ -82,8 +82,15 @@ class Turn(object):
         return 0
 
     # Turn
-    def ActionsType(self, j: int):
+    def Dir(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        if o != 0:
+            return self._tab.Get(flatbuffers.number_types.Uint8Flags, o + self._tab.Pos)
+        return 0
+
+    # Turn
+    def ActionsType(self, j: int):
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             a = self._tab.Vector(o)
             return self._tab.Get(flatbuffers.number_types.Uint8Flags, a + flatbuffers.number_types.UOffsetTFlags.py_type(j * 1))
@@ -91,26 +98,26 @@ class Turn(object):
 
     # Turn
     def ActionsTypeAsNumpy(self):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Uint8Flags, o)
         return 0
 
     # Turn
     def ActionsTypeLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Turn
     def ActionsTypeIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(20))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
         return o == 0
 
     # Turn
     def Actions(self, j):
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
         if o != 0:
             x = self._tab.Vector(o)
             x += flatbuffers.number_types.UOffsetTFlags.py_type(j) * 4
@@ -123,18 +130,18 @@ class Turn(object):
 
     # Turn
     def ActionsLength(self) -> int:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Turn
     def ActionsIsNone(self) -> bool:
-        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(22))
+        o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(24))
         return o == 0
 
 def TurnStart(builder: flatbuffers.Builder):
-    builder.StartObject(10)
+    builder.StartObject(11)
 
 def Start(builder: flatbuffers.Builder):
     TurnStart(builder)
@@ -187,8 +194,14 @@ def TurnAddY(builder: flatbuffers.Builder, y: int):
 def AddY(builder: flatbuffers.Builder, y: int):
     TurnAddY(builder, y)
 
+def TurnAddDir(builder: flatbuffers.Builder, dir: int):
+    builder.PrependUint8Slot(8, dir, 0)
+
+def AddDir(builder: flatbuffers.Builder, dir: int):
+    TurnAddDir(builder, dir)
+
 def TurnAddActionsType(builder: flatbuffers.Builder, actionsType: int):
-    builder.PrependUOffsetTRelativeSlot(8, flatbuffers.number_types.UOffsetTFlags.py_type(actionsType), 0)
+    builder.PrependUOffsetTRelativeSlot(9, flatbuffers.number_types.UOffsetTFlags.py_type(actionsType), 0)
 
 def AddActionsType(builder: flatbuffers.Builder, actionsType: int):
     TurnAddActionsType(builder, actionsType)
@@ -200,7 +213,7 @@ def StartActionsTypeVector(builder, numElems: int) -> int:
     return TurnStartActionsTypeVector(builder, numElems)
 
 def TurnAddActions(builder: flatbuffers.Builder, actions: int):
-    builder.PrependUOffsetTRelativeSlot(9, flatbuffers.number_types.UOffsetTFlags.py_type(actions), 0)
+    builder.PrependUOffsetTRelativeSlot(10, flatbuffers.number_types.UOffsetTFlags.py_type(actions), 0)
 
 def AddActions(builder: flatbuffers.Builder, actions: int):
     TurnAddActions(builder, actions)

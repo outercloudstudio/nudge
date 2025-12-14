@@ -405,6 +405,7 @@ table Turn {
     bytecodesUsed: int;
     x: ubyte;
     y: ubyte;
+    dir: ubyte;
     actions: [Action];
 }
 

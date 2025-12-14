@@ -53,28 +53,32 @@ var Turn = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 18);
         return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.actionsType = function (index) {
+    Turn.prototype.dir = function () {
         var offset = this.bb.__offset(this.bb_pos, 20);
+        return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
+    };
+    Turn.prototype.actionsType = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     };
     Turn.prototype.actionsTypeLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 20);
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     Turn.prototype.actionsTypeArray = function () {
-        var offset = this.bb.__offset(this.bb_pos, 20);
+        var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     Turn.prototype.actions = function (index, obj) {
-        var offset = this.bb.__offset(this.bb_pos, 22);
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
     };
     Turn.prototype.actionsLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 22);
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     Turn.startTurn = function (builder) {
-        builder.startObject(10);
+        builder.startObject(11);
     };
     Turn.addRobotId = function (builder, robotId) {
         builder.addFieldInt32(0, robotId, 0);
@@ -100,8 +104,11 @@ var Turn = /** @class */ (function () {
     Turn.addY = function (builder, y) {
         builder.addFieldInt8(7, y, 0);
     };
+    Turn.addDir = function (builder, dir) {
+        builder.addFieldInt8(8, dir, 0);
+    };
     Turn.addActionsType = function (builder, actionsTypeOffset) {
-        builder.addFieldOffset(8, actionsTypeOffset, 0);
+        builder.addFieldOffset(9, actionsTypeOffset, 0);
     };
     Turn.createActionsTypeVector = function (builder, data) {
         builder.startVector(1, data.length, 1);
@@ -114,7 +121,7 @@ var Turn = /** @class */ (function () {
         builder.startVector(1, numElems, 1);
     };
     Turn.addActions = function (builder, actionsOffset) {
-        builder.addFieldOffset(9, actionsOffset, 0);
+        builder.addFieldOffset(10, actionsOffset, 0);
     };
     Turn.createActionsVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
@@ -130,7 +137,7 @@ var Turn = /** @class */ (function () {
         var offset = builder.endObject();
         return offset;
     };
-    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, actionCooldown, bytecodesUsed, x, y, actionsTypeOffset, actionsOffset) {
+    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, actionCooldown, bytecodesUsed, x, y, dir, actionsTypeOffset, actionsOffset) {
         Turn.startTurn(builder);
         Turn.addRobotId(builder, robotId);
         Turn.addHealth(builder, health);
@@ -140,6 +147,7 @@ var Turn = /** @class */ (function () {
         Turn.addBytecodesUsed(builder, bytecodesUsed);
         Turn.addX(builder, x);
         Turn.addY(builder, y);
+        Turn.addDir(builder, dir);
         Turn.addActionsType(builder, actionsTypeOffset);
         Turn.addActions(builder, actionsOffset);
         return Turn.endTurn(builder);
