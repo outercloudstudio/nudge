@@ -273,6 +273,7 @@ public final class GameMapIO {
 
             RobotInfo[] initialBodies = initBodies.toArray(new RobotInfo[initBodies.size()]);
 
+
             return new LiveMap(
                     width, height, origin, seed, rounds, mapName, symmetry, wallArray, dirtArray,
                     cheeseMineArray, cheeseArray, catWaypoints, initialBodies);
@@ -305,15 +306,22 @@ public final class GameMapIO {
             ArrayList<Boolean> cheeseMineArrayList = new ArrayList<>();
             ArrayList<Integer> cheeseArrayList = new ArrayList<>();
 
-            ArrayList<Integer> ruinXs = new ArrayList<>();
-            ArrayList<Integer> ruinYs = new ArrayList<>();
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
                 bodyIDs.add(robot.ID);
                 bodyTeamIDs.add(TeamMapping.id(robot.team));
                 bodyTypes.add(FlatHelpers.getRobotTypeFromUnitType(robot.type));
-                bodyLocsXs.add(robot.location.x);
-                bodyLocsYs.add(robot.location.y);
+                
+                if(robot.type == UnitType.RAT_KING){
+                    // client wants top left of rat king
+                    MapLocation top_left = robot.location.translate(-1, +1);
+                    bodyLocsXs.add(top_left.x);
+                    bodyLocsYs.add(top_left.y);
+                }
+                else{
+                    bodyLocsXs.add(robot.location.x);
+                    bodyLocsYs.add(robot.location.y);
+                }
             }
 
             for (int i = 0; i < gameMap.getWidth() * gameMap.getHeight(); i++) {
@@ -367,12 +375,23 @@ public final class GameMapIO {
                 UnitType bodyType = FlatHelpers.getUnitTypeFromRobotType(curSpawnAction.robotType());
                 int bodyX = curSpawnAction.x();
                 int bodyY = curSpawnAction.y();
+
+                if(bodyType==UnitType.RAT_KING){
+                    //translate from top left corner to center
+                    bodyX += 1;
+                    bodyY -= 1;
+                }
+
                 Team bodyTeam = TeamMapping.team(curSpawnAction.team());
                 if (teamsReversed) {
                     bodyTeam = bodyTeam.opponent();
                 }
+                // if(bodyType==UnitType.CAT){ //temp fix, we need Cats to be on Neutral (i.e. curSpawnAction.team() = 0)
+                //     bodyTeam = Team.NEUTRAL;
+                // }
+
                 boolean initialCrouching = false;
-                int initialCheese = 0;
+                int initialCheese = GameConstants.INITIAL_TEAM_CHEESE;
                 RobotInfo carryingRobot = null;
                 initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), initialCheese, carryingRobot, initialCrouching));
             }

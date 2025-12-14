@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import battlecode.world.CatStateType;
 import battlecode.common.Direction;
+import battlecode.common.GameActionException;
 import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
 import battlecode.common.Message;
@@ -380,6 +381,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public void setLocation(int dx, int dy) {
         for (MapLocation partLoc : this.getAllPartLocations()) {
+            System.out.println("Moving part " + partLoc.x + ", " + partLoc.y + " to " + partLoc.translate(dx, dy).x + " " + partLoc.translate(dx, dy).y); 
             this.gameWorld.moveRobot(partLoc, partLoc.translate(dx, dy));
         }
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
@@ -387,11 +389,17 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public boolean canMove(int dx, int dy) {
-        for (MapLocation partLoc : this.getAllPartLocations()) {
-            MapLocation newLoc = partLoc.translate(dx, dy);
-            if (!this.gameWorld.isPassable(newLoc)) {
+        // for cat only
+        MapLocation[] locs = this.getAllPartLocations();
+        for (MapLocation loc : locs) {
+            MapLocation newloc = loc.translate(dx, dy);
+            if (!this.gameWorld.getGameMap().onTheMap(newloc))
+                return false;
+            if ((this.gameWorld.getRobot(newloc) != null) && (this.gameWorld.getRobot(newloc).getID() != this.getID())){
                 return false;
             }
+            if (!this.gameWorld.isPassable(newloc))
+               return false;
         }
         return true;
     }
@@ -399,6 +407,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void setInternalLocationOnly(MapLocation loc) {
         this.location = loc;
     }
+
+    public void becomeRatKing(int health) {
+        this.type = UnitType.RAT_KING;
+        this.health = health;
+    } 
+    
 
     /**
      * Resets the action cooldown.
@@ -439,10 +453,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param healthAmount the amount to change health by (can be negative)
      */
     public void addHealth(int healthAmount) {
-        health += healthAmount;
-        health = Math.min(this.health, this.type.health);
-        if (health <= 0) {
-            this.gameWorld.destroyRobot(ID, false, true);
+        this.health += healthAmount;
+        this.health = Math.min(this.health, this.type.health);
+        if (this.type == UnitType.CAT){
+            this.gameWorld.updateCatHealth(this.ID, health);
+        }
+        if (this.health <= 0) {
+            this.gameWorld.destroyRobot(this.getID(), false, true);
         }
     }
 
@@ -499,11 +516,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (this.gameWorld.getRobot(loc) != null) {
             InternalRobot targetRobot = this.gameWorld.getRobot(loc);
 
-            // Only bite enemy rats
-            if (this.team != targetRobot.getTeam() && targetRobot.getType() == UnitType.RAT) {
+            // Only bite enemy rats and cats
+            if (this.team != targetRobot.getTeam()) {
                 this.addCheese(-cheeseConsumed);
-                targetRobot.addHealth(-GameConstants.RAT_BITE_DAMAGE -
-                        (int) Math.ceil(Math.log(cheeseConsumed)));
+                int damage = GameConstants.RAT_BITE_DAMAGE +
+                        (int) Math.ceil(Math.log(cheeseConsumed));
+                targetRobot.addHealth(-damage);
+                if (targetRobot.getType() == UnitType.CAT){
+                    this.gameWorld.getTeamInfo().addDamageToCats(team, damage);
+                }
                 this.gameWorld.getMatchMaker().addBiteAction(targetRobot.getID());
             }
         }
@@ -647,7 +668,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         // Target location must be on map and passable (no walls/dirt) and within max pounce distnace
         boolean isWithinPounceDistance = (this.getLocation()
-                    .topRightDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
+                    .topLeftDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
         if (!this.gameWorld.isPassable(loc) || !isWithinPounceDistance) {
             return null;
         }
@@ -872,6 +893,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     }
 
                     Direction toWaypoint = this.location.directionTo(this.catTargetLoc);
+                    System.out.println("DEBUGGING: " + toWaypoint);
                     this.dir = this.location.directionTo(this.catTargetLoc);
 
                     if (this.movementCooldownTurns == 0 && canMove(toWaypoint.getDeltaX(), toWaypoint.getDeltaY())) {
@@ -880,8 +902,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(toWaypoint);
 
-                            if (this.actionCooldownTurns == 0 && (this.gameWorld.getDirt(nextLoc))) {
-                                this.gameWorld.setDirt(nextLoc, false);
+                            if (this.controller.canRemoveDirt(nextLoc)) {
+                                this.controller.removeDirt(nextLoc);
                                 this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
                             }
                         }
@@ -985,13 +1007,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(this.dir);
 
-                            if (this.actionCooldownTurns == 0 && (this.gameWorld.getDirt(nextLoc))) {
-                                this.gameWorld.setDirt(nextLoc, false);
+                            if (this.controller.canRemoveDirt(nextLoc)) {
+                                this.controller.removeDirt(nextLoc);
                                 this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
                             }
                         }
                     }
-
                     break;
             }
         }
