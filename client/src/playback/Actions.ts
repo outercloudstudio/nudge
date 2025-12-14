@@ -308,6 +308,29 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const endPos = match.map.indexToLocation(this.actionData.endLoc())
             const startCoords = renderUtils.getRenderCoords(startPos.x, startPos.y, match.map.dimension, true)
             const endCoords = renderUtils.getRenderCoords(endPos.x, endPos.y, match.map.dimension, true)
+            const angle = Math.atan2(endPos.y - startPos.y, endPos.x - startPos.x)
+
+            let texture: string
+            if (angle >= (7 * Math.PI) / 4 || angle <= Math.PI / 4) {
+                texture = 'robots/cat/cat_pounce_right.png'
+            } else if (angle > Math.PI / 4 && angle < (3 * Math.PI) / 4) {
+                texture = 'robots/cat/cat_pounce_up.png'
+            } else if (angle >= (3 * Math.PI) / 4 && angle <= (5 * Math.PI) / 4) {
+                texture = 'robots/cat/cat_pounce_left.png'
+            } else {
+                texture = 'robots/cat/cat_pounce_down.png'
+            }
+            body.imgPath = texture
+
+            const gravity: number = -10
+            const interpolationFactor = match.getInterpolationFactor()
+            const catX = startPos.x + interpolationFactor * (endPos.x - startPos.x)
+            const catY = gravity * interpolationFactor * interpolationFactor + interpolationFactor * (endPos.y - startPos.y - gravity) + startPos.y
+            body.pos = {x: catX, y: catY}
+        }
+        finish(round: Round): void {
+            const body = round.bodies.getById(this.robotId)
+            body.imgPath = 'robots/cat/cat.png'
         }
     },
     [schema.Action.PlaceTrap]: class PlaceTrapAction extends Action<schema.PlaceTrap> {

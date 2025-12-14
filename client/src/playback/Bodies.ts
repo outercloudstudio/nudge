@@ -7,6 +7,7 @@ import { MapEditorBrush } from '../components/sidebar/map-editor/MapEditorBrush'
 import { StaticMap } from './Map'
 import { Vector, vectorDistSquared, vectorEq } from './Vector'
 import {
+    DIRECTIONS,
     INDICATOR_DOT_SIZE,
     INDICATOR_LINE_WIDTH,
     TOOLTIP_PATH_DECAY_OPACITY,
@@ -65,18 +66,18 @@ export default class Bodies {
         const team = spawnAction.team()
         const x = spawnAction.x()
         const y = spawnAction.y()
+        const dir = spawnAction.dir()
 
-        return this.spawnBodyFromValues(id, robotType, this.game.getTeamByID(team), { x, y })
+        return this.spawnBodyFromValues(id, robotType, this.game.getTeamByID(team), { x, y }, dir)
     }
 
-    spawnBodyFromValues(id: number, type: schema.RobotType, team: Team, pos: Vector): Body {
+    spawnBodyFromValues(id: number, type: schema.RobotType, team: Team, pos: Vector, dir: number): Body {
         assert(!this.bodies.has(id), `Trying to spawn body with id ${id} that already exists`)
 
         const bodyClass = BODY_DEFINITIONS[type] ?? assert.fail(`Body type ${type} not found in BODY_DEFINITIONS`)
 
-        
-
         const body = new bodyClass(this.game, pos, team, id)
+        body.direction = dir
 
         // if (this.checkBodyCollisionAtLocation(type, pos)) {
         //     assert.fail(`Trying to spawn body of type ${type} at occupied location (${pos.x}, ${pos.y})`)
@@ -93,23 +94,28 @@ export default class Bodies {
     checkBodyCollisionAtLocation(type: schema.RobotType, pos: Vector): boolean {
         const bodyClass = BODY_DEFINITIONS[type] ?? assert.fail(`Body type ${type} not found in BODY_DEFINITIONS`)
         const tempBody = new bodyClass(this.game, pos, this.game.getTeamByID(1), 0)
-        const bodySize = tempBody.size;
+        const bodySize = tempBody.size
         const occupiedSpaces: Vector[] = []
 
         for (const otherBody of this.bodies.values()) {
             if (otherBody.id === tempBody.id || otherBody.dead) continue // skip self or dead
-            for(let xoff = 0; xoff < otherBody.size; xoff++){
-                for(let yoff = 0; yoff < otherBody.size; yoff++){
-                    occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y - yoff } )
+            for (let xoff = 0; xoff < otherBody.size; xoff++) {
+                for (let yoff = 0; yoff < otherBody.size; yoff++) {
+                    occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y - yoff })
                     // console.log(`Added occupied space at (${otherBody.pos.x + xoff}, ${otherBody.pos.y - yoff}) for body ID ${otherBody.id}`) ;
                 }
             }
         }
         // check occupied spaces
-        for (const space of occupiedSpaces){
+        for (const space of occupiedSpaces) {
             // console.log(`Checking occupied space at (${space.x}, ${space.y}) against new body at (${pos.x}, ${pos.y}) with size ${bodySize}`) ;
-            if(space.x-pos.x < bodySize &&  space.x-pos.x >= 0 && pos.y-space.y < bodySize && pos.y-space.y >= 0){
-                return true;
+            if (
+                space.x - pos.x < bodySize &&
+                space.x - pos.x >= 0 &&
+                pos.y - space.y < bodySize &&
+                pos.y - space.y >= 0
+            ) {
+                return true
             }
         }
 
@@ -232,7 +238,15 @@ export default class Bodies {
         schema.InitialBodyTable.startSpawnActionsVector(builder, this.bodies.size)
 
         for (const body of this.bodies.values()) {
-            schema.SpawnAction.createSpawnAction(builder, body.id, body.pos.x, body.pos.y, body.team.id, body.robotType)
+            schema.SpawnAction.createSpawnAction(
+                builder,
+                body.id,
+                body.pos.x,
+                body.pos.y,
+                body.direction,
+                body.team.id,
+                body.robotType
+            )
         }
         const spawnActionsVector = builder.endVector()
 
@@ -260,8 +274,7 @@ export class Body {
     public dead: boolean = false
     public hp: number = 0
     public maxHp: number = 1
-    public direction: number = 0 // in degrees
-    public level: number = 1 // For towers
+    public direction: number = 0 //
     public moveCooldown: number = 0
     public actionCooldown: number = 0
     public bytecodesUsed: number = 0
@@ -330,11 +343,10 @@ export class Body {
         const pos = this.getInterpolatedCoords(match)
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentRound.map.staticMap.dimension)
 
-        if(this.robotType == schema.RobotType.CAT){
-            renderCoords.x += (this.size-1)*0.5
-            renderCoords.y -= (this.size-1)*0.5
+        if (this.robotType == schema.RobotType.CAT) {
+            renderCoords.x += (this.size - 1) * 0.5
+            renderCoords.y -= (this.size - 1) * 0.5
         }
-
 
         if (this.dead) ctx.globalAlpha = 0.5
         renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(this.imgPath), renderCoords, this.size)
@@ -544,10 +556,11 @@ export class Body {
         if (!this.game.playable) return [this.robotName]
 
         const defaultInfo = [
-            `${this.robotName}${this.level === 2 ? ' (Lvl II)' : ''}${this.level >= 3 ? ' (Lvl III)' : ''}`,
+            `${this.robotName}`,
             `ID: ${this.id}`,
             `HP: ${this.hp}/${this.maxHp}`,
             `Location: (${this.pos.x}, ${this.pos.y})`,
+            `Direction: ${DIRECTIONS[this.direction]}`,
             `Move Cooldown: ${this.moveCooldown}`,
             `Action Cooldown: ${this.actionCooldown}`,
             `Bytecodes Used: ${this.bytecodesUsed}${
