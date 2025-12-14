@@ -1,5 +1,6 @@
 import React, { useRef } from 'react'
-import { Vector } from '../../playback/Vector'
+import { schema } from 'battlecode-schema'
+import { Vector, vectorAdd, vectorAddInPlace } from '../../playback/Vector'
 import { CurrentMap } from '../../playback/Map'
 import { useMatch, useRound, useTurnNumber } from '../../playback/GameRunner'
 import { CanvasLayers, GameRenderer } from '../../playback/GameRenderer'
@@ -189,6 +190,17 @@ const ZoomableGameRenderer: React.FC<{
     const match = useMatch()
     React.useEffect(resetCamera, [match])
 
+    // Adjust hovered tile if hovering over a body
+    const hoveredBody = hoveredTile ? round?.bodies.getBodyAtLocation(hoveredTile.x, hoveredTile.y) : undefined
+
+    if (hoveredBody && hoveredTile){
+        hoveredTile = hoveredBody.pos
+        if (hoveredBody.robotType == schema.RobotType.RAT_KING){
+            hoveredTile = vectorAdd(hoveredTile, {x: -1, y: -1} )
+        }
+    }
+
+
     return (
         <div onClick={() => GameRenderer.clearSelected()}>
             <Space
@@ -203,6 +215,7 @@ const ZoomableGameRenderer: React.FC<{
                         hoveredTile={hoveredTile}
                         map={round.map}
                         gameAreaRect={gameAreaRect}
+                        size={hoveredBody?.size}
                         ref={(ref) => {
                             hoveredTileRef.current = ref
                             setHoveredTileRect(ref?.getBoundingClientRect())
@@ -236,16 +249,18 @@ const HighlightedSquare = React.memo(
         {
             gameAreaRect?: VirtualSpaceRect
             map?: CurrentMap
+            size?: number
             hoveredTile?: Vector
         }
-    >(({ gameAreaRect, map, hoveredTile }, ref) => {
+    >(({ gameAreaRect, map, size, hoveredTile }, ref) => {
         if (!hoveredTile || !map || !gameAreaRect) return <></>
+        if (!size) size = 1
         const mapLeft = gameAreaRect.left
         const mapTop = gameAreaRect.top
         const tileWidth = gameAreaRect.width / map.width
         const tileHeight = gameAreaRect.height / map.height
         const tileLeft = mapLeft + tileWidth * hoveredTile.x
-        const tileTop = mapTop + tileHeight * (map.height - hoveredTile.y - 1)
+        const tileTop = mapTop + tileHeight * (map.height - hoveredTile.y - size)
         return (
             <div
                 ref={ref}
@@ -253,8 +268,8 @@ const HighlightedSquare = React.memo(
                 style={{
                     left: tileLeft + 'px',
                     top: tileTop + 'px',
-                    width: gameAreaRect.width / map.width + 'px',
-                    height: gameAreaRect.height / map.height + 'px',
+                    width: tileWidth*size + 'px',
+                    height: tileHeight*size + 'px',
                     pointerEvents: 'none'
                 }}
             />

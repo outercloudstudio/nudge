@@ -90,7 +90,6 @@ export default class Bodies {
 
         return body
     }
-
     checkBodyCollisionAtLocation(type: schema.RobotType, pos: Vector): boolean {
         const bodyClass = BODY_DEFINITIONS[type] ?? assert.fail(`Body type ${type} not found in BODY_DEFINITIONS`)
         const tempBody = new bodyClass(this.game, pos, this.game.getTeamByID(1), 0)
@@ -98,27 +97,52 @@ export default class Bodies {
         const occupiedSpaces: Vector[] = []
 
         for (const otherBody of this.bodies.values()) {
-            if (otherBody.id === tempBody.id || otherBody.dead) continue // skip self or dead
-            for (let xoff = 0; xoff < otherBody.size; xoff++) {
-                for (let yoff = 0; yoff < otherBody.size; yoff++) {
-                    occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y - yoff })
-                    // console.log(`Added occupied space at (${otherBody.pos.x + xoff}, ${otherBody.pos.y - yoff}) for body ID ${otherBody.id}`) ;
+            if(otherBody.robotType == schema.RobotType.CAT){
+                for(let xoff = 0; xoff <= 1; xoff++){
+                    for(let yoff = 0; yoff <= 1; yoff++){
+                        occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y + yoff } )
+                    }                    
                 }
+            }
+            if(otherBody.robotType == schema.RobotType.RAT){
+                occupiedSpaces.push({ x: otherBody.pos.x, y: otherBody.pos.y } )
+
+            }
+            if(otherBody.robotType == schema.RobotType.RAT_KING){
+                for(let xoff = -1; xoff <= 1; xoff++){
+                    for(let yoff = -1; yoff <= 1; yoff++){
+                        occupiedSpaces.push({ x: otherBody.pos.x + xoff, y: otherBody.pos.y - yoff } )
+                    }
+                } 
             }
         }
         // check occupied spaces
         for (const space of occupiedSpaces) {
             // console.log(`Checking occupied space at (${space.x}, ${space.y}) against new body at (${pos.x}, ${pos.y}) with size ${bodySize}`) ;
-            if (
-                space.x - pos.x < bodySize &&
-                space.x - pos.x >= 0 &&
-                pos.y - space.y < bodySize &&
-                pos.y - space.y >= 0
-            ) {
-                return true
+            if(type == schema.RobotType.RAT){
+                if(space.x == pos.x && space.y == pos.y){
+                    return true
+                }
+            } 
+            if(type == schema.RobotType.CAT){
+                for(let xoff = 0; xoff <= 1; xoff++){
+                    for(let yoff = 0; yoff <= 1; yoff++){
+                        if(space.x == pos.x + xoff && space.y == pos.y + yoff){
+                            return true
+                        }
+                    }                    
+                }
+            }
+            if(type == schema.RobotType.RAT_KING){
+                for(let xoff = -1; xoff <= 1; xoff++){
+                    for(let yoff = -1; yoff <= 1; yoff++){
+                        if(space.x == pos.x + xoff && space.y == pos.y - yoff){
+                            return true
+                        }
+                    }
+                } 
             }
         }
-
         return false
     }
 
@@ -212,15 +236,39 @@ export default class Bodies {
     getBodyAtLocation(x: number, y: number, team?: Team): Body | undefined {
         let foundDead: Body | undefined = undefined
 
+
         for (const body of this.bodies.values()) {
             const teamMatches = !team || body.team === team
-            if (teamMatches && body.pos.x === x && body.pos.y === y) {
-                if (!body.dead) return body
+            // this is a bit gross but oh well, we should really make a better way to handle body shapes
 
-                // If dead, keep iterating in case there is an alive body
-                // that will take priority
-                foundDead = body
+            if(body.robotType == schema.RobotType.CAT){
+                for(let xoff = 0; xoff <= 1; xoff++){
+                    for(let yoff = 0; yoff <= 1; yoff++){
+                        if(teamMatches && body.pos.x + xoff === x && body.pos.y + yoff === y){
+                            if (!body.dead) return body
+                            foundDead = body
+                        }
+                    }
+                }
             }
+            if(body.robotType == schema.RobotType.RAT){
+                if(teamMatches && body.pos.x === x && body.pos.y === y){
+                    if (!body.dead) return body
+                    foundDead = body
+                }
+            }
+            if(body.robotType == schema.RobotType.RAT_KING){
+                for(let xoff = -1; xoff <= 1; xoff++){
+                    for(let yoff = -1; yoff <= 1; yoff++){
+                        if(teamMatches && body.pos.x + xoff === x && body.pos.y - yoff === y){
+                            if (!body.dead) return body
+                            foundDead = body
+                        }
+                    }
+                } 
+            }
+            //     // If dead, keep iterating in case there is an alive body
+            //     // that will take priority
         }
 
         return foundDead
