@@ -48,6 +48,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private InternalRobot carryingRobot; // robot being carried by this robot, if any
     private InternalRobot grabbedByRobot; // robot that is carrying this robot, if any
     private Direction thrownDir;
+    private int throwDuration;
+    private int remainingCarriedDuration; // Time before we wriggle free from enemy robot
 
     private Queue<Message> incomingMessages;
 
@@ -113,6 +115,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.carryingRobot = null;
         this.grabbedByRobot = null;
         this.thrownDir = null;
+        this.throwDuration = 0;
+        this.remainingCarriedDuration = 0;
 
         this.indicatorString = "";
 
@@ -248,6 +252,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public InternalRobot getCarryingRobot() {
         return carryingRobot;
+    }
+    
+    public int getRemainingCarriedDuration() {
+        return remainingCarriedDuration;
     }
 
     public InternalRobot getGrabbedByRobot() {
@@ -393,12 +401,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
         MapLocation[] locs = this.getAllPartLocations();
         for (MapLocation loc : locs) {
             MapLocation newloc = loc.translate(dx, dy);
-            if (!this.gameWorld.getGameMap().onTheMap(newloc))
+            if (!this.gameWorld.getGameMap().onTheMap(newloc)) // TODO this fails to check whether or not non-central parts of big robots are on the map!
                 return false;
-            if ((this.gameWorld.getRobot(newloc) != null) && (this.gameWorld.getRobot(newloc).getID() != this.getID())){
+            if ((this.gameWorld.getRobot(newloc) != null) && (this.gameWorld.getRobot(newloc).getID() != this.getID())){ // TODO this fails to check for other robots in non-central parts of big robots!
                 return false;
             }
-            if (!this.gameWorld.isPassable(newloc))
+            if (!this.gameWorld.isPassable(newloc)) // TODO this fails to check for passability in non-central parts of big robots!
                return false;
         }
         return true;
@@ -418,14 +426,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        setActionCooldownTurns(this.actionCooldownTurns + numActionCooldownToAdd);
+        int cooldownUp = numActionCooldownToAdd * (int)(this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support for rat towers???
+        setActionCooldownTurns(this.actionCooldownTurns + cooldownUp);
     }
 
     /**
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        int movementCooldown = GameConstants.MOVEMENT_COOLDOWN;
+        int movementCooldown = GameConstants.MOVEMENT_COOLDOWN * (int)(this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support for rat towers???
         this.setMovementCooldownTurns(this.movementCooldownTurns + movementCooldown);
     }
 
@@ -550,7 +559,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             throw new RuntimeException("Unit must be a rat to grab other rats");
         } else if (!loc.isAdjacentTo(this.getLocation())) {
             throw new RuntimeException("A rat can only grab adjacent rats");
-        } else if (!canSenseLocation(loc)) { // TODO replace with checking if the target robot is in front of this robot
+        } else if (!canSenseLocation(loc)) {
             throw new RuntimeException("A rat can only grab robots in front of it");
         } else if (this.isCarryingRobot()) {
             throw new RuntimeException("Already carrying a rat");
@@ -564,7 +573,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 && !targetRobot.isBeingThrown()) {
             boolean canGrab = false;
             
-            if (!targetRobot.canSenseLocation(this.location)) { // TODO replace with checking if the enemy robot is facing away from this robot
+            if (!targetRobot.canSenseLocation(this.location)) {
                 canGrab = true; // We can always grab robots facing away from us
             } else if (this.team == this.gameWorld.getRobot(loc).getTeam()) {
                 canGrab = true; // We can always grab allied robots
@@ -582,55 +591,123 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-    private void getGrabbed(InternalRobot grabber) {
-        this.grabbedByRobot = grabber;
-        this.movementCooldownTurns = GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
-        this.gameWorld.removeRobot(getLocation());
+    public void dropRobot(Direction dir) {
+        if (!this.type.isThrowingType()) {
+            throw new RuntimeException("Unit must be a rat to drop other rats");
+        } else if (!this.isCarryingRobot()) {
+            throw new RuntimeException("Not carrying a robot to drop");
+        }
+        MapLocation dropLoc = this.getLocation().add(dir);
+        if (!this.gameWorld.getGameMap().onTheMap(dropLoc)) {
+            throw new RuntimeException("Cannot drop outside of map");
+        } else if (this.gameWorld.getRobot(dropLoc) != null) {
+            throw new RuntimeException("Cannot drop into occupied space");
+        } else if (!this.gameWorld.isPassable(dropLoc)) {
+            throw new RuntimeException("Cannot drop into impassable terrain");
+        }
+
+        // Drop the robot
+        this.carryingRobot.getDropped(dropLoc);
+        this.carryingRobot = null;
     }
 
-    public void throwRobot(Direction dir) {
+    private void getGrabbed(InternalRobot grabber) {
+        this.grabbedByRobot = grabber;
+        this.movementCooldownTurns += GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.actionCooldownTurns += GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.gameWorld.removeRobot(getLocation());
+        if (this.isCarryingRobot()) { // If we were carrying a robot, drop it
+            this.carryingRobot.getDropped(getLocation()); // TODO rat tower???
+            this.carryingRobot = null;
+        }
+
+        this.setInternalLocationOnly(grabber.getLocation());
+
+        if (grabber.getTeam() != this.getTeam()) {
+            this.remainingCarriedDuration = GameConstants.MAX_CARRY_DURATION;
+        }
+
+    }
+
+    public void throwRobot() {
         if (!this.type.isThrowingType()) {
             throw new RuntimeException("Unit must be a rat to throw other rats");
         } else if (!this.isCarryingRobot()) {
             throw new RuntimeException("Not carrying a robot to throw");
         }
-        if (!this.gameWorld.getGameMap().onTheMap(this.getLocation().add(dir))) {
+        if (!this.gameWorld.getGameMap().onTheMap(this.getLocation().add(this.dir))) {
             throw new RuntimeException("Cannot throw outside of map");
+        } else if (this.gameWorld.getRobot(this.getLocation().add(this.dir)) != null) {
+            throw new RuntimeException("Cannot throw into occupied space");
         }
 
         // Throw the robot
-        this.carryingRobot.getThrown(dir);
+        this.carryingRobot.getThrown(this.dir);
         this.gameWorld.getMatchMaker().addThrowAction(this.carryingRobot.getID(),
-                this.getLocation().add(dir));
+                this.getLocation().add(this.dir));
         this.carryingRobot = null;
     }
 
     private void getThrown(Direction dir) {
         this.grabbedByRobot = null;
+        this.remainingCarriedDuration = 0;
         this.thrownDir = dir;
-        this.setLocation(dir.dx, dir.dy);
+        this.throwDuration = GameConstants.THROW_DURATION/10;
+        this.setInternalLocationOnly(this.getLocation().add(dir));
+        this.gameWorld.addRobot(this.getLocation(), this);
+    }
+
+    public void getDropped(MapLocation loc) {
+        if (!this.gameWorld.getGameMap().onTheMap(loc)) {
+            throw new RuntimeException("Cannot drop outside of map");
+        } else if (this.gameWorld.getRobot(loc) != null) {
+            throw new RuntimeException("Cannot drop into occupied space");
+        } else if (!this.gameWorld.isPassable(loc)) {
+            throw new RuntimeException("Cannot drop into impassable terrain");
+        }
+        this.grabbedByRobot = null;
+        this.remainingCarriedDuration = 0;
+        this.movementCooldownTurns -= GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.actionCooldownTurns -= GameConstants.THROW_DURATION + GameConstants.THROW_STUN_DURATION;
+        this.setInternalLocationOnly(loc);
+        this.gameWorld.addRobot(this.getLocation(), this);
     }
 
     public void hitGround() {
         this.thrownDir = null;
-        this.addHealth(-GameConstants.THROW_DAMAGE - GameConstants.THROW_DAMAGE_PER_TURN
-                * (this.actionCooldownTurns - GameConstants.THROW_STUN_DURATION) / GameConstants.COOLDOWNS_PER_TURN);
-        this.movementCooldownTurns = GameConstants.THROW_STUN_DURATION;
-        this.actionCooldownTurns = GameConstants.THROW_STUN_DURATION;
+        this.throwDuration = 0;
+        this.movementCooldownTurns -= GameConstants.THROW_STUN_DURATION - GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
+        this.actionCooldownTurns -= GameConstants.THROW_STUN_DURATION - GameConstants.THROW_SAFE_LANDING_STUN_DURATION;
     }
 
-    public void travelFlying() {
+    public void hitTarget(boolean isSecondMove) {
+        if (this.gameWorld.getRobot(this.getLocation().add(this.thrownDir)) != null) {
+            InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
+            robot.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.throwDuration + (isSecondMove ? 0 : 1)));
+            robot.movementCooldownTurns += GameConstants.THROW_STUN_DURATION;
+            robot.actionCooldownTurns += GameConstants.THROW_STUN_DURATION;
+        }
+        this.thrownDir = null;
+        this.throwDuration = 0;
+        this.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.throwDuration + (isSecondMove ? 0 : 1)));
+        this.movementCooldownTurns -= (this.throwDuration-1) * 10;
+        this.actionCooldownTurns -= (this.throwDuration-1) * 10;
+        this.gameWorld.getMatchMaker().addImpactAction(this.ID);
+    }
+
+    public void travelFlying(boolean isSecondMove) {
         MapLocation newLoc = this.getLocation().add(this.thrownDir);
-        if (!this.gameWorld.getGameMap().onTheMap(newLoc) || this.gameWorld.getRobot(newLoc) != null
-                || !this.gameWorld.isPassable(newLoc)) {
+        if(!this.gameWorld.getGameMap().onTheMap(newLoc)) {
             this.hitGround();
+            return;
+        } else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
+            this.hitTarget(isSecondMove);
             return;
         }
 
         this.setLocation(this.thrownDir.dx, this.thrownDir.dy);
-
-        if (this.actionCooldownTurns <= GameConstants.THROW_STUN_DURATION) {
+        
+        if (this.throwDuration == 1 && isSecondMove) { // TODO == 1 is a kludge, this should be tied to GameConstants
             this.hitGround();
         }
     }
@@ -813,8 +890,30 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (!this.isGrabbedByRobot()) {
             this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
+            this.remainingCarriedDuration = Math.max(0, this.remainingCarriedDuration - GameConstants.COOLDOWNS_PER_TURN);
+            if (this.isGrabbedByRobot() && this.remainingCarriedDuration == 0 && this.getGrabbedByRobot().getTeam() != this.getTeam()) {
+                MapLocation dropLoc = this.getGrabbedByRobot().getLocation().add(this.getDirection());
+                if (this.gameWorld.getGameMap().onTheMap(dropLoc)
+                        && this.gameWorld.isPassable(dropLoc)
+                        && this.gameWorld.getRobot(dropLoc) == null) {
+                    // Wriggle free!
+                    InternalRobot grabber = this.getGrabbedByRobot();
+                    this.getDropped(dropLoc);
+                    grabber.carryingRobot = null;
+                }
+                // Wriggle free!
+                InternalRobot grabber = this.getGrabbedByRobot();
+                this.getDropped(grabber.getLocation());
+                grabber.carryingRobot = null;
+            }
             if (this.isBeingThrown()) {
-                this.travelFlying(); // This will call hitGround if we hit something or run out of time
+                this.travelFlying(false); // This will call hitTarget or hitGround if we hit something or run out of time
+                if (this.isBeingThrown()) {
+                    this.travelFlying(true); // Thrown robots move 2x per turn
+                    if (this.isBeingThrown()) {
+                        this.throwDuration -= 1;
+                    }
+                }
             }
         }
         this.currentBytecodeLimit = this.getType().bytecodeLimit;

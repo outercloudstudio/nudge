@@ -145,8 +145,8 @@ public class GameConstants {
     /**
      * The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a
      * wall after 1 turn take 45 damage)
-     */
-    public static final int THROW_DAMAGE_PER_TURN = 5;
+     * */
+    public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being bitten by a rat */
     public static final int RAT_BITE_DAMAGE = 2;
@@ -247,12 +247,26 @@ public class GameConstants {
     public static final int BUILD_COOLDOWN = 35; // TODO need to specify!
 
     /**
+     * The multiplier to the cooldowns when carrying another robot; TODO increases exponentially when >1 robot is carried?
+     */
+    public static final double CARRY_COOLDOWN_MULTIPLIER = 1.5;
+
+    /** The maximum number of robots a rat can carry */
+    public static final int MAX_CARRY_TOWER_HEIGHT = 2;
+
+    /** The maximum number of robots a rat can carry */
+    public static final int MAX_CARRY_DURATION = 100;
+
+    /**
      * The total time a rat can travel for while thrown (rats are stunned while
      * thrown)
-     */
-    public static final int THROW_DURATION = 40;
+     * */
+    public static final int THROW_DURATION = 20;
 
-    /** The total time a rat is stunned after hitting the ground or a target */
+    /** The total time a rat is stunned after hitting a target */
     public static final int THROW_STUN_DURATION = 30;
+
+    /** The total time a rat is stunned after hitting the ground */
+    public static final int THROW_SAFE_LANDING_STUN_DURATION = 10;
 
 }
