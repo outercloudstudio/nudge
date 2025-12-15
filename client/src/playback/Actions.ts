@@ -195,19 +195,20 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             //target rat moves onto src rat, circle around carried group thing
-            const src = match.currentRound.bodies.getById(this.robotId)
-            // const target = match.currentRound.bodies.getById(this.actionData.id()) // rat getting napped
-            
+            const src = match.currentRound.bodies.getById(this.robotId) 
             const srcCoords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
+            const t = match.getInterpolationFactor()
+            const bump = Math.sin(t * Math.PI * 8) * 0.03
+            const half = 0.5 + bump
+
             ctx.save()
             ctx.shadowBlur = 12
             ctx.shadowColor = src.team.color
-            ctx.beginPath()
             ctx.strokeStyle = src.team.color
             ctx.globalAlpha = 0.7
             ctx.lineWidth = 0.04
-            ctx.arc(srcCoords.x, srcCoords.y, 0.6, 0, 2 * Math.PI)
-            ctx.stroke()
+            ctx.strokeRect(srcCoords.x - half, srcCoords.y - half, half * 2, half * 2)
+            ctx.restore()
             ctx.restore() 
         }
     },
