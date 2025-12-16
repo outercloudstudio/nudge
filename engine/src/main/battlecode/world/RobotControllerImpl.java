@@ -225,7 +225,7 @@ public final class RobotControllerImpl implements RobotController {
         assertIsRobotType(this.robot.getType());
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
-        if (this.robot.getType().isRatType() && this.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST)
+        if (this.robot.getType().isRatType() || this.robot.getType().isRatKingType() && (this.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST))
             throw new GameActionException(CANT_DO_THAT, "Insufficient cheese to remove dirt!");
         if (!this.gameWorld.getDirt(loc))
             throw new GameActionException(CANT_DO_THAT, "No dirt to remove at that location!");
@@ -377,7 +377,7 @@ public final class RobotControllerImpl implements RobotController {
         if (canRemoveDirt(loc)) {
             this.gameWorld.setDirt(loc, false);
             this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), false);
-            if (this.robot.getType().isRatType())
+            if (this.robot.getType().isRatType() || this.robot.getType().isRatKingType())
                 this.robot.addCheese(-1 * GameConstants.DIG_DIRT_CHEESE_COST);
         }
     }
@@ -666,7 +666,8 @@ public final class RobotControllerImpl implements RobotController {
 
             for (int j = this.gameWorld.getTrapTriggers(newLoc).size() - 1; j >= 0; j--) {
                 Trap trap = this.gameWorld.getTrapTriggers(newLoc).get(j);
-                if (trap.getTeam() == this.robot.getTeam() || trap.getType() == TrapType.RAT_TRAP) {
+                boolean wrongTrapType = ((this.getType().isRatType()|| this.getType().isRatKingType()) && trap.getType() == TrapType.CAT_TRAP) || (this.getType().isCatType() && trap.getType() == TrapType.RAT_TRAP);
+                if (trap.getTeam() == this.robot.getTeam() || wrongTrapType) {
                     continue;
                 }
                 this.robot.addTrapTrigger(trap, true);

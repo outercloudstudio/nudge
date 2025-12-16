@@ -448,7 +448,12 @@ public class GameWorld {
             this.teamInfo.addDamageToCats(trap.getTeam(), type.damage);
         }
         //TODO once the cat exists, alert cat of trap trigger
-        //TODO once backstab status exists, update that
+        
+        if(trap.getType() != TrapType.CAT_TRAP){
+            // initiate backstab
+            this.isCooperation = false;
+            // TODO: make any changes that need to happen with switch to cooperation
+        }
 
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.triggerRadiusSquared)) {
             this.trapTriggers[locationToIndex(adjLoc)].remove(trap);

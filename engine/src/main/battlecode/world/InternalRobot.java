@@ -535,6 +535,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     this.gameWorld.getTeamInfo().addDamageToCats(team, damage);
                 }
                 this.gameWorld.getMatchMaker().addBiteAction(targetRobot.getID());
+
+                this.gameWorld.isCooperation = false;
+                // TODO: make any changes that need to happen with switch to cooperation
             }
         }
     }
@@ -585,6 +588,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 this.carryingRobot = this.gameWorld.getRobot(loc);
                 this.carryingRobot.getGrabbed(this); // Notify the grabbed robot that it has been picked up
                 this.gameWorld.getMatchMaker().addRatNapAction(this.carryingRobot.getID());
+
+                this.gameWorld.isCooperation = false;
+                // TODO: make any changes that need to happen with switch to cooperation
             } else {
                 throw new RuntimeException("Cannot grab that robot");
             }
@@ -975,7 +981,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     InternalRobot rat = null;
 
                     for (InternalRobot r : nearbyRobots) {
-                        if (r.getType().isRatType()) {
+                        if (r.getType().isRatType() || r.getType().isRatKingType()) {
                             ratVisible = true;
                             rat = r;
                         }
@@ -1054,7 +1060,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     rat = null;
 
                     for (InternalRobot r : nearbyRobots) {
-                        if (r.getType().isRatType()) {
+                        if (r.getType().isRatType() || r.getType().isRatKingType()) {
                             ratVisible = true;
                             rat = r;
                         }
