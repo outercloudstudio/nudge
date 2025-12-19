@@ -310,8 +310,16 @@ public final class GameMapIO {
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
                 bodyIDs.add(robot.ID);
-                bodyDirs.add(FlatHelpers.getAngleFromDirection(robot.direction));
-                bodyTeamIDs.add(TeamMapping.id(robot.team));
+                bodyDirs.add(FlatHelpers.getOrdinalFromDirection(robot.direction));
+
+                //TODO: this is a temporary fix 
+                if (robot.type == UnitType.CAT){
+                    bodyTeamIDs.add(TeamMapping.id(Team.A)); // put on a random team for now to avoid bugs in client
+                }
+                else{
+                    bodyTeamIDs.add(TeamMapping.id(robot.team));
+                }
+                System.out.println("DEBUGGING: " + "serializing " + TeamMapping.id(robot.team));
                 bodyTypes.add(FlatHelpers.getRobotTypeFromUnitType(robot.type));
                 
                 if(robot.type == UnitType.RAT_KING){
@@ -377,8 +385,8 @@ public final class GameMapIO {
                 UnitType bodyType = FlatHelpers.getUnitTypeFromRobotType(curSpawnAction.robotType());
                 int bodyX = curSpawnAction.x();
                 int bodyY = curSpawnAction.y();
-                int angle = curSpawnAction.dir();
-                Direction dir = FlatHelpers.getDirectionFromAngle(angle);
+                int dirOrdinal = curSpawnAction.dir();
+                Direction dir = FlatHelpers.getDirectionFromOrdinal(dirOrdinal);
                 System.out.println("Direction is " + curSpawnAction.dir());
 
                 if(bodyType==UnitType.RAT_KING){
@@ -388,20 +396,22 @@ public final class GameMapIO {
                 }
 
                 Team bodyTeam = TeamMapping.team(curSpawnAction.team());
+
+                if (bodyType == UnitType.CAT){ // TODO: this is a temporary fix
+                    System.out.println("DEBUGGING: " + "switching cat from team " + bodyTeam + " to " + Team.NEUTRAL);
+                    bodyTeam = Team.NEUTRAL;
+                }
                 
                 if (teamsReversed) {
                     bodyTeam = bodyTeam.opponent();
                 }
-                // if(bodyType==UnitType.CAT){ //temp fix, we need Cats to be on Neutral (i.e. curSpawnAction.team() = 0)
-                //     bodyTeam = Team.NEUTRAL;
-                // }
 
                 boolean initialCrouching = false;
                 int initialCheese = GameConstants.INITIAL_TEAM_CHEESE;
                 RobotInfo carryingRobot = null;
                 initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), dir, initialCheese, carryingRobot, initialCrouching));
                 
-                System.out.println("DEBUGGING: " + "Unit type " + bodyType + " on team " + curSpawnAction.team() + " at location " + bodyX + ", " + bodyY + " with initial angle " + angle);
+                System.out.println("DEBUGGING: " + "Unit type " + bodyType + " on team " + curSpawnAction.team() + " at location " + bodyX + ", " + bodyY + " with initial angle " + dirOrdinal);
             }
         }
 

@@ -37,48 +37,52 @@ var Turn = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 10);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.actionCooldown = function () {
+    Turn.prototype.turningCooldown = function () {
         var offset = this.bb.__offset(this.bb_pos, 12);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.bytecodesUsed = function () {
+    Turn.prototype.actionCooldown = function () {
         var offset = this.bb.__offset(this.bb_pos, 14);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.x = function () {
+    Turn.prototype.bytecodesUsed = function () {
         var offset = this.bb.__offset(this.bb_pos, 16);
-        return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.y = function () {
+    Turn.prototype.x = function () {
         var offset = this.bb.__offset(this.bb_pos, 18);
         return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.dir = function () {
+    Turn.prototype.y = function () {
         var offset = this.bb.__offset(this.bb_pos, 20);
         return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
     };
-    Turn.prototype.actionsType = function (index) {
+    Turn.prototype.dir = function () {
         var offset = this.bb.__offset(this.bb_pos, 22);
+        return offset ? this.bb.readUint8(this.bb_pos + offset) : 0;
+    };
+    Turn.prototype.actionsType = function (index) {
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     };
     Turn.prototype.actionsTypeLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 22);
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     Turn.prototype.actionsTypeArray = function () {
-        var offset = this.bb.__offset(this.bb_pos, 22);
+        var offset = this.bb.__offset(this.bb_pos, 24);
         return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     Turn.prototype.actions = function (index, obj) {
-        var offset = this.bb.__offset(this.bb_pos, 24);
+        var offset = this.bb.__offset(this.bb_pos, 26);
         return offset ? this.bb.__union(obj, this.bb.__vector(this.bb_pos + offset) + index * 4) : null;
     };
     Turn.prototype.actionsLength = function () {
-        var offset = this.bb.__offset(this.bb_pos, 24);
+        var offset = this.bb.__offset(this.bb_pos, 26);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
     Turn.startTurn = function (builder) {
-        builder.startObject(11);
+        builder.startObject(12);
     };
     Turn.addRobotId = function (builder, robotId) {
         builder.addFieldInt32(0, robotId, 0);
@@ -92,23 +96,26 @@ var Turn = /** @class */ (function () {
     Turn.addMoveCooldown = function (builder, moveCooldown) {
         builder.addFieldInt32(3, moveCooldown, 0);
     };
+    Turn.addTurningCooldown = function (builder, turningCooldown) {
+        builder.addFieldInt32(4, turningCooldown, 0);
+    };
     Turn.addActionCooldown = function (builder, actionCooldown) {
-        builder.addFieldInt32(4, actionCooldown, 0);
+        builder.addFieldInt32(5, actionCooldown, 0);
     };
     Turn.addBytecodesUsed = function (builder, bytecodesUsed) {
-        builder.addFieldInt32(5, bytecodesUsed, 0);
+        builder.addFieldInt32(6, bytecodesUsed, 0);
     };
     Turn.addX = function (builder, x) {
-        builder.addFieldInt8(6, x, 0);
+        builder.addFieldInt8(7, x, 0);
     };
     Turn.addY = function (builder, y) {
-        builder.addFieldInt8(7, y, 0);
+        builder.addFieldInt8(8, y, 0);
     };
     Turn.addDir = function (builder, dir) {
-        builder.addFieldInt8(8, dir, 0);
+        builder.addFieldInt8(9, dir, 0);
     };
     Turn.addActionsType = function (builder, actionsTypeOffset) {
-        builder.addFieldOffset(9, actionsTypeOffset, 0);
+        builder.addFieldOffset(10, actionsTypeOffset, 0);
     };
     Turn.createActionsTypeVector = function (builder, data) {
         builder.startVector(1, data.length, 1);
@@ -121,7 +128,7 @@ var Turn = /** @class */ (function () {
         builder.startVector(1, numElems, 1);
     };
     Turn.addActions = function (builder, actionsOffset) {
-        builder.addFieldOffset(10, actionsOffset, 0);
+        builder.addFieldOffset(11, actionsOffset, 0);
     };
     Turn.createActionsVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
@@ -137,12 +144,13 @@ var Turn = /** @class */ (function () {
         var offset = builder.endObject();
         return offset;
     };
-    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, actionCooldown, bytecodesUsed, x, y, dir, actionsTypeOffset, actionsOffset) {
+    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, turningCooldown, actionCooldown, bytecodesUsed, x, y, dir, actionsTypeOffset, actionsOffset) {
         Turn.startTurn(builder);
         Turn.addRobotId(builder, robotId);
         Turn.addHealth(builder, health);
         Turn.addCheese(builder, cheese);
         Turn.addMoveCooldown(builder, moveCooldown);
+        Turn.addTurningCooldown(builder, turningCooldown);
         Turn.addActionCooldown(builder, actionCooldown);
         Turn.addBytecodesUsed(builder, bytecodesUsed);
         Turn.addX(builder, x);

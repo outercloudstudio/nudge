@@ -15,6 +15,7 @@ import gnu.trove.TIntArrayList;
 // import gnu.trove.TCharList;
 // import gnu.trove.TByteArrayList;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 
@@ -74,30 +75,52 @@ public class FlatHelpers {
         }
     }
 
-    public static Direction getDirectionFromAngle(int angle){
-        // TODO: need to implement this
-        return Direction.NORTH;
+    public static Direction getDirectionFromOrdinal(int ordinal){
+        switch (ordinal){
+            case 0:
+                return Direction.CENTER;
+            case 1:
+                return Direction.WEST;
+            case 2:
+                return Direction.SOUTHWEST;
+            case 3:
+                return Direction.SOUTH;
+            case 4:
+                return Direction.SOUTHEAST;
+            case 5:
+                return Direction.EAST;
+            case 6:
+                return Direction.SOUTHEAST;
+            case 7:
+                return Direction.NORTH;
+            case 8:
+                return Direction.NORTHWEST;
+            default:
+                throw new RuntimeException("Invalid direcitonal ordinal " + ordinal);
+        }
     }
 
-    public static int getAngleFromDirection(Direction dir){
-        // TODO: need to implement this
+    public static int getOrdinalFromDirection(Direction dir){
+        // TODO: double check this
         switch (dir){
-            case NORTH:
+            case CENTER:
                 return 0;
-            case SOUTH:
-                return 180;
-            case EAST:
-                return 90;
             case WEST:
-                return 270;
-            case NORTHEAST:
-                return 45;
-            case SOUTHEAST:
-                return 135;
+                return 1;
             case SOUTHWEST:
-                return 215;
+                return 2;
+            case SOUTH:
+                return 3;
+            case SOUTHEAST:
+                return 4;
+            case EAST:
+                return 5;
+            case NORTHEAST:
+                return 6;
+            case NORTH:
+                return 7;
             case NORTHWEST:
-                return 315;
+                return 8;
             default:
                 throw new RuntimeException("Invalid diretion " + dir);
         }

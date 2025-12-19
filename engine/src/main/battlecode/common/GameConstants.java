@@ -210,19 +210,9 @@ public class GameConstants {
     public static final int COOLDOWNS_PER_TURN = 10;
 
     /**
-     * The amount added to the movement cooldown counter when moving
-     */
-    public static final int MOVEMENT_COOLDOWN = 10;
-
-    /**
      * The amount added to the turning cooldown counter when turning
      */
     public static final int TURNING_COOLDOWN = 5; // TODO not sure
-
-    /**
-     * The amount added to the movement cooldown counter when a king moves
-     */
-    public static final int RAT_KING_MOVEMENT_COOLDOWN = 100; // TODO need to specify!
 
     /**
      * The amount added to the movement cooldown counter when a king moves

@@ -402,6 +402,7 @@ table Turn {
     health: int;
     cheese: int;
     moveCooldown: int;
+    turningCooldown: int;
     actionCooldown: int;
     bytecodesUsed: int;
     x: ubyte;

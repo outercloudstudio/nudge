@@ -45,58 +45,63 @@ moveCooldown():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-actionCooldown():number {
+turningCooldown():number {
   const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-bytecodesUsed():number {
+actionCooldown():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-x():number {
+bytecodesUsed():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
-  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-y():number {
+x():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 }
 
-dir():number {
+y():number {
   const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
 }
 
-actionsType(index: number):Action|null {
+dir():number {
   const offset = this.bb!.__offset(this.bb_pos, 22);
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : 0;
+}
+
+actionsType(index: number):Action|null {
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 actionsTypeLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 actionsTypeArray():Uint8Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? new Uint8Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
 actions(index: number, obj:any):any|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.__union(obj, this.bb!.__vector(this.bb_pos + offset) + index * 4) : null;
 }
 
 actionsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 26);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startTurn(builder:flatbuffers.Builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 }
 
 static addRobotId(builder:flatbuffers.Builder, robotId:number) {
@@ -115,28 +120,32 @@ static addMoveCooldown(builder:flatbuffers.Builder, moveCooldown:number) {
   builder.addFieldInt32(3, moveCooldown, 0);
 }
 
+static addTurningCooldown(builder:flatbuffers.Builder, turningCooldown:number) {
+  builder.addFieldInt32(4, turningCooldown, 0);
+}
+
 static addActionCooldown(builder:flatbuffers.Builder, actionCooldown:number) {
-  builder.addFieldInt32(4, actionCooldown, 0);
+  builder.addFieldInt32(5, actionCooldown, 0);
 }
 
 static addBytecodesUsed(builder:flatbuffers.Builder, bytecodesUsed:number) {
-  builder.addFieldInt32(5, bytecodesUsed, 0);
+  builder.addFieldInt32(6, bytecodesUsed, 0);
 }
 
 static addX(builder:flatbuffers.Builder, x:number) {
-  builder.addFieldInt8(6, x, 0);
+  builder.addFieldInt8(7, x, 0);
 }
 
 static addY(builder:flatbuffers.Builder, y:number) {
-  builder.addFieldInt8(7, y, 0);
+  builder.addFieldInt8(8, y, 0);
 }
 
 static addDir(builder:flatbuffers.Builder, dir:number) {
-  builder.addFieldInt8(8, dir, 0);
+  builder.addFieldInt8(9, dir, 0);
 }
 
 static addActionsType(builder:flatbuffers.Builder, actionsTypeOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, actionsTypeOffset, 0);
+  builder.addFieldOffset(10, actionsTypeOffset, 0);
 }
 
 static createActionsTypeVector(builder:flatbuffers.Builder, data:Action[]):flatbuffers.Offset {
@@ -152,7 +161,7 @@ static startActionsTypeVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addActions(builder:flatbuffers.Builder, actionsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, actionsOffset, 0);
+  builder.addFieldOffset(11, actionsOffset, 0);
 }
 
 static createActionsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -172,12 +181,13 @@ static endTurn(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, dir:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, turningCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, dir:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset):flatbuffers.Offset {
   Turn.startTurn(builder);
   Turn.addRobotId(builder, robotId);
   Turn.addHealth(builder, health);
   Turn.addCheese(builder, cheese);
   Turn.addMoveCooldown(builder, moveCooldown);
+  Turn.addTurningCooldown(builder, turningCooldown);
   Turn.addActionCooldown(builder, actionCooldown);
   Turn.addBytecodesUsed(builder, bytecodesUsed);
   Turn.addX(builder, x);
