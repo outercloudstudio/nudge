@@ -927,8 +927,6 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void becomeRatKing() throws GameActionException {
-        // TODO: properly destroy all neighboring enemies & absorb cheese + trigger
-        // traps as necessary
         assertCanBecomeRatKing();
         int health = 0;
         for (Direction d : Direction.allDirections()) {
@@ -937,12 +935,26 @@ public final class RobotControllerImpl implements RobotController {
                 health += currentRobot.getHealth();
             }
             if (d != Direction.CENTER) {
+                // all their raw cheese is taken
+                this.gameWorld.getTeamInfo().addCheese(this.getTeam(), currentRobot.getCheese());
+                currentRobot.addCheese(-currentRobot.getCheese());
+
+                // all robots in the 3x3 including enemies die
                 currentRobot.addHealth(-currentRobot.getHealth());
             }
         }
         this.gameWorld.getTeamInfo().addCheese(this.getTeam(), -GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
         health = Math.min(health, UnitType.RAT_KING.health);
+
         robot.becomeRatKing(health);
+
+        for (Direction d : Direction.allDirections()) {
+            if (d != Direction.CENTER) {
+                if (this.gameWorld.hasRatTrap(this.adjacentLocation(d))) {
+                    this.gameWorld.triggerTrap(this.gameWorld.getTrap(this.adjacentLocation(d)), this.robot);
+                }
+            }
+        }
 
         this.gameWorld.getMatchMaker().addBecomeRatKingAction(this.getID());
     }
