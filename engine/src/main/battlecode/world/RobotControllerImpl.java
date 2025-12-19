@@ -560,6 +560,12 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.robot.canActCooldown())
             throw new GameActionException(IS_NOT_READY,
                     "This robot's action cooldown has not expired.");
+        if (this.robot.isBeingThrown())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is currently being thrown!");
+        if (this.robot.isGrabbedByRobot())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is currently being carried!");
     }
 
     @Override
@@ -581,6 +587,12 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.robot.canMoveCooldown())
             throw new GameActionException(IS_NOT_READY,
                     "This robot's movement cooldown has not expired.");
+        if (this.robot.isBeingThrown())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is currently being thrown!");
+        if (this.robot.isGrabbedByRobot())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is currently being carried!");
     }
 
     private void assertIsTurningReady() throws GameActionException {
@@ -588,6 +600,9 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(IS_NOT_READY,
                     "This robot's turning cooldown has not expired.");
         if (this.robot.isBeingThrown())
+            throw new GameActionException(IS_NOT_READY,
+                    "This robot is currently being thrown!");
+        if (this.robot.isGrabbedByRobot())
             throw new GameActionException(IS_NOT_READY,
                     "This robot is currently being carried!");
     }
