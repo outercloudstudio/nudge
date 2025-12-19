@@ -463,7 +463,11 @@ export class Body {
 
         const coords: Vector[] = []
         const halfFOV = fov / 2
-        const directionRad = (direction * Math.PI) / 180
+        if(direction == 0){
+            return coords
+        }
+        const dirAngle = (direction * 45 + 135)%360
+        const directionRad = (dirAngle * Math.PI) / 180
 
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
