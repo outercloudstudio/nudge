@@ -107,6 +107,7 @@ export default class RoundStat {
 
         // Compute total robot counts
         for (const body of round.bodies.bodies.values()) {
+            if (body.team.id === 0) continue // skip neutral bodies
             const teamStat = round.stat.getTeamStat(body.team)
 
             // Count number of alive robots
