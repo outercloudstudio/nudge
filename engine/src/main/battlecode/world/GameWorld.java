@@ -375,8 +375,8 @@ public class GameWorld {
             mine.setLastRound(this.currentRound);
             pairedMine.setLastRound(this.currentRound);
 
-            matchMaker.addCheeseSpawnAction(new MapLocation(cheeseX, cheeseY));
-            matchMaker.addCheeseSpawnAction(new MapLocation(pairedX, pairedY));
+            matchMaker.addCheeseSpawnAction(new MapLocation(cheeseX, cheeseY), GameConstants.CHEESE_SPAWN_AMOUNT);
+            matchMaker.addCheeseSpawnAction(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
         }
     }
 
