@@ -701,10 +701,17 @@ public class GameWorld {
 
         ArrayList<Integer> teamPoints = new ArrayList<>();
 
+        int total_num_rat_kings = teamInfo.getNumRatKings(Team.A) + teamInfo.getNumRatKings(Team.B);
+        int total_amount_cheese = teamInfo.getCheese(Team.A) + teamInfo.getCheese(Team.B);
+        int total_amount_cat_damage = teamInfo.getDamageToCats(Team.A) + teamInfo.getDamageToCats(Team.B);
+
         for (Team team : List.of(Team.A, Team.B)) {
-            int points = (int) (cat_weight * (100) +
-                    king_weight * teamInfo.getNumRatKings(team) +
-                    cheese_weight * teamInfo.getCheese(team)); // TODO: Update this to the correct points formula
+            
+            float proportion_rat_kings = teamInfo.getNumRatKings(team) / total_num_rat_kings;
+            float proportion_cheese = teamInfo.getCheese(team) / total_amount_cheese;
+            float proportion_cat_damage = teamInfo.getDamageToCats(team) / total_amount_cat_damage;
+
+            int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings + cheese_weight * 100 * proportion_cheese);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
         }
@@ -871,16 +878,6 @@ public class GameWorld {
         Team robotTeam = robot.getTeam();
         MapLocation loc = robot.getLocation();
 
-        // check win
-        if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
-            System.out
-                    .println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
-            checkWin(robotTeam);
-        } else if (robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
-            System.out.println("DEBUGGING: number of cats = " + this.getNumCats());
-            checkWin(robotTeam);
-        }
-
         if (loc != null) {
             if (robot.getType().isRatType()) {
                 this.teamInfo.addRats(-1, robotTeam);
@@ -904,6 +901,15 @@ public class GameWorld {
         else
             matchMaker.addDied(id);
         this.currentNumberUnits[robot.getTeam().ordinal()] -= 1;
+
+        // check win
+        if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
+            System.out.println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
+            checkWin(robotTeam);
+        } else if (robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
+            System.out.println("DEBUGGING: number of cats = " + this.getNumCats());
+            checkWin(robotTeam);
+        }
     }
 
     // *********************************
