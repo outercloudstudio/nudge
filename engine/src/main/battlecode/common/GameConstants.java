@@ -83,7 +83,7 @@ public class GameConstants {
     public static final int RATKING_HEALTH_LOSS = 10;
 
     /** Probability parameter for cheese spawn at a mine. **/
-    public static final float CHEESE_MINE_SPAWN_PROBABILITY = 0.05f;
+    public static final float CHEESE_MINE_SPAWN_PROBABILITY = 0.01f;
 
     /** Cheese will spawn within a [-radius, radius] square of the cheese mine **/
     public static final int SQ_CHEESE_SPAWN_RADIUS = 5;
@@ -148,7 +148,7 @@ public class GameConstants {
     /**
      * The damage a thrown rat takes per tile it impacts early (i.e. rats that hit a
      * wall after 1 turn take 20+3*5=35 damage)
-     * */
+     */
     public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being bitten by a rat */
@@ -257,9 +257,10 @@ public class GameConstants {
     public static final int MAX_CARRY_DURATION = 10;
 
     /**
-     * The total number turns a rat can travel for while thrown (rats are stunned while
+     * The total number turns a rat can travel for while thrown (rats are stunned
+     * while
      * thrown)
-     * */
+     */
     public static final int THROW_DURATION = 4;
 
     /** The stun cooldown after hitting the ground after being thrown */
@@ -267,7 +268,6 @@ public class GameConstants {
 
     /** The stun cooldown after hitting the target after being thrown */
     public static final int HIT_TARGET_COOLDOWN = 30;
-
 
     /** Amount of rounds a cat sleeps for when fed */
     public static final int CAT_SLEEP_TIME = 2;
