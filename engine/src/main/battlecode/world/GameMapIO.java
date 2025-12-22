@@ -240,7 +240,7 @@ public final class GameMapIO {
             for (int i = 0; i < wallArray.length; i++) {
                 wallArray[i] = raw.walls(i);
                 dirtArray[i] = raw.dirt(i);
-                cheeseArray[i] = 0; // raw.cheese(i);
+                cheeseArray[i] = raw.cheese(i); // raw.cheese(i);
             }
 
             VecTable cheeseMinesTable = raw.cheeseMines();
@@ -310,7 +310,7 @@ public final class GameMapIO {
             ArrayList<Boolean> dirtArrayList = new ArrayList<>();
             ArrayList<Integer> cheeseMineXs = new ArrayList<>();
             ArrayList<Integer> cheeseMineYs = new ArrayList<>();
-            ArrayList<Integer> cheeseArrayList = new ArrayList<>();
+            ArrayList<Byte> cheeseArrayList = new ArrayList<>();
 
             for (RobotInfo robot : gameMap.getInitialBodies()) {
                 bodyIDs.add(robot.ID);
@@ -331,7 +331,7 @@ public final class GameMapIO {
                     cheeseMineXs.add(x);
                     cheeseMineYs.add(y);
                 }
-                cheeseArrayList.add(cheeseArray[i]);
+                cheeseArrayList.add((byte)cheeseArray[i]);
             }
 
             int[] catWaypointTableOffsets = new int[gameMap.getNumCats()];
@@ -357,6 +357,8 @@ public final class GameMapIO {
                     ArrayUtils.toPrimitive(wallArrayList.toArray(new Boolean[wallArrayList.size()])));
             int dirtArrayInt = battlecode.schema.GameMap.createDirtVector(builder,
                     ArrayUtils.toPrimitive(dirtArrayList.toArray(new Boolean[dirtArrayList.size()])));
+            int cheeseArrayInt = battlecode.schema.GameMap.createCheeseVector(builder,
+                    ArrayUtils.toPrimitive(cheeseArrayList.toArray(new Byte[cheeseArrayList.size()])));
 
             int wayPointOffsets = battlecode.schema.GameMap.createCatWaypointVecsVector(builder, catWaypointTableOffsets);
             int catIDOffsets = battlecode.schema.GameMap.createCatWaypointIdsVector(builder, catIDs);
@@ -382,6 +384,7 @@ public final class GameMapIO {
             battlecode.schema.GameMap.addRandomSeed(builder, randomSeed);
             battlecode.schema.GameMap.addWalls(builder, wallArrayInt);
             battlecode.schema.GameMap.addDirt(builder, dirtArrayInt);
+            battlecode.schema.GameMap.addCheese(builder, cheeseArrayInt);
             battlecode.schema.GameMap.addInitialBodies(builder, initialBodyOffset);
             battlecode.schema.GameMap.addCheeseMines(builder, cheeseMinesOffset);
             
