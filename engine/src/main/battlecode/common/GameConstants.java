@@ -86,7 +86,7 @@ public class GameConstants {
     public static final float CHEESE_MINE_SPAWN_PROBABILITY = 0.01f;
 
     /** Cheese will spawn within a [-radius, radius] square of the cheese mine **/
-    public static final int SQ_CHEESE_SPAWN_RADIUS = 5;
+    public static final int SQ_CHEESE_SPAWN_RADIUS = 4;
 
     /** How much cheese each mine spawns at once */
     public static final int CHEESE_SPAWN_AMOUNT = 2;
