@@ -97,6 +97,11 @@ public class RobotPlayer {
                 else{
                     System.out.println("couldn't turn on turn" + turnCount);
                 }
+
+                if(rc.canPickUpCheese(rc.getLocation())){
+                    System.out.println("standing on cheese! picking it up");
+                    rc.pickUpCheese(rc.getLocation());
+                }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
                 // handle GameActionExceptions judiciously, in case unexpected events occur in the game

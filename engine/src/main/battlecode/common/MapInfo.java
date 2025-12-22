@@ -9,17 +9,20 @@ public class MapInfo {
     private boolean isWall;
 
     private boolean isDirt;
+    
+    private int cheeseAmount;
 
     //You can only see traps from your own team
     private TrapType trap;
 
     private boolean hasCheeseMine;
 
-    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, TrapType trap, boolean hasCheeseMine) {
+    public MapInfo(MapLocation loc, boolean isPassable, boolean isWall, boolean isDirt, int cheeseAmount, TrapType trap, boolean hasCheeseMine) {
         this.loc = loc;
         this.isPassable = isPassable;
         this.isWall = isWall;
         this.isDirt = isDirt;
+        this.cheeseAmount = cheeseAmount;
         this.trap = trap;
         this.hasCheeseMine = hasCheeseMine;
     }

@@ -208,6 +208,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void addCheese(int amount) {
         // TODO: idk if I used this method correctly in my paint -> cheese changes,
         // maybe look through uses of this and check
+        if (this.getType() == UnitType.RAT_KING){
+            this.gameWorld.getTeamInfo().addCheese(getTeam(), amount);
+            return;
+        }
+
+        // for rats, first add/remove from local stash
         if (this.cheeseAmount + amount >= 0) {
             this.cheeseAmount += amount;
         } else {
@@ -341,7 +347,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canSenseLocation(MapLocation toSense) {
         return this.location.isWithinDistanceSquared(toSense, getVisionRadiusSquared(), this.dir, getVisionConeAngle(),
-                this.type.usesTopRightLocationForDistance());
+                this.type.usesBottomLeftLocationForDistance());
     }
 
     /**

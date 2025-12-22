@@ -286,6 +286,10 @@ public class GameWorld {
         return this.dirt[locationToIndex(loc)];
     }
 
+    public int getCheese(MapLocation loc){
+        return this.cheeseAmounts[locationToIndex(loc)];
+    }
+
     /**
      * Allows a robot to add or remove dirt (add = true, remove = false)
      * to a location on the map
