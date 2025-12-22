@@ -164,7 +164,6 @@ public class GameWorld {
             RobotInfo robotInfo = initialBodies[i];
             MapLocation newLocation = robotInfo.location.translate(gm.getOrigin().x, gm.getOrigin().y);
             spawnRobot(robotInfo.ID, robotInfo.type, newLocation, robotInfo.direction, robotInfo.chirality, robotInfo.team);
-            System.out.println("Has cheese amount" + robotInfo.cheeseAmount);
         }
     }
 

@@ -67,8 +67,9 @@ export default class Bodies {
         const x = spawnAction.x()
         const y = spawnAction.y()
         const dir = spawnAction.dir()
+        const chirality = spawnAction.chirality()
 
-        return this.spawnBodyFromValues(id, robotType, this.game.getTeamByID(team), { x, y }, dir, 0)
+        return this.spawnBodyFromValues(id, robotType, this.game.getTeamByID(team), { x, y }, dir, chirality)
     }
 
     spawnBodyFromValues(id: number, type: schema.RobotType, team: Team, pos: Vector, dir: number, chirality: number): Body {
