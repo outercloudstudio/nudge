@@ -880,7 +880,7 @@ public interface RobotController {
      * @param loc    the location of the rat king to transfer cheese to
      * @param amount the amount of cheese to transfer. Positive to give cheese.
      */
-    void transferCheese(MapLocation loc, int amount);
+    void transferCheese(MapLocation loc, int amount) throws GameActionException;
 
     /**
      * Throws robot in the robot direction
