@@ -35,7 +35,8 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     }
 
     /**
-     * A comparison function for MapLocations. Smaller x values go first, with ties broken by smaller y values.
+     * A comparison function for MapLocations. Smaller x values go first, with ties
+     * broken by smaller y values.
      *
      * @param other the MapLocation to compare to.
      * @return whether this MapLocation goes before the other one.
@@ -107,8 +108,9 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     }
 
     /**
-     * Computes the squared distance from the 2x2 robot at this location
-     * (centered at this location + (0.5, 0.5)) to the specified location.
+     * Computes the squared distance from the multi-part robot at this location
+     * (centered at this location) to the specified
+     * location.
      *
      * @param location the location to compute the squared distance to
      * @return the ceiling of the squared distance to the given location
@@ -118,6 +120,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     public final int bottomLeftDistanceSquaredTo(MapLocation location) {
         double dx = this.x + 0.5 - location.x;
         double dy = this.y + 0.5 - location.y;
+
         return (int) Math.ceil(dx * dx + dy * dy);
     }
 
@@ -125,69 +128,82 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      * Determines whether this location is within a specified distance
      * from target location.
      *
-     * @param location the location to test
+     * @param location        the location to test
      * @param distanceSquared the distance squared for the location to be within
-     * @return true if the given location is within distanceSquared to this one; false otherwise
+     * @return true if the given location is within distanceSquared to this one;
+     *         false otherwise
      *
      * @battlecode.doc.costlymethod
      */
     public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared) {
         return this.distanceSquaredTo(location) <= distanceSquared;
     }
-    
+
     /**
-     * Determines whether this location is within a specified distance and cone degree
+     * Determines whether this location is within a specified distance and cone
+     * degree
      * from target location.
      *
-     * @param location the location to test
+     * @param location        the location to test
      * @param distanceSquared the distance squared for the location to be within
-     * @param facingDir the direction robot is facing
-     * @param theta the angle of the vision cone in degrees
-     * @return true if the given location is within distanceSquared to this one; false otherwise
+     * @param facingDir       the direction robot is facing
+     * @param theta           the angle of the vision cone in degrees
+     * @return true if the given location is within distanceSquared to this one;
+     *         false otherwise
      *
      * @battlecode.doc.costlymethod
      */
-    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir, double theta) {
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir,
+            double theta) {
         return isWithinDistanceSquared(location, distanceSquared, facingDir, theta, false);
     }
 
-        /**
-     * Determines whether this location is within a specified distance and cone degree
+    /**
+     * Determines whether this location is within a specified distance and cone
+     * degree
      * from target location.
      *
-     * @param location the location to test
+     * @param location        the location to test
      * @param distanceSquared the distance squared for the location to be within
-     * @param facingDir the direction robot is facing (if Center, ignores theta argument and uses a 360 degree vision cone)
-     * @param theta the angle of the vision cone in degrees
-     * @param useTopRight true if the top right coordinate of this location (not the "location" argument) should be used (for 2x2 robots)
-     * @return true if the given location is within distanceSquared to this one; false otherwise
+     * @param facingDir       the direction robot is facing (if Center, ignores
+     *                        theta argument and uses a 360 degree vision cone)
+     * @param theta           the angle of the vision cone in degrees
+     * @param useTopRight     true if the top right coordinate of this location (not
+     *                        the "location" argument) should be used (for 2x2
+     *                        robots)
+     * @return true if the given location is within distanceSquared to this one;
+     *         false otherwise
      *
      * @battlecode.doc.costlymethod
      */
-    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir, double theta, boolean useTopRight) {
+    public final boolean isWithinDistanceSquared(MapLocation location, int distanceSquared, Direction facingDir,
+            double theta, boolean useTopRight) {
 
         // prevent division by 0 error
-        if (this.equals(location)){
+        if (this.equals(location)) {
             return true;
         }
 
-        double adjustment = 1e-3; 
-        // TODO: may have to fix this; also maybe there's a better way to do this whole function given that all looking directions and all cones are all in 45 degree intervals???
+        double adjustment = 1e-3;
+        // TODO: may have to fix this; also maybe there's a better way to do this whole
+        // function given that all looking directions and all cones are all in 45 degree
+        // intervals???
 
-        boolean isValidDistance = useTopRight ? this.bottomLeftDistanceSquaredTo(location) <= distanceSquared : this.distanceSquaredTo(location) <= distanceSquared;
-        
+        boolean isValidDistance = useTopRight ? this.bottomLeftDistanceSquaredTo(location) <= distanceSquared
+                : this.distanceSquaredTo(location) <= distanceSquared;
+
         // calculate angle (degrees) between facingDir and direction to location
         double dx = location.x - (useTopRight ? (this.x + 0.5) : this.x);
         double dy = location.y - (useTopRight ? (this.y + 0.5) : this.y);
-        
+
         boolean isValidAngle;
-        if (facingDir == Direction.CENTER){ // 
+        if (facingDir == Direction.CENTER) { //
             isValidAngle = true;
-        }
-        else{
-            double cosSim = (facingDir.dx * dx + facingDir.dy * dy)/(Math.sqrt((dx*dx + dy*dy) * (facingDir.dx*facingDir.dx + facingDir.dy*facingDir.dy)));
+        } else {
+            double cosSim = (facingDir.dx * dx + facingDir.dy * dy)
+                    / (Math.sqrt((dx * dx + dy * dy) * (facingDir.dx * facingDir.dx + facingDir.dy * facingDir.dy)));
             double halfAngle = Math.toDegrees(Math.abs(Math.acos(cosSim)));
-            isValidAngle = halfAngle-adjustment <= theta/2;
+            isValidAngle = halfAngle - adjustment <= theta / 2;
         }
         return isValidDistance && isValidAngle;
     }
@@ -205,9 +221,11 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
     }
 
     /**
-     * Returns the closest approximate Direction from this MapLocation to <code>location</code>.
+     * Returns the closest approximate Direction from this MapLocation to
+     * <code>location</code>.
      * If <code>location</code> is null then the return value is null.
-     * If <code>location</code> equals this location then the return value is Direction.CENTER.
+     * If <code>location</code> equals this location then the return value is
+     * Direction.CENTER.
      *
      * @param location The location to which the Direction will be calculated
      * @return the Direction to <code>location</code> from this MapLocation

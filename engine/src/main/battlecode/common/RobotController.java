@@ -67,13 +67,25 @@ public interface RobotController {
     Team getTeam();
 
     /**
-     * Returns this robot's current location.
+     * Returns this robot's designated center location.
+     * A cat's designated center is the bottom left corner tile of its 2x2 occupation.
+     * A rat king's designated center is the middle tile of the its 3x3 occupation.
      *
-     * @return this robot's current location
+     * @return this robot's designated center location
      *
      * @battlecode.doc.costlymethod
      */
     MapLocation getLocation();
+
+    /**
+     * Returns all the locations that a robot occupies 
+     * E.g. for a 3x3 rat king, this returns 9 locations
+     *
+     * @return array of all locations occupied by a robot
+     *
+     * @battlecode.doc.costlymethod
+     */
+    MapLocation[] getAllPartLocations();
 
     /**
      * Returns this robot's current direction.
@@ -682,6 +694,25 @@ public interface RobotController {
      * @throws GameActionException
      */
     public void removeCatTrap(MapLocation loc) throws GameActionException;
+
+    /**
+     * Tests whether this robot can pick up cheese at the given location.
+     * 
+     * @param loc
+     * @throws GameActionException
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    public boolean canPickUpCheese(MapLocation loc);
+
+    /**
+     * picks up cheese from the given location.
+     * 
+     * @param loc the location to pick up cheese from
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    void pickUpCheese(MapLocation loc) throws GameActionException;
 
     // ****************************
     // ***** ATTACK / HEAL ********

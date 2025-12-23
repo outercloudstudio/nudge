@@ -626,6 +626,13 @@ public class GameMaker {
             });
         }
 
+        public void addCheesePickUpAction(MapLocation loc) {
+            applyToBuilders((builder) -> {
+                int action = CheesePickup.createCheesePickup(builder, locationToInt(loc));
+                builder.addAction(action, Action.CheesePickup);
+            });
+        }
+
         /// Indicate that this robot was spawned on this turn
         public void addSpawnAction(int id, MapLocation loc, Direction dir, int chirality, Team team, UnitType type) {
             applyToBuilders((builder) -> {

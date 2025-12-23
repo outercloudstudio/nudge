@@ -80,7 +80,7 @@ public final class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
         Trap trap = gw.getTrap(loc);
         TrapType trapType = (trap != null && trap.getTeam() == this.getTeam()) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDirt(loc), trapType,
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDirt(loc), gw.getCheeseAmount(loc), trapType,
                 gw.hasCheeseMine(loc));
         return currentLocInfo;
     }
@@ -139,6 +139,11 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public MapLocation[] getAllPartLocations() {
+        return this.robot.getAllPartLocations();
+    }
+
+    @Override
     public Direction getDirection() {
         return this.robot.getDirection();
     }
@@ -184,10 +189,17 @@ public final class RobotControllerImpl implements RobotController {
         // assumes maxRadiusSquared <= visionRadiusSquared.
         // This handles the angle checking, so we only check distance.
         assertCanSenseLocation(loc);
-        int distance = (this.getType().usesTopRightLocationForDistance())
+        int distance = (this.getType().usesBottomLeftLocationForDistance())
                 ? (getLocation().bottomLeftDistanceSquaredTo(loc))
                 : (getLocation().distanceSquaredTo(loc));
-        if (distance > maxRadiusSquared)
+
+        int addDistance = (this.getType().size > 1)
+                ? (int) Math.ceil((this.getType().size/2.0 + Math.sqrt((double) maxRadiusSquared))
+                        * (this.getType().size/2.0 + Math.sqrt((double) maxRadiusSquared)))
+                : maxRadiusSquared;
+
+
+        if (distance > (addDistance))
             throw new GameActionException(OUT_OF_RANGE,
                     "Target location not within action range");
     }
@@ -218,21 +230,20 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Can't place dirt on an occupied tile!");
         if (this.gameWorld.getDirt(loc))
             throw new GameActionException(CANT_DO_THAT, "Tile already has dirt!");
-
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
     }
 
     private void assertCanRemoveDirt(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
-        if (this.robot.getType().isRatType()
-                || this.robot.getType().isRatKingType() && (this.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST))
+        if ((this.robot.getType().isRatType()
+                || this.robot.getType().isRatKingType()) && (this.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST))
             throw new GameActionException(CANT_DO_THAT, "Insufficient cheese to remove dirt!");
+
+        System.out.println(loc);
         if (!this.gameWorld.getDirt(loc))
             throw new GameActionException(CANT_DO_THAT, "No dirt to remove at that location!");
 
-        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
     }
 
     @Override
@@ -246,12 +257,13 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void placeDirt(MapLocation loc) {
-        if (canPlaceDirt(loc)) {
-            this.gameWorld.setDirt(loc, true);
-            this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), true);
-            this.robot.addCheese(-1 * GameConstants.PLACE_DIRT_CHEESE_COST);
-        }
+    public void placeDirt(MapLocation loc) throws GameActionException{
+        assertCanPlaceDirt(loc);
+        this.gameWorld.setDirt(loc, true);
+        this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), true);
+        this.robot.addCheese(-1 * GameConstants.PLACE_DIRT_CHEESE_COST);
+
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
     }
 
     @Override
@@ -375,13 +387,43 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void removeDirt(MapLocation loc) {
-        if (canRemoveDirt(loc)) {
-            this.gameWorld.setDirt(loc, false);
-            this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), false);
-            if (this.robot.getType().isRatType() || this.robot.getType().isRatKingType())
-                this.robot.addCheese(-1 * GameConstants.DIG_DIRT_CHEESE_COST);
-        }
+    public void removeDirt(MapLocation loc) throws GameActionException{
+        assertCanRemoveDirt(loc);
+        this.gameWorld.setDirt(loc, false);
+        this.gameWorld.getTeamInfo().updateDirt(this.robot.getTeam(), false);
+        if (this.robot.getType().isRatType() || this.robot.getType().isRatKingType())
+            this.robot.addCheese(-1 * GameConstants.DIG_DIRT_CHEESE_COST);
+
+        this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
+    }
+
+    private void assertCanPickUpCheese(MapLocation loc) throws GameActionException {
+        assertIsRobotType(this.robot.getType());
+        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
+
+        if (this.gameWorld.getCheeseAmount(loc) <= 0)
+            throw new GameActionException(CANT_DO_THAT, "No cheese at this location!");
+        if (this.robot.getType() != UnitType.RAT && this.robot.getType() != UnitType.RAT_KING)
+            throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
+    }
+
+    @Override
+    public boolean canPickUpCheese(MapLocation loc) {
+       try{
+            assertCanPickUpCheese(loc);
+            return true;
+       }catch (GameActionException e){
+            return false;
+       }
+    }
+
+    @Override
+    public void pickUpCheese(MapLocation loc) throws GameActionException{
+        assertCanPickUpCheese(loc);
+        int amountCheeseAvail = this.gameWorld.getCheeseAmount(loc);
+        this.gameWorld.addCheese(loc, -amountCheeseAvail);
+        this.robot.addCheese(amountCheeseAvail);
+        this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
     }
 
     @Override
@@ -637,7 +679,6 @@ public final class RobotControllerImpl implements RobotController {
         return this.robot.getTurningCooldownTurns();
     }
 
-
     // ***********************************
     // ****** MOVEMENT METHODS ***********
     // ***********************************
@@ -682,8 +723,6 @@ public final class RobotControllerImpl implements RobotController {
             assertCanMoveForward();
             return true;
         } catch (GameActionException e) {
-            if (this.robot.getID() == 2)
-                e.printStackTrace();
             return false;
         }
     }
@@ -795,11 +834,13 @@ public final class RobotControllerImpl implements RobotController {
     public void buildRobot(MapLocation loc) throws GameActionException {
         assertCanBuildRobot(loc);
         this.robot.addActionCooldownTurns(GameConstants.BUILD_ROBOT_COOLDOWN);
-        this.gameWorld.spawnRobot(UnitType.RAT, loc, this.getDirection(), this.robot.getChirality(), this.robot.getTeam());
+        this.gameWorld.spawnRobot(UnitType.RAT, loc, this.getDirection(), this.robot.getChirality(),
+                this.robot.getTeam());
         int cost = getCurrentRatCost();
         this.robot.addCheese(-cost);
         InternalRobot robotSpawned = this.gameWorld.getRobot(loc);
-        this.gameWorld.getMatchMaker().addSpawnAction(robotSpawned.getID(), loc, this.robot.getDirection(), this.robot.getChirality(), getTeam(), UnitType.RAT);
+        this.gameWorld.getMatchMaker().addSpawnAction(robotSpawned.getID(), loc, this.robot.getDirection(),
+                this.robot.getChirality(), getTeam(), UnitType.RAT);
     }
 
     public void assertCanBuildTrap(TrapType type, MapLocation loc) throws GameActionException {

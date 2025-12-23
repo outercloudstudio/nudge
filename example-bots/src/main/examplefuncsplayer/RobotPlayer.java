@@ -82,10 +82,6 @@ public class RobotPlayer {
                 if (turnCount % 100 == 0) {
                     System.out.println("Turn " + turnCount + ": I am a " + rc.getType().toString());
                 }
-
-                if (turnCount >= 11){
-                    continue;
-                }
                                 
                 // Try to move forward one step.
                 if (rc.canMoveForward()) {

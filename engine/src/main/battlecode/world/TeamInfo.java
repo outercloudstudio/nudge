@@ -40,7 +40,7 @@ public class TeamInfo {
     // *********************************
     // ***** GETTER METHODS ************
     // *********************************
-  
+
     /**
      * Get the amount of cheese.
      * 
@@ -62,55 +62,61 @@ public class TeamInfo {
         return this.dirtCounts[team.ordinal()];
     }
 
-     /**
+    /**
      * Get the total number of rats belonging to a team
+     * 
      * @param team the team to query
      * @return the number of rats the team has
      */
-    public int getNumRats(Team team){
+    public int getNumRats(Team team) {
         return this.totalNumRats[team.ordinal()];
     }
 
-     /**
+    /**
      * Get the total number of rat kings belonging to a team
+     * 
      * @param team the team to query
      * @return the number of rats the team has
      */
-    public int getNumRatKings(Team team){
+    public int getNumRatKings(Team team) {
         return this.numRatKings[team.ordinal()];
     }
 
     /**
      * Get how much damage to cats a team has done
+     * 
      * @param team the team to query
      * @return the team's damage done to cats
      */
-    public int getDamageToCats(Team team){
+    public int getDamageToCats(Team team) {
         return this.damageToCats[team.ordinal()];
     }
 
     /**
      * Get the amount of points belonging to a team
+     * 
      * @param team the team to query
      * @return the number of points the team has
      */
-    public int getPoints(Team team){
+    public int getPoints(Team team) {
         return this.points[team.ordinal()];
     }
 
     /**
      * Change the total number of rats belonging to a team
+     * 
      * @param team the team to change
      */
-    public void addRats(int num, Team team){
+    public void addRats(int num, Team team) {
         this.totalNumRats[team.ordinal()] += num;
     }
 
     /**
      * Change the total number of rat kings belonging to a team
+     * 
      * @param team the team to change
      */
-    public void addRatKings(int num, Team team){
+    public void addRatKings(int num, Team team) {
         this.numRatKings[team.ordinal()] += num;
     }
 
@@ -124,7 +130,8 @@ public class TeamInfo {
      * 
      * @param team   the team to query
      * @param amount the change in the cheese count
-     * @throws IllegalArgumentException if the resulting amount of cheese is negative
+     * @throws IllegalArgumentException if the resulting amount of cheese is
+     *                                  negative
      */
     public void addCheese(Team team, int amount) throws IllegalArgumentException {
         if (this.globalCheese[team.ordinal()] + amount < 0) {
@@ -136,7 +143,7 @@ public class TeamInfo {
     /**
      * Add to the damage done to cats for a team.
      * 
-     * @param team team to attribute damage to
+     * @param team   team to attribute damage to
      * @param amount the change in the amount of damage done to cats
      */
     public void addDamageToCats(Team team, int amount) {
@@ -146,7 +153,7 @@ public class TeamInfo {
     /**
      * Add points to teams.
      * 
-     * @param team team to add points to
+     * @param team   team to add points to
      * @param amount the change in the amount of points
      */
     public void addPoints(Team team, int amount) {
@@ -154,12 +161,16 @@ public class TeamInfo {
     }
 
     /**
-     * Update the amount of dirt. 
+     * Update the amount of dirt.
      * 
-     * @param team   the team to query
+     * @param team    the team to query
      * @param isPlace whether dirt is being placed (true) or removed (false)
      */
     public void updateDirt(Team team, boolean isPlace) {
+        if (team.ordinal() == 2) {
+            return; // cat dig
+        }
+
         if (isPlace) {
             this.dirtCounts[team.ordinal()] -= 1;
         } else {

@@ -163,7 +163,8 @@ public class GameWorld {
         for (int i = 0; i < initialBodies.length; i++) {
             RobotInfo robotInfo = initialBodies[i];
             MapLocation newLocation = robotInfo.location.translate(gm.getOrigin().x, gm.getOrigin().y);
-            spawnRobot(robotInfo.ID, robotInfo.type, newLocation, robotInfo.direction, robotInfo.chirality, robotInfo.team);
+            spawnRobot(robotInfo.ID, robotInfo.type, newLocation, robotInfo.direction, robotInfo.chirality,
+                    robotInfo.team);
         }
     }
 
@@ -285,6 +286,10 @@ public class GameWorld {
         return this.dirt[locationToIndex(loc)];
     }
 
+    public int getCheese(MapLocation loc){
+        return this.cheeseAmounts[locationToIndex(loc)];
+    }
+
     /**
      * Allows a robot to add or remove dirt (add = true, remove = false)
      * to a location on the map
@@ -364,18 +369,30 @@ public class GameWorld {
             int pairedX = pairedMine.getLocation().x + pair_dx;
             int pairedY = pairedMine.getLocation().y + pair_dy;
 
-            addCheese(new MapLocation(cheeseX, cheeseY), GameConstants.CHEESE_SPAWN_AMOUNT);
-            addCheese(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
+            // check cheeseX and cheeseY is on map
+            if (cheeseX >= 0 && cheeseX < this.gameMap.getWidth() && cheeseY >= 0 && cheeseY < this.gameMap.getHeight()
+                    && pairedX >= 0 && pairedX < this.gameMap.getWidth() && pairedY >= 0
+                    && pairedY < this.gameMap.getHeight()) {
+                spawn = true;
+            } else {
+                spawn = false;
+            }
 
-            System.out.println("New turn" + this.currentRound);
-            System.out.println("DEBUGGING: SPAWNING CHEESE AT " + new MapLocation(cheeseX, cheeseY));
-            System.out.println("DEBUGGING: SPAWNING CHEESE AT " + new MapLocation(pairedX, pairedY));
+            if (spawn) {
+                addCheese(new MapLocation(cheeseX, cheeseY), GameConstants.CHEESE_SPAWN_AMOUNT);
+                addCheese(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
 
-            mine.setLastRound(this.currentRound);
-            pairedMine.setLastRound(this.currentRound);
+                System.out.println("New turn" + this.currentRound);
+                System.out.println("DEBUGGING: SPAWNING CHEESE AT " + new MapLocation(cheeseX, cheeseY));
+                System.out.println("DEBUGGING: SPAWNING CHEESE AT " + new MapLocation(pairedX, pairedY));
 
-            matchMaker.addCheeseSpawnAction(new MapLocation(cheeseX, cheeseY), GameConstants.CHEESE_SPAWN_AMOUNT);
-            matchMaker.addCheeseSpawnAction(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
+                mine.setLastRound(this.currentRound);
+                pairedMine.setLastRound(this.currentRound);
+
+                matchMaker.addCheeseSpawnAction(new MapLocation(cheeseX, cheeseY), GameConstants.CHEESE_SPAWN_AMOUNT);
+                matchMaker.addCheeseSpawnAction(new MapLocation(pairedX, pairedY), GameConstants.CHEESE_SPAWN_AMOUNT);
+            }
+
         }
     }
 
@@ -711,12 +728,13 @@ public class GameWorld {
         int total_amount_cat_damage = teamInfo.getDamageToCats(Team.A) + teamInfo.getDamageToCats(Team.B);
 
         for (Team team : List.of(Team.A, Team.B)) {
-            
+
             float proportion_rat_kings = teamInfo.getNumRatKings(team) / total_num_rat_kings;
             float proportion_cheese = teamInfo.getCheese(team) / total_amount_cheese;
             float proportion_cat_damage = teamInfo.getDamageToCats(team) / total_amount_cat_damage;
 
-            int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings + cheese_weight * 100 * proportion_cheese);
+            int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings
+                    + cheese_weight * 100 * proportion_cheese);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
         }
@@ -795,11 +813,15 @@ public class GameWorld {
     // *********************************
 
     public int spawnRobot(int ID, UnitType type, MapLocation location, Direction dir, int chirality, Team team) {
-        // if direction is CENTER, the robot doesn't have a preset direction; set the robot to face the middle of the map
-        // subtract 1 before dividing since cats use bottom left corner as center so we will use the bottom left corner of the center 2x2 of the map as the point of comparison
+        // if direction is CENTER, the robot doesn't have a preset direction; set the
+        // robot to face the middle of the map
+        // subtract 1 before dividing since cats use bottom left corner as center so we
+        // will use the bottom left corner of the center 2x2 of the map as the point of
+        // comparison
 
-        if (dir == Direction.CENTER){
-            MapLocation mapCenter = new MapLocation((this.getGameMap().getWidth()-1)/2, (this.getGameMap().getHeight()-1)/2);
+        if (dir == Direction.CENTER) {
+            MapLocation mapCenter = new MapLocation((this.getGameMap().getWidth() - 1) / 2,
+                    (this.getGameMap().getHeight() - 1) / 2);
             dir = location.directionTo(mapCenter);
         }
 
@@ -909,7 +931,8 @@ public class GameWorld {
 
         // check win
         if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
-            System.out.println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
+            System.out
+                    .println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
             checkWin(robotTeam);
         } else if (robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
             System.out.println("DEBUGGING: number of cats = " + this.getNumCats());

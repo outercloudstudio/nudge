@@ -30,7 +30,7 @@ public enum UnitType {
     // robot's bytecode limit
     public final int bytecodeLimit;
 
-    public boolean usesTopRightLocationForDistance(){
+    public boolean usesBottomLeftLocationForDistance(){
         return this.size % 2 == 0;
     }
 

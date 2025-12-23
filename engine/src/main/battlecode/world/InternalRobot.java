@@ -59,7 +59,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     // cat related stuff
     private boolean crouching;
-    private int chirality; 
+    private int chirality;
     private int sleepTimeRemaining;
 
     /**
@@ -87,7 +87,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param loc  the location of the robot
      * @param team the team of the robot
      */
-    public InternalRobot(GameWorld gw, int id, Team team, UnitType type, MapLocation loc, Direction dir, int chirality) {
+    public InternalRobot(GameWorld gw, int id, Team team, UnitType type, MapLocation loc, Direction dir,
+            int chirality) {
         this.gameWorld = gw;
 
         this.ID = id;
@@ -130,14 +131,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.sleepTimeRemaining = 0;
         this.chirality = chirality;
 
-        if (this.type.isCatType()) { 
-            
+        if (this.type.isCatType()) {
+
             // set waypoints
             int[] waypointIndexLocations = gw.getGameMap().getCatWaypointsByID(this.ID);
             catWaypoints = new MapLocation[waypointIndexLocations.length];
-            for (int i=0; i<waypointIndexLocations.length; i++)
+            for (int i = 0; i < waypointIndexLocations.length; i++)
                 catWaypoints[i] = this.gameWorld.indexToLocation(waypointIndexLocations[i]);
-            
+
             this.catTargetLoc = this.catWaypoints[0];
 
         } else {
@@ -205,7 +206,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void addCheese(int amount) {
-        // TODO: idk if I used this method correctly in my paint -> cheese changes, maybe look through uses of this and check
+        // TODO: idk if I used this method correctly in my paint -> cheese changes,
+        // maybe look through uses of this and check
+        if (this.getType() == UnitType.RAT_KING){
+            this.gameWorld.getTeamInfo().addCheese(getTeam(), amount);
+            return;
+        }
+
+        // for rats, first add/remove from local stash
         if (this.cheeseAmount + amount >= 0) {
             this.cheeseAmount += amount;
         } else {
@@ -235,14 +243,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return movementCooldownTurns;
     }
 
-    public int getTurningCooldownTurns(){
+    public int getTurningCooldownTurns() {
         return turningCooldownTurns;
     }
 
     public InternalRobot getCarryingRobot() {
         return carryingRobot;
     }
-    
+
     public int getRemainingCarriedDuration() {
         return remainingCarriedDuration;
     }
@@ -268,7 +276,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.crouching == crouching
                 && cachedRobotInfo.chirality == chirality
                 && cachedRobotInfo.direction == dir
-                && ((cachedRobotInfo.carryingRobot==null && carryingRobot==null)||(carryingRobot!=null && cachedRobotInfo.carryingRobot == carryingRobot.getRobotInfo()))
+                && ((cachedRobotInfo.carryingRobot == null && carryingRobot == null)
+                        || (carryingRobot != null && cachedRobotInfo.carryingRobot == carryingRobot.getRobotInfo()))
                 && cachedRobotInfo.location.equals(location)) {
             return cachedRobotInfo;
         }
@@ -331,7 +340,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return this.type.getVisionAngle();
     }
 
-
     /**
      * Returns whether this robot can sense the given location.
      * 
@@ -339,7 +347,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
      */
     public boolean canSenseLocation(MapLocation toSense) {
         return this.location.isWithinDistanceSquared(toSense, getVisionRadiusSquared(), this.dir, getVisionConeAngle(),
-                this.type.usesTopRightLocationForDistance());
+                this.type.usesBottomLeftLocationForDistance());
     }
 
     /**
@@ -394,13 +402,18 @@ public class InternalRobot implements Comparable<InternalRobot> {
         MapLocation[] locs = this.getAllPartLocations();
         for (MapLocation loc : locs) {
             MapLocation newloc = loc.translate(dx, dy);
-            if (!this.gameWorld.getGameMap().onTheMap(newloc)) // TODO this fails to check whether or not non-central parts of big robots are on the map!
+            if (!this.gameWorld.getGameMap().onTheMap(newloc)) // TODO this fails to check whether or not non-central
+                                                               // parts of big robots are on the map!
                 return false;
-            if ((this.gameWorld.getRobot(newloc) != null) && (this.gameWorld.getRobot(newloc).getID() != this.getID())){ // TODO this fails to check for other robots in non-central parts of big robots!
+            if ((this.gameWorld.getRobot(newloc) != null)
+                    && (this.gameWorld.getRobot(newloc).getID() != this.getID())) { // TODO this fails to check for
+                                                                                    // other robots in non-central parts
+                                                                                    // of big robots!
                 return false;
             }
-            if (!this.gameWorld.isPassable(newloc)) // TODO this fails to check for passability in non-central parts of big robots!
-               return false;
+            if (!this.gameWorld.isPassable(newloc)) // TODO this fails to check for passability in non-central parts of
+                                                    // big robots!
+                return false;
         }
         return true;
     }
@@ -412,14 +425,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void becomeRatKing(int health) {
         this.type = UnitType.RAT_KING;
         this.health = health;
-    } 
-    
+    }
 
     /**
      * Resets the action cooldown.
      */
     public void addActionCooldownTurns(int numActionCooldownToAdd) {
-        int cooldownUp = numActionCooldownToAdd * (int)(this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support for rat towers???
+        int cooldownUp = numActionCooldownToAdd
+                * (int) (this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support
+                                                                                                    // for rat towers???
         setActionCooldownTurns(this.actionCooldownTurns + cooldownUp);
     }
 
@@ -427,7 +441,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * Resets the movement cooldown.
      */
     public void addMovementCooldownTurns() {
-        int movementCooldown = this.getType().movementCooldown * (int)(this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support for rat towers???
+        int movementCooldown = this.getType().movementCooldown
+                * (int) (this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support
+                                                                                                    // for rat towers???
         this.setMovementCooldownTurns(this.movementCooldownTurns + movementCooldown);
     }
 
@@ -435,7 +451,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * Resets the turning cooldown.
      */
     public void addTurningCooldownTurns() {
-        int turningCooldown = GameConstants.TURNING_COOLDOWN * (int)(this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support for rat towers???
+        int turningCooldown = GameConstants.TURNING_COOLDOWN
+                * (int) (this.carryingRobot != null ? GameConstants.CARRY_COOLDOWN_MULTIPLIER : 1); // TODO add support
+                                                                                                    // for rat towers???
         this.setTurningCooldownTurns(this.turningCooldownTurns + turningCooldown);
     }
 
@@ -457,7 +475,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.movementCooldownTurns = newMovementTurns;
     }
 
-     /**
+    /**
      * Sets the turning cooldown given the number of turns.
      * 
      * @param newMovementTurns the number of turning cooldown turns
@@ -474,7 +492,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void addHealth(int healthAmount) {
         this.health += healthAmount;
         this.health = Math.min(this.health, this.type.health);
-        if (this.type == UnitType.CAT){
+        if (this.type == UnitType.CAT) {
             this.gameWorld.updateCatHealth(this.ID, health);
         }
         if (this.health <= 0) {
@@ -541,7 +559,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 int damage = GameConstants.RAT_BITE_DAMAGE +
                         (int) Math.ceil(Math.log(cheeseConsumed));
                 targetRobot.addHealth(-damage);
-                if (targetRobot.getType() == UnitType.CAT){
+                if (targetRobot.getType() == UnitType.CAT) {
                     this.gameWorld.getTeamInfo().addDamageToCats(team, damage);
                 }
                 this.gameWorld.getMatchMaker().addBiteAction(targetRobot.getID());
@@ -585,7 +603,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (targetRobot != null && targetRobot.getType().isThrowableType()
                 && !targetRobot.isBeingThrown()) {
             boolean canGrab = false;
-            
+
             if (!targetRobot.canSenseLocation(this.location)) {
                 canGrab = true; // We can always grab robots facing away from us
             } else if (this.team == this.gameWorld.getRobot(loc).getTeam()) {
@@ -651,7 +669,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
         if (!this.gameWorld.getGameMap().onTheMap(this.getLocation().add(this.dir))) {
             throw new RuntimeException("Cannot throw outside of map");
-        } else if (this.gameWorld.getRobot(this.getLocation().add(this.dir)) != null || this.gameWorld.getRobot(this.getLocation().add(this.dir)).getType()!=UnitType.CAT) {
+        } else if (this.gameWorld.getRobot(this.getLocation().add(this.dir)) != null
+                || this.gameWorld.getRobot(this.getLocation().add(this.dir)).getType() != UnitType.CAT) {
             throw new RuntimeException("Cannot throw into a space occupied by another rat");
         }
 
@@ -670,13 +689,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
         MapLocation nextLoc = this.getLocation().add(this.dir);
 
         // Cat feeding!
-        if (this.gameWorld.getRobot(nextLoc) != null){ // there's a cat here
+        if (this.gameWorld.getRobot(nextLoc) != null) { // there's a cat here
             this.addHealth(-this.getHealth()); // rat dies :(
-            //put cat to sleep
+            // put cat to sleep
             this.gameWorld.getRobot(nextLoc).sleepTimeRemaining = GameConstants.CAT_SLEEP_TIME;
             this.gameWorld.getMatchMaker().addCatFeedAction(this.getID());
-        }
-        else{
+        } else {
             this.setInternalLocationOnly(this.getLocation().add(dir));
             this.gameWorld.addRobot(this.getLocation(), this);
         }
@@ -714,37 +732,39 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void hitTarget(boolean isSecondMove) {
         if (this.gameWorld.getRobot(this.getLocation().add(this.thrownDir)) != null) {
             InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
-            robot.addHealth(-GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * (GameConstants.THROW_DURATION - this.remainingThrowDuration) + (isSecondMove ? 0 : 1)));
+            robot.addHealth(-GameConstants.THROW_DAMAGE - GameConstants.THROW_DAMAGE_PER_TILE
+                    * (2 * (GameConstants.THROW_DURATION - this.remainingThrowDuration) + (isSecondMove ? 0 : 1)));
             robot.movementCooldownTurns += GameConstants.HIT_GROUND_COOLDOWN;
             robot.actionCooldownTurns += GameConstants.HIT_GROUND_COOLDOWN;
         }
         this.thrownDir = null;
         this.remainingThrowDuration = 0;
-        int damage = GameConstants.THROW_DAMAGE-GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.remainingThrowDuration + (isSecondMove ? 0 : 1));
+        int damage = GameConstants.THROW_DAMAGE
+                - GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.remainingThrowDuration + (isSecondMove ? 0 : 1));
         this.addHealth(-damage);
         setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
         setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
         setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
-        
+
         this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_GROUND_COOLDOWN);
     }
 
     public void travelFlying(boolean isSecondMove) {
         MapLocation newLoc = this.getLocation().add(this.thrownDir);
 
-        if(!this.gameWorld.getGameMap().onTheMap(newLoc)) {
+        if (!this.gameWorld.getGameMap().onTheMap(newLoc)) {
             this.hitGround();
             return;
-        } else if (this.gameWorld.getRobot(newLoc) != null && this.gameWorld.getRobot(newLoc).getType() == UnitType.CAT){
+        } else if (this.gameWorld.getRobot(newLoc) != null
+                && this.gameWorld.getRobot(newLoc).getType() == UnitType.CAT) {
             // cat feeding!
             this.addHealth(-this.getHealth()); // rat dies :(
-            //put cat to sleep
+            // put cat to sleep
             this.gameWorld.getRobot(newLoc).sleepTimeRemaining = GameConstants.CAT_SLEEP_TIME;
             this.gameWorld.getMatchMaker().addCatFeedAction(this.getID());
             return;
-        }
-        else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
+        } else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
             this.hitTarget(isSecondMove);
             return;
         }
@@ -794,17 +814,18 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public int[] canPounce(MapLocation loc) {
         /*
-        Returns dx, dy of pounce if allowed; otherwise returns null
-        */
-        
+         * Returns dx, dy of pounce if allowed; otherwise returns null
+         */
+
         // Must be a cat
         if (this.type != UnitType.CAT) {
             throw new RuntimeException("Unit must be a cat to pounce!");
         }
 
-        // Target location must be on map and passable (no walls/dirt) and within max pounce distnace
+        // Target location must be on map and passable (no walls/dirt) and within max
+        // pounce distnace
         boolean isWithinPounceDistance = (this.getLocation()
-                    .bottomLeftDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
+                .bottomLeftDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
         if (!this.gameWorld.isPassable(loc) || !isWithinPounceDistance) {
             return null;
         }
@@ -853,7 +874,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 }
             }
             if (landingTilesPassable) {
-                int[] pounceTraj = {dx, dy};
+                int[] pounceTraj = { dx, dy };
                 return pounceTraj;
             }
             // try another robot part
@@ -869,14 +890,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
         return null;
     }
 
-    public void pounce(int[] delta){
+    public void pounce(int[] delta) {
         int dx = delta[0];
         int dy = delta[1];
-        for(MapLocation partLoc : this.getAllPartLocations()){
+        for (MapLocation partLoc : this.getAllPartLocations()) {
             // shift location by dx, dy
             MapLocation translatedLoc = partLoc.translate(dx, dy);
             InternalRobot crushedRobot = this.gameWorld.getRobot(translatedLoc);
-            if(crushedRobot != null){
+            if (crushedRobot != null) {
                 // destroy robot
                 gameWorld.destroyRobot(crushedRobot.getID(), false, true);
             }
@@ -884,7 +905,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         // actually translate the cat
         this.setLocation(dx, dy);
-            
+
     }
 
     // *********************************
@@ -946,10 +967,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public void processBeginningOfTurn() {
         this.sentMessagesCount = 0;
-        
-        // if rat is being carried 
-        if (this.getType() == UnitType.RAT && this.isGrabbedByRobot() && this.getGrabbedByRobot().getTeam() != this.getTeam()) {            
-            if(this.remainingCarriedDuration == 0 ){ // max carry time reached
+
+        // if rat is being carried
+        if (this.getType() == UnitType.RAT && this.isGrabbedByRobot()
+                && this.getGrabbedByRobot().getTeam() != this.getTeam()) {
+            if (this.remainingCarriedDuration == 0) { // max carry time reached
                 MapLocation dropLoc = this.getGrabbedByRobot().getLocation().add(this.getDirection());
                 if (this.gameWorld.getGameMap().onTheMap(dropLoc)
                         && this.gameWorld.isPassable(dropLoc)
@@ -965,33 +987,33 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 this.carryingRobot = grabber; // dropped robot now carries its original carrier
                 grabber.getGrabbed(this); // notify original carrier it has been grabbed
                 // TODO: do we want to add a ratnap action to matchmaker
-            }
-            else{
+            } else {
                 remainingCarriedDuration -= 1;
             }
         }
 
         // if baby rat is being thrown
         if (this.getType() == UnitType.RAT && this.isBeingThrown()) {
-            // decrement first since we already moved once on the round where throwing was initiated?
+            // decrement first since we already moved once on the round where throwing was
+            // initiated?
             this.remainingThrowDuration -= 1;
-            if (this.remainingThrowDuration == 0){ // max throw time reached
+            if (this.remainingThrowDuration == 0) { // max throw time reached
                 this.hitGround();
-            }
-            else{
+            } else {
                 this.travelFlying(false);
                 this.travelFlying(true); // This will call hitTarget or hitGround if we hit something
             }
         }
 
-        // if rat is being carried or thrown, skip cooldown resets; same for a sleeping cat
+        // if rat is being carried or thrown, skip cooldown resets; same for a sleeping
+        // cat
         boolean isSleepingCat = this.getType().isCatType() && this.sleepTimeRemaining > 0;
         if (!this.isGrabbedByRobot() && !this.isBeingThrown() && !isSleepingCat) {
             this.actionCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.turningCooldownTurns = Math.max(0, this.actionCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
             this.movementCooldownTurns = Math.max(0, this.movementCooldownTurns - GameConstants.COOLDOWNS_PER_TURN);
         }
-        
+
         this.currentBytecodeLimit = this.getType().bytecodeLimit;
         this.gameWorld.getMatchMaker().startTurn(this.ID);
     }
@@ -1013,8 +1035,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         for (int i = 0; i < trapsToTrigger.size(); i++) {
-            // TODO do we really need enteredTraps? I don't see it used anywhere except here, and it's not needed by triggerTrap
-            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this/*, enteredTraps.get(i)*/);
+            // TODO do we really need enteredTraps? I don't see it used anywhere except
+            // here, and it's not needed by triggerTrap
+            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this/* , enteredTraps.get(i) */);
         }
 
         this.trapsToTrigger = new ArrayList<>();
@@ -1026,9 +1049,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         // cat algo
         // TODO: cat does not care about rats that attack it over other rats
-        
+
         if (this.type == UnitType.CAT) {
-            if (this.sleepTimeRemaining>0){
+            if (this.sleepTimeRemaining > 0) {
                 this.sleepTimeRemaining -= 1;
                 return;
             }
@@ -1079,12 +1102,23 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     if (this.movementCooldownTurns == 0 && canMove(toWaypoint.getDeltaX(), toWaypoint.getDeltaY())) {
                         setLocation(toWaypoint.getDeltaX(), toWaypoint.getDeltaY());
                     } else {
+                        System.out.println("stuck here cuz of dirt");
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(toWaypoint);
 
+                            System.out.println(partLoc + " " + nextLoc);
+
                             if (this.controller.canRemoveDirt(nextLoc)) {
-                                this.controller.removeDirt(nextLoc);
-                                this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                                System.out.println("stuck more here cuz of dirt");
+
+                                try{
+                                    this.controller.removeDirt(nextLoc);
+                                    this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                                }
+                                catch (GameActionException e){
+                                    continue;
+                                }
+                               
                             }
                         }
                     }
@@ -1179,7 +1213,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     // pounce towards target if possible
                     pounceTraj = canPounce(this.catTargetLoc);
 
-                    if (canActCooldown() && pounceTraj!=null) {
+                    if (canActCooldown() && pounceTraj != null) {
                         this.pounce(pounceTraj);
                     } else if (canMoveCooldown() && canMove(this.dir.getDeltaX(), this.dir.getDeltaY())) {
                         setLocation(this.dir.getDeltaX(), this.dir.getDeltaY());
@@ -1188,8 +1222,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
                             MapLocation nextLoc = partLoc.add(this.dir);
 
                             if (this.controller.canRemoveDirt(nextLoc)) {
-                                this.controller.removeDirt(nextLoc);
-                                this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                                try{
+                                    this.controller.removeDirt(nextLoc);
+                                    this.addActionCooldownTurns(GameConstants.CAT_DIG_COOLDOWN);
+                                }
+                                catch (GameActionException e){
+                                    continue;
+                                }
+                               
                             }
                         }
                     }
