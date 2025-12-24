@@ -70,7 +70,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private String indicatorString;
 
     private ArrayList<Trap> trapsToTrigger;
-    private ArrayList<Boolean> enteredTraps;
 
     private int currentWaypoint;
     private CatStateType catState;
@@ -103,7 +102,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.incomingMessages = new LinkedList<>();
 
         this.trapsToTrigger = new ArrayList<>();
-        this.enteredTraps = new ArrayList<>();
 
         this.cheeseAmount = 0;
 
@@ -506,9 +504,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
-    public void addTrapTrigger(Trap t, boolean entered) {
+    public void addTrapTrigger(Trap t) {
         this.trapsToTrigger.add(t);
-        this.enteredTraps.add(entered);
     }
 
     // *********************************
@@ -1070,13 +1067,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         for (int i = 0; i < trapsToTrigger.size(); i++) {
-            // TODO do we really need enteredTraps? I don't see it used anywhere except
-            // here, and it's not needed by triggerTrap
-            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this/* , enteredTraps.get(i) */);
+            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this);
         }
 
         this.trapsToTrigger = new ArrayList<>();
-        this.enteredTraps = new ArrayList<>();
 
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.turningCooldownTurns, this.bytecodesUsed, this.location, this.dir);

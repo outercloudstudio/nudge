@@ -40,7 +40,6 @@ public class GameWorld {
     private Trap[] trapLocations;
     private ArrayList<Trap>[] trapTriggers;
     private HashMap<TrapType, int[]> trapCounts; // maps trap type to counts for each team
-    private int trapId;
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
@@ -424,12 +423,14 @@ public class GameWorld {
         return this.trapTriggers[locationToIndex(loc)];
     }
 
-    public void placeTrap(MapLocation loc, TrapType type, Team team) {
-        Trap trap = new Trap(loc, type, team, trapId);
+    public void placeTrap(MapLocation loc, Trap trap) {
+
+        TrapType type = trap.getType();
+        Team team = trap.getTeam();
+        int trapId = trap.getId();
 
         int idx = locationToIndex(loc);
         this.trapLocations[idx] = trap;
-        this.cheeseAmounts[idx] = Math.max(this.cheeseAmounts[idx], type.spawnCheeseAmount);
 
         for (MapLocation adjLoc : getAllLocationsWithinRadiusSquared(loc, type.triggerRadiusSquared)) {
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);

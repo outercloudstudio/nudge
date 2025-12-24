@@ -275,20 +275,6 @@ public final class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanPlaceRatTrap(MapLocation loc) throws GameActionException {
-        assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
-
-        if (this.gameWorld.getWall(loc))
-            throw new GameActionException(CANT_DO_THAT, "Can't place rat trap on a wall!");
-        if (this.gameWorld.getRobot(loc) != null)
-            throw new GameActionException(CANT_DO_THAT, "Can't place rat trap on an occupied tile!");
-        if (this.gameWorld.hasRatTrap(loc))
-            throw new GameActionException(CANT_DO_THAT, "Tile already has a rat trap!");
-        if (this.gameWorld.getTrapCount(TrapType.RAT_TRAP, this.robot.getTeam()) >= TrapType.RAT_TRAP.maxCount)
-            throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of rat traps on the map!");
-    }
-
     private void assertCanRemoveRatTrap(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
@@ -299,20 +285,23 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Can't remove an enemy team's rat trap!");
     }
 
-    private void assertCanPlaceCatTrap(MapLocation loc) throws GameActionException {
+    private void assertCanPlaceTrap(MapLocation loc, TrapType trapType) throws GameActionException {
         assertIsRobotType(this.robot.getType());
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
-        if (!this.gameWorld.isCooperation)
+        if (trapType == TrapType.CAT_TRAP && !this.gameWorld.isCooperation)
             throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode!");
-        if (this.gameWorld.getWall(loc))
-            throw new GameActionException(CANT_DO_THAT, "Can't place cat trap on a wall!");
+        if (!this.gameWorld.isPassable(loc))
+            throw new GameActionException(CANT_DO_THAT, "Can't place trap on a wall or dirt!");
         if (this.gameWorld.getRobot(loc) != null)
-            throw new GameActionException(CANT_DO_THAT, "Can't place cat trap on an occupied tile!");
-        if (this.gameWorld.hasCatTrap(loc))
-            throw new GameActionException(CANT_DO_THAT, "Tile already has a cat trap!");
-        if (this.gameWorld.getTrapCount(TrapType.CAT_TRAP, this.robot.getTeam()) >= TrapType.CAT_TRAP.maxCount)
-            throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of cat traps on the map!");
+            throw new GameActionException(CANT_DO_THAT, "Can't place trap on an occupied tile!");
+        if (this.gameWorld.hasTrap(loc))
+            throw new GameActionException(CANT_DO_THAT, "Tile already has a trap!");
+        if (this.gameWorld.getTrapCount(trapType, this.robot.getTeam()) >= trapType.maxCount)
+            throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of " + trapType + " traps on the map!");
+        if (getAllCheese() < trapType.buildCost) {
+            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build trap!");
+        }
     }
 
     private void assertCanRemoveCatTrap(MapLocation loc) throws GameActionException {
@@ -326,7 +315,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canPlaceRatTrap(MapLocation loc) {
         try {
-            assertCanPlaceRatTrap(loc);
+            assertCanPlaceTrap(loc, TrapType.RAT_TRAP);
             return true;
         } catch (GameActionException e) {
             return false;
@@ -335,8 +324,8 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void placeRatTrap(MapLocation loc) throws GameActionException {
-        assertCanPlaceRatTrap(loc);
-        this.gameWorld.placeTrap(loc, TrapType.RAT_TRAP, getTeam());
+        assertCanPlaceTrap(loc, TrapType.RAT_TRAP);
+        buildTrap(TrapType.RAT_TRAP, loc);
     }
 
     @Override
@@ -358,7 +347,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canPlaceCatTrap(MapLocation loc) {
         try {
-            assertCanPlaceCatTrap(loc);
+            assertCanPlaceTrap(loc, TrapType.CAT_TRAP);
             return true;
         } catch (GameActionException e) {
             return false;
@@ -367,8 +356,8 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void placeCatTrap(MapLocation loc) throws GameActionException {
-        assertCanPlaceCatTrap(loc);
-        this.gameWorld.placeTrap(loc, TrapType.CAT_TRAP, getTeam());
+        assertCanPlaceTrap(loc, TrapType.CAT_TRAP);
+        buildTrap(TrapType.CAT_TRAP, loc);
     }
 
     @Override
@@ -865,39 +854,16 @@ public final class RobotControllerImpl implements RobotController {
                 this.robot.getChirality(), getTeam(), UnitType.RAT);
     }
 
-    public void assertCanBuildTrap(TrapType type, MapLocation loc) throws GameActionException {
-        assertNotNull(loc);
-        assertNotNull(type);
-        assertCanActLocation(loc, GameConstants.BUILD_ROBOT_RADIUS_SQUARED);
-        assertIsActionReady();
-
-        if (getAllCheese() < type.buildCost) {
-            throw new GameActionException(CANT_DO_THAT, "Not enough cheese!");
-        }
-        if (isLocationOccupied(loc)) {
-            throw new GameActionException(CANT_DO_THAT, "Location is already occupied!");
-        }
-        if (!sensePassability(loc)) {
-            throw new GameActionException(CANT_DO_THAT, "Location has a wall or ruin!");
-        }
-    }
-
-    public boolean canBuildTrap(TrapType type, MapLocation loc) {
-        try {
-            assertCanBuildTrap(type, loc);
-            return true;
-        } catch (GameActionException e) {
-            return false;
-        }
-    }
 
     public void buildTrap(TrapType type, MapLocation loc) throws GameActionException {
-        assertCanBuildTrap(type, loc);
         this.robot.addActionCooldownTurns(type.actionCooldown);
         this.robot.addCheese(-type.buildCost);
-        this.gameWorld.placeTrap(loc, type, getTeam());
-        int ID = this.gameWorld.idGenerator.nextID();
-        this.gameWorld.getMatchMaker().addPlaceTrapAction(ID, loc, getTeam(), type);
+
+        int trapId = this.gameWorld.idGenerator.nextID();
+        Trap newTrap = new Trap(loc, type, this.getTeam(), trapId);
+
+        this.gameWorld.placeTrap(loc, newTrap);
+        this.gameWorld.getMatchMaker().addPlaceTrapAction(trapId, loc, getTeam(), type);
     }
 
     // *****************************
@@ -1028,8 +994,14 @@ public final class RobotControllerImpl implements RobotController {
 
         for (Direction d : Direction.allDirections()) {
             if (d != Direction.CENTER) {
-                if (this.gameWorld.hasRatTrap(this.adjacentLocation(d))) {
-                    this.gameWorld.triggerTrap(this.gameWorld.getTrap(this.adjacentLocation(d)), this.robot);
+                MapLocation newLoc = this.adjacentLocation(d);
+                for (int j = this.gameWorld.getTrapTriggers(newLoc).size() - 1; j >= 0; j--) {
+                    Trap trap = this.gameWorld.getTrapTriggers(newLoc).get(j);
+                    boolean wrongTrapType = (trap.getType() == TrapType.CAT_TRAP);
+                    if (trap.getTeam() == this.robot.getTeam() || wrongTrapType) {
+                        continue;
+                    }
+                    this.robot.addTrapTrigger(trap);
                 }
             }
         }
