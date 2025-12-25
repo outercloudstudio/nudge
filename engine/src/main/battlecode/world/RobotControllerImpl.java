@@ -685,8 +685,12 @@ public final class RobotControllerImpl implements RobotController {
         MapLocation[] curLocs = robot.getAllPartLocations();
 
         MapLocation[] newLocs = new MapLocation[curLocs.length];
+        System.out.println("My current location is " + this.getLocation());
         for (int i = 0; i < newLocs.length; i++) {
+
             newLocs[i] = curLocs[i].add(d);
+
+            System.out.println("Moving " + d + " from " + curLocs[i] + " " + newLocs[i]);
         }
 
         for (MapLocation loc : newLocs) {
@@ -717,7 +721,8 @@ public final class RobotControllerImpl implements RobotController {
                 }
             }
             if (!this.gameWorld.isPassable(loc)) {
-                System.out.println("DEBUGGING: " + " impassable at location (" + loc.x + ", " + loc.y + ")");
+                System.out.println("DEBUGGING: " + " impassable at location " + loc + " direction was " + d
+                        + " curr loc " + this.getLocation());
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an impassable location; " + loc + " is impassable.");
             }
