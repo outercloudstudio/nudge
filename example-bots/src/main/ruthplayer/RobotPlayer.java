@@ -163,11 +163,14 @@ public class RobotPlayer {
             // if current target doesn't exist, set random target at least 6 away and go to
             // it
             if (goalLoc == null || rc.getLocation().distanceSquaredTo(goalLoc) < 36) {
-                if (cheeseMine == null) {
-                    goalLoc = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
-                } else {
-                    goalLoc = cheeseMine;
-                }
+                // if (cheeseMine == null) {
+                // goalLoc = new MapLocation(rng.nextInt(rc.getMapWidth()),
+                // rng.nextInt(rc.getMapHeight()));
+                // } else {
+                // goalLoc = cheeseMine;
+                // }
+
+                goalLoc = new MapLocation(rng.nextInt(rc.getMapWidth()), rng.nextInt(rc.getMapHeight()));
 
             }
 
@@ -193,6 +196,11 @@ public class RobotPlayer {
 
                 if (cheeseMine != null) {
                     rc.squeak(10000 + r.getLocation().x * 100 + r.getLocation().y);
+                }
+            } else if (r.getType().isCatType()) {
+                if (rc.getAllCheese() > 1000 && rc.canPlaceCatTrap(r.getLocation())) {
+                    System.out.println("Time to trap the cat");
+                    rc.placeCatTrap(r.getLocation());
                 }
             }
 
