@@ -298,7 +298,8 @@ public final class RobotControllerImpl implements RobotController {
         if (this.gameWorld.hasTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "Tile already has a trap!");
         if (this.gameWorld.getTrapCount(trapType, this.robot.getTeam()) >= trapType.maxCount)
-            throw new GameActionException(CANT_DO_THAT, "Team has reached maximum number of " + trapType + " traps on the map!");
+            throw new GameActionException(CANT_DO_THAT,
+                    "Team has reached maximum number of " + trapType + " traps on the map!");
         if (getAllCheese() < trapType.buildCost) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build trap!");
         }
@@ -856,7 +857,6 @@ public final class RobotControllerImpl implements RobotController {
                 this.robot.getChirality(), getTeam(), UnitType.RAT);
     }
 
-
     public void buildTrap(TrapType type, MapLocation loc) throws GameActionException {
         this.robot.addActionCooldownTurns(type.actionCooldown);
         this.robot.addCheese(-type.buildCost);
@@ -1043,12 +1043,12 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Value " + value + " is out of bounds for the shared array!");
         }
 
-        this.gameWorld.writeSharedArray(index, value);
+        this.gameWorld.writeSharedArray(index, value, this.getTeam());
     }
 
     @Override
     public int readSharedArray(int index) throws GameActionException {
-        return this.gameWorld.readSharedArray(index);
+        return this.gameWorld.readSharedArray(index, this.getTeam());
     }
 
     @Override
@@ -1063,12 +1063,12 @@ public final class RobotControllerImpl implements RobotController {
                     "Value " + value + " is out of bounds for the persistent array!");
         }
 
-        this.gameWorld.writePersistentArray(index, value);
+        this.gameWorld.writePersistentArray(index, value, this.getTeam());
     }
 
     @Override
     public int readPersistentArray(int index) throws GameActionException {
-        return this.gameWorld.readPersistentArray(index);
+        return this.gameWorld.readPersistentArray(index, this.getTeam());
     }
 
     // ***********************************

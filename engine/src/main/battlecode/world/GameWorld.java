@@ -60,8 +60,8 @@ public class GameWorld {
 
     private int numCats;
 
-    private int[] sharedArray;
-    private int[] persistentArray;
+    private int[][] sharedArray;
+    private int[][] persistentArray;
 
     public int symmetricY(int y) {
         return symmetricY(y, gameMap.getSymmetry());
@@ -155,8 +155,8 @@ public class GameWorld {
             mine.setPair(cheeseMineLocs[locationToIndex(symLoc)]);
         }
 
-        this.sharedArray = new int[GameConstants.SHARED_ARRAY_SIZE];
-        this.persistentArray = new int[GameConstants.PERSISTENT_ARRAY_SIZE];
+        this.sharedArray = new int[2][GameConstants.SHARED_ARRAY_SIZE];
+        this.persistentArray = new int[2][GameConstants.PERSISTENT_ARRAY_SIZE];
         // TODO make persistent array last between matches
 
         RobotInfo[] initialBodies = gm.getInitialBodies();
@@ -287,7 +287,7 @@ public class GameWorld {
         return this.dirt[locationToIndex(loc)];
     }
 
-    public int getCheese(MapLocation loc){
+    public int getCheese(MapLocation loc) {
         return this.cheeseAmounts[locationToIndex(loc)];
     }
 
@@ -439,7 +439,7 @@ public class GameWorld {
         matchMaker.addTrap(trap);
         int[] trapTypeCounts = this.trapCounts.get(type);
         trapTypeCounts[team.ordinal()] += 1;
-        this.trapCounts.put(type,  trapTypeCounts);
+        this.trapCounts.put(type, trapTypeCounts);
         trapId++;
     }
 
@@ -466,7 +466,7 @@ public class GameWorld {
 
     public void triggerTrap(Trap trap, InternalRobot robot) {
         // will only be called for matching trap and robot types
-        
+
         MapLocation loc = trap.getLocation();
         TrapType type = trap.getType();
 
@@ -875,20 +875,20 @@ public class GameWorld {
         matchMaker.addSqueakAction(robotLoc);
     }
 
-    public void writeSharedArray(int index, int value) {
-        this.sharedArray[index] = value;
+    public void writeSharedArray(int index, int value, Team team) {
+        this.sharedArray[team.ordinal()][index] = value;
     }
 
-    public int readSharedArray(int index) {
-        return this.sharedArray[index];
+    public int readSharedArray(int index, Team team) {
+        return this.sharedArray[team.ordinal()][index];
     }
 
-    public void writePersistentArray(int index, int value) {
-        this.persistentArray[index] = value;
+    public void writePersistentArray(int index, int value, Team team) {
+        this.persistentArray[team.ordinal()][index] = value;
     }
 
-    public int readPersistentArray(int index) {
-        return this.persistentArray[index];
+    public int readPersistentArray(int index, Team team) {
+        return this.persistentArray[team.ordinal()][index];
     }
 
     // *********************************
@@ -934,7 +934,7 @@ public class GameWorld {
         else
             matchMaker.addDied(id);
 
-        if(robot.getType() != UnitType.CAT)
+        if (robot.getType() != UnitType.CAT)
             this.currentNumberUnits[robot.getTeam().ordinal()] -= 1;
 
         // check win
