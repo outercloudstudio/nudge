@@ -1104,7 +1104,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             int[] pounceTraj = null;
             Direction pounceDir = null;
 
-            System.out.println("THIS IS ROUND " + this.gameWorld.getCurrentRound() + " and cat with ID " + this.ID + " is at location " + this.getLocation()); 
+            // System.out.println("THIS IS ROUND " + this.gameWorld.getCurrentRound() + " and cat with ID " + this.ID + " is at location " + this.getLocation()); 
             switch (this.catState) {
                 case EXPLORE:
                     System.out.println("CAT " + this.ID + "Entering Explore");
@@ -1152,7 +1152,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     System.out.println(this.ID + " exploring " + this.catTargetLoc);
 
                     if (this.controller.canMove(toWaypoint)) {
-                        setLocation(toWaypoint.getDeltaX(), toWaypoint.getDeltaY());
+                        try{
+                            this.controller.move(toWaypoint);
+                        }catch (GameActionException e) {
+                        }
+                        
                     } else {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(toWaypoint);
@@ -1197,8 +1201,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                     if (canActCooldown() && pounceTraj != null) {
                         this.pounce(pounceTraj);
-                    } else if (canMoveCooldown() && canMove(this.dir.getDeltaX(), this.dir.getDeltaY())) {
-                        setLocation(this.dir.getDeltaX(), this.dir.getDeltaY());
+                    } else if (this.controller.canMove(this.dir)) {
+                        try{
+                            this.controller.move(this.dir);
+                        }
+                        catch(GameActionException e){
+                        }
                     } else {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(this.dir);
@@ -1217,8 +1225,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                 case SEARCH:
                     System.out.println("CAT " + this.ID + "Entering Search");
-
-                    System.out.println(this.ID + " searching for rat " + this.gameWorld.getCurrentRound());
 
                     if (this.catTurns >= 4) {
                         this.catTurns = 0;
@@ -1288,8 +1294,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     if (canMoveCooldown() && pounceTraj != null) {
                         System.out.println("IS POUNCING NOW");
                         this.pounce(pounceTraj);
-                    } else if (canMoveCooldown() && canMove(this.dir.getDeltaX(), this.dir.getDeltaY())) {
-                        setLocation(this.dir.getDeltaX(), this.dir.getDeltaY());
+                    } else if (this.controller.canMove(this.dir)) {
+                         try{
+                            this.controller.move(this.dir);
+                        }
+                        catch(GameActionException e){
+                        }
                     } else {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(this.dir);
