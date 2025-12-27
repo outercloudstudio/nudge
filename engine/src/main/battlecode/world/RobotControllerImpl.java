@@ -686,7 +686,6 @@ public final class RobotControllerImpl implements RobotController {
         MapLocation[] curLocs = robot.getAllPartLocations();
 
         MapLocation[] newLocs = new MapLocation[curLocs.length];
-        System.out.println("My current location is " + this.getLocation());
         for (int i = 0; i < newLocs.length; i++) {
 
             newLocs[i] = curLocs[i].add(d);
@@ -793,7 +792,7 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         this.robot.addMovementCooldownTurns(d);
-        
+
     }
 
     private void assertCanTurn() throws GameActionException {
