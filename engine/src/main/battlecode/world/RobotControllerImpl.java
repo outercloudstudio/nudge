@@ -498,7 +498,7 @@ public final class RobotControllerImpl implements RobotController {
         assertRadiusNonNegative(radiusSquared);
         int actualRadiusSquared = radiusSquared == -1 ? this.robot.getVisionRadiusSquared()
                 : Math.min(radiusSquared, this.robot.getVisionRadiusSquared());
-        actualRadiusSquared += 2; // expand slightly to account for cat center being bottom left corner
+        actualRadiusSquared = (int)((Math.sqrt(actualRadiusSquared)+2)*(Math.sqrt(actualRadiusSquared)+2)); // expand slightly to account for cat center being bottom left corner
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team);
         List<RobotInfo> validSensedRobots = new ArrayList<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
@@ -554,9 +554,9 @@ public final class RobotControllerImpl implements RobotController {
     public MapInfo[] senseNearbyMapInfos(MapLocation center, int radiusSquared) throws GameActionException {
         assertNotNull(center);
         assertRadiusNonNegative(radiusSquared);
-        int actualRadiusSquared = radiusSquared == -1 ? UnitType.RAT.visionConeRadiusSquared
-                : Math.min(radiusSquared, UnitType.RAT.visionConeRadiusSquared);
-        MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, actualRadiusSquared);
+        int actualRadiusSquared = radiusSquared == -1 ? this.getType().visionConeRadiusSquared
+                : Math.min(radiusSquared, this.getType().visionConeRadiusSquared);
+        MapLocation[] allSensedLocs = gameWorld.getAllLocationsWithinRadiusSquared(center, (int)((Math.sqrt(actualRadiusSquared)+2)*(Math.sqrt(actualRadiusSquared)+2))); //expand slightly to allow off-center sensing
         List<MapInfo> validSensedMapInfo = new ArrayList<>();
         for (MapLocation mapLoc : allSensedLocs) {
             // Can't actually sense location
