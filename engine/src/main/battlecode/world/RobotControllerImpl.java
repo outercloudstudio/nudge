@@ -686,7 +686,6 @@ public final class RobotControllerImpl implements RobotController {
         MapLocation[] curLocs = robot.getAllPartLocations();
 
         MapLocation[] newLocs = new MapLocation[curLocs.length];
-        System.out.println("My current location is " + this.getLocation());
         for (int i = 0; i < newLocs.length; i++) {
 
             newLocs[i] = curLocs[i].add(d);
@@ -702,14 +701,15 @@ public final class RobotControllerImpl implements RobotController {
                                 + this.getLocation());
             }
 
-            if ((this.gameWorld.getRobot(loc) != null) && (this.gameWorld.getRobot(loc).getID() != robot.getID())) {
+            InternalRobot occupyingRobot = this.gameWorld.getRobot(loc); 
+            if ((occupyingRobot != null) && (occupyingRobot.getID() != this.robot.getID())) {
 
-                if (this.gameWorld.getRobot(loc).getType().isRatType() && this.getType().isCatType()) {
+                if (occupyingRobot.getType().isRatType() && this.getType().isCatType()) {
                     System.out.println("Cat killed a rat by stepping on it");
                 } else {
                     System.out.println("DEBUGGING: " + this.robot.getID() + " collision with robot of type "
-                            + this.gameWorld.getRobot(loc).getType() + " with part locations at ");
-                    MapLocation[] partLocs = robot.getAllPartLocations();
+                            + occupyingRobot.getType() + " with part locations at ");
+                    MapLocation[] partLocs = this.robot.getAllPartLocations();
                     System.out.print("Part locations: [");
                     for (int i = 0; i < partLocs.length; i++) {
                         System.out.print("(" + partLocs[i].x + ", " + partLocs[i].y + ")");
@@ -722,8 +722,6 @@ public final class RobotControllerImpl implements RobotController {
                 }
             }
             if (!this.gameWorld.isPassable(loc)) {
-                System.out.println("DEBUGGING: " + " impassable at location " + loc + " direction was " + d
-                        + " curr loc " + this.getLocation());
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an impassable location; " + loc + " is impassable.");
             }
@@ -762,17 +760,10 @@ public final class RobotControllerImpl implements RobotController {
 
         // calculate set of next map locations
         MapLocation[] curLocs = robot.getAllPartLocations();
-        MapLocation[] newLocs = new MapLocation[curLocs.length];
-        for (int i = 0; i < newLocs.length; i++) {
-            MapLocation curLoc = curLocs[i];
-            newLocs[i] = curLoc.add(d);
-            this.gameWorld.removeRobot(curLoc);
-        }
-        this.robot.setLocation(d.dx, d.dy);
-        for (int i = 0; i < newLocs.length; i++) {
-            MapLocation newLoc = newLocs[i];
+        for (int i = 0; i < curLocs.length; i++) {
+            MapLocation newLoc = curLocs[i].add(d);
             InternalRobot crushedRobot = this.gameWorld.getRobot(newLoc);
-            if (crushedRobot != null && this.getType().isCatType()
+            if (crushedRobot != null && this.getID() != crushedRobot.getID() && this.getType().isCatType()
                     && crushedRobot.getType().isRatType()) {
                 // kill this rat
                 crushedRobot.addHealth(-crushedRobot.getHealth());
@@ -792,6 +783,7 @@ public final class RobotControllerImpl implements RobotController {
             }
         }
 
+        this.robot.setLocation(d.dx, d.dy);
         this.robot.addMovementCooldownTurns(d);
         
     }
@@ -918,7 +910,7 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         switch (this.robot.getType()) {
-            case RAT:
+            case RAT, RAT_KING:
                 assertCanAttackRat(loc);
                 break;
             case CAT:

@@ -388,9 +388,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param dy # amount to translate in y direction
      */
     public void setLocation(int dx, int dy) {
-        for (MapLocation partLoc : this.getAllPartLocations()) {
-            this.gameWorld.moveRobot(partLoc, partLoc.translate(dx, dy));
+        MapLocation[] beforeLocs = this.getAllPartLocations();
+        for (MapLocation partLoc : beforeLocs) {
+            this.gameWorld.removeRobot(partLoc);
         }
+
+        for (MapLocation partLoc : beforeLocs) {
+            this.gameWorld.addRobot(partLoc.translate(dx, dy), this);
+        }
+
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = this.location.translate(dx, dy);
     }
