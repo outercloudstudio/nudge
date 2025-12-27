@@ -198,9 +198,9 @@ public class RobotPlayer {
                     rc.squeak(10000 + r.getLocation().x * 100 + r.getLocation().y);
                 }
             } else if (r.getType().isCatType()) {
-                if (rc.getAllCheese() > 1000 && rc.canPlaceCatTrap(r.getLocation())) {
+                if (rc.getAllCheese() > 1000 && rc.canPlaceCatTrap(rc.getLocation().add(rc.getDirection()))) {
                     System.out.println("Time to trap the cat");
-                    rc.placeCatTrap(r.getLocation());
+                    rc.placeCatTrap(rc.getLocation().add(rc.getDirection()));
                 }
             }
 
@@ -216,6 +216,10 @@ public class RobotPlayer {
             }
 
         }
+        if (rc.getAllCheese() > 1000 && rc.canPlaceRatTrap(rc.getLocation().add(rc.getDirection()))) {
+            System.out.println("Time to trap rats");
+            rc.placeRatTrap(rc.getLocation().add(rc.getDirection()));
+        }
 
         // if sense cheese, pickup
         for (MapInfo info : rc.senseNearbyMapInfos()) {
@@ -230,6 +234,7 @@ public class RobotPlayer {
                 goalLoc = cheeseMine;
             }
         }
+
     }
 
     public static void bug2(RobotController rc, MapLocation target) throws GameActionException {
