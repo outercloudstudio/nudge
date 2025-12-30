@@ -34,31 +34,31 @@ var RobotTypeMetadata = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 8);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.turningCooldown = function () {
+    RobotTypeMetadata.prototype.baseHealth = function () {
         var offset = this.bb.__offset(this.bb_pos, 10);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.baseHealth = function () {
+    RobotTypeMetadata.prototype.maxCheese = function () {
         var offset = this.bb.__offset(this.bb_pos, 12);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.maxCheese = function () {
+    RobotTypeMetadata.prototype.visionConeRadiusSquared = function () {
         var offset = this.bb.__offset(this.bb_pos, 14);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.visionConeRadiusSquared = function () {
+    RobotTypeMetadata.prototype.visionConeAngle = function () {
         var offset = this.bb.__offset(this.bb_pos, 16);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.visionConeAngle = function () {
+    RobotTypeMetadata.prototype.messageRadiusSquared = function () {
         var offset = this.bb.__offset(this.bb_pos, 18);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.messageRadiusSquared = function () {
+    RobotTypeMetadata.prototype.bytecodeLimit = function () {
         var offset = this.bb.__offset(this.bb_pos, 20);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
-    RobotTypeMetadata.prototype.bytecodeLimit = function () {
+    RobotTypeMetadata.prototype.turningCooldown = function () {
         var offset = this.bb.__offset(this.bb_pos, 22);
         return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
     };
@@ -74,43 +74,43 @@ var RobotTypeMetadata = /** @class */ (function () {
     RobotTypeMetadata.addMovementCooldown = function (builder, movementCooldown) {
         builder.addFieldInt32(2, movementCooldown, 0);
     };
-    RobotTypeMetadata.addTurningCooldown = function (builder, turningCooldown) {
-        builder.addFieldInt32(3, turningCooldown, 0);
-    };
     RobotTypeMetadata.addBaseHealth = function (builder, baseHealth) {
-        builder.addFieldInt32(4, baseHealth, 0);
+        builder.addFieldInt32(3, baseHealth, 0);
     };
     RobotTypeMetadata.addMaxCheese = function (builder, maxCheese) {
-        builder.addFieldInt32(5, maxCheese, 0);
+        builder.addFieldInt32(4, maxCheese, 0);
     };
     RobotTypeMetadata.addVisionConeRadiusSquared = function (builder, visionConeRadiusSquared) {
-        builder.addFieldInt32(6, visionConeRadiusSquared, 0);
+        builder.addFieldInt32(5, visionConeRadiusSquared, 0);
     };
     RobotTypeMetadata.addVisionConeAngle = function (builder, visionConeAngle) {
-        builder.addFieldInt32(7, visionConeAngle, 0);
+        builder.addFieldInt32(6, visionConeAngle, 0);
     };
     RobotTypeMetadata.addMessageRadiusSquared = function (builder, messageRadiusSquared) {
-        builder.addFieldInt32(8, messageRadiusSquared, 0);
+        builder.addFieldInt32(7, messageRadiusSquared, 0);
     };
     RobotTypeMetadata.addBytecodeLimit = function (builder, bytecodeLimit) {
-        builder.addFieldInt32(9, bytecodeLimit, 0);
+        builder.addFieldInt32(8, bytecodeLimit, 0);
+    };
+    RobotTypeMetadata.addTurningCooldown = function (builder, turningCooldown) {
+        builder.addFieldInt32(9, turningCooldown, 0);
     };
     RobotTypeMetadata.endRobotTypeMetadata = function (builder) {
         var offset = builder.endObject();
         return offset;
     };
-    RobotTypeMetadata.createRobotTypeMetadata = function (builder, type, actionCooldown, movementCooldown, turningCooldown, baseHealth, maxCheese, visionConeRadiusSquared, visionConeAngle, messageRadiusSquared, bytecodeLimit) {
+    RobotTypeMetadata.createRobotTypeMetadata = function (builder, type, actionCooldown, movementCooldown, baseHealth, maxCheese, visionConeRadiusSquared, visionConeAngle, messageRadiusSquared, bytecodeLimit, turningCooldown) {
         RobotTypeMetadata.startRobotTypeMetadata(builder);
         RobotTypeMetadata.addType(builder, type);
         RobotTypeMetadata.addActionCooldown(builder, actionCooldown);
         RobotTypeMetadata.addMovementCooldown(builder, movementCooldown);
-        RobotTypeMetadata.addTurningCooldown(builder, turningCooldown);
         RobotTypeMetadata.addBaseHealth(builder, baseHealth);
         RobotTypeMetadata.addMaxCheese(builder, maxCheese);
         RobotTypeMetadata.addVisionConeRadiusSquared(builder, visionConeRadiusSquared);
         RobotTypeMetadata.addVisionConeAngle(builder, visionConeAngle);
         RobotTypeMetadata.addMessageRadiusSquared(builder, messageRadiusSquared);
         RobotTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
+        RobotTypeMetadata.addTurningCooldown(builder, turningCooldown);
         return RobotTypeMetadata.endRobotTypeMetadata(builder);
     };
     return RobotTypeMetadata;

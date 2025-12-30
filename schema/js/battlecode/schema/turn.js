@@ -63,7 +63,7 @@ var Turn = /** @class */ (function () {
     };
     Turn.prototype.actionsType = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 24);
-        return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : null;
+        return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     };
     Turn.prototype.actionsTypeLength = function () {
         var offset = this.bb.__offset(this.bb_pos, 24);

@@ -40,37 +40,37 @@ movementCooldown():number {
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-turningCooldown():number {
+baseHealth():number {
   const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-baseHealth():number {
+maxCheese():number {
   const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-maxCheese():number {
+visionConeRadiusSquared():number {
   const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-visionConeRadiusSquared():number {
+visionConeAngle():number {
   const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-visionConeAngle():number {
+messageRadiusSquared():number {
   const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-messageRadiusSquared():number {
+bytecodeLimit():number {
   const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
-bytecodeLimit():number {
+turningCooldown():number {
   const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
@@ -91,32 +91,32 @@ static addMovementCooldown(builder:flatbuffers.Builder, movementCooldown:number)
   builder.addFieldInt32(2, movementCooldown, 0);
 }
 
-static addTurningCooldown(builder:flatbuffers.Builder, turningCooldown:number) {
-  builder.addFieldInt32(3, turningCooldown, 0);
-}
-
 static addBaseHealth(builder:flatbuffers.Builder, baseHealth:number) {
-  builder.addFieldInt32(4, baseHealth, 0);
+  builder.addFieldInt32(3, baseHealth, 0);
 }
 
 static addMaxCheese(builder:flatbuffers.Builder, maxCheese:number) {
-  builder.addFieldInt32(5, maxCheese, 0);
+  builder.addFieldInt32(4, maxCheese, 0);
 }
 
 static addVisionConeRadiusSquared(builder:flatbuffers.Builder, visionConeRadiusSquared:number) {
-  builder.addFieldInt32(6, visionConeRadiusSquared, 0);
+  builder.addFieldInt32(5, visionConeRadiusSquared, 0);
 }
 
 static addVisionConeAngle(builder:flatbuffers.Builder, visionConeAngle:number) {
-  builder.addFieldInt32(7, visionConeAngle, 0);
+  builder.addFieldInt32(6, visionConeAngle, 0);
 }
 
 static addMessageRadiusSquared(builder:flatbuffers.Builder, messageRadiusSquared:number) {
-  builder.addFieldInt32(8, messageRadiusSquared, 0);
+  builder.addFieldInt32(7, messageRadiusSquared, 0);
 }
 
 static addBytecodeLimit(builder:flatbuffers.Builder, bytecodeLimit:number) {
-  builder.addFieldInt32(9, bytecodeLimit, 0);
+  builder.addFieldInt32(8, bytecodeLimit, 0);
+}
+
+static addTurningCooldown(builder:flatbuffers.Builder, turningCooldown:number) {
+  builder.addFieldInt32(9, turningCooldown, 0);
 }
 
 static endRobotTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -124,18 +124,18 @@ static endRobotTypeMetadata(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createRobotTypeMetadata(builder:flatbuffers.Builder, type:RobotType, actionCooldown:number, movementCooldown:number, turningCooldown:number, baseHealth:number, maxCheese:number, visionConeRadiusSquared:number, visionConeAngle:number, messageRadiusSquared:number, bytecodeLimit:number):flatbuffers.Offset {
+static createRobotTypeMetadata(builder:flatbuffers.Builder, type:RobotType, actionCooldown:number, movementCooldown:number, baseHealth:number, maxCheese:number, visionConeRadiusSquared:number, visionConeAngle:number, messageRadiusSquared:number, bytecodeLimit:number, turningCooldown:number):flatbuffers.Offset {
   RobotTypeMetadata.startRobotTypeMetadata(builder);
   RobotTypeMetadata.addType(builder, type);
   RobotTypeMetadata.addActionCooldown(builder, actionCooldown);
   RobotTypeMetadata.addMovementCooldown(builder, movementCooldown);
-  RobotTypeMetadata.addTurningCooldown(builder, turningCooldown);
   RobotTypeMetadata.addBaseHealth(builder, baseHealth);
   RobotTypeMetadata.addMaxCheese(builder, maxCheese);
   RobotTypeMetadata.addVisionConeRadiusSquared(builder, visionConeRadiusSquared);
   RobotTypeMetadata.addVisionConeAngle(builder, visionConeAngle);
   RobotTypeMetadata.addMessageRadiusSquared(builder, messageRadiusSquared);
   RobotTypeMetadata.addBytecodeLimit(builder, bytecodeLimit);
+  RobotTypeMetadata.addTurningCooldown(builder, turningCooldown);
   return RobotTypeMetadata.endRobotTypeMetadata(builder);
 }
 }
