@@ -92,7 +92,7 @@ public class RobotPlayer {
                 }
                 if (rc.canTurn()) {
                     System.out.println("Turn " + turnCount + "TURNING Clockwise");
-                    rc.turnCW();
+                    rc.turn(rc.getDirection());
                 }
                 else{
                     System.out.println("couldn't turn on turn" + turnCount);

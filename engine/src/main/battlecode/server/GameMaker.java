@@ -596,6 +596,14 @@ public class GameMaker {
             });
         }
 
+        public void addTrapTriggerAction(int trapID, MapLocation loc, Team team, TrapType type) {
+            applyToBuilders((builder) -> {
+                byte teamID = TeamMapping.id(team);
+                int action = TriggerTrap.createTriggerTrap(builder, locationToInt(loc), teamID);
+                builder.addAction(action, Action.TriggerTrap);
+            });
+        }
+
         /// Visually indicate dirt or trap being built
         public void addPlaceDirtAction(MapLocation loc) {
             applyToBuilders((builder) -> {

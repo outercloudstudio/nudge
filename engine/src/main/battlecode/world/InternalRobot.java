@@ -69,8 +69,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private String indicatorString;
 
-    private ArrayList<Trap> trapsToTrigger;
-
     private int currentWaypoint;
     private CatStateType catState;
     private MapLocation[] catWaypoints;
@@ -100,9 +98,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.diedLocation = null;
         this.health = type.health;
         this.incomingMessages = new LinkedList<>();
-
-        this.trapsToTrigger = new ArrayList<>();
-
         this.cheeseAmount = 0;
 
         this.controlBits = 0;
@@ -511,10 +506,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (this.health <= 0) {
             this.gameWorld.destroyRobot(this.getID(), false, true);
         }
-    }
-
-    public void addTrapTrigger(Trap t) {
-        this.trapsToTrigger.add(t);
     }
 
     // *********************************
@@ -1094,7 +1085,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public void processEndOfTurn() {
         // eat cheese if ratking
-        if (this.type.isRatKingType()) {
+        if (this.type.isRatKingType() && this.gameWorld.getTeamInfo().getNumRatKings(this.getTeam()) > 0) {
             // ratking starves
             if (this.gameWorld.getTeamInfo().getCheese(team) < GameConstants.RATKING_CHEESE_CONSUMPTION) {
                 this.addHealth(-GameConstants.RATKING_HEALTH_LOSS);
@@ -1331,11 +1322,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.gameWorld.getMatchMaker().addIndicatorString(this.ID, this.indicatorString);
         }
 
-        for (int i = 0; i < trapsToTrigger.size(); i++) {
-            this.gameWorld.triggerTrap(trapsToTrigger.get(i), this);
-        }
-
-        this.trapsToTrigger = new ArrayList<>();
 
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.turningCooldownTurns, this.bytecodesUsed, this.location, this.dir);
