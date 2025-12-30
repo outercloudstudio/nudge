@@ -3,7 +3,6 @@ from __future__ import annotations
 import flatbuffers
 import numpy as np
 
-import flatbuffers
 import typing
 from ..schema.ProfilerFile import ProfilerFile
 from ..schema.TimelineMarker import TimelineMarker

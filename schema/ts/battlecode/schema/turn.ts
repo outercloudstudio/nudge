@@ -77,7 +77,7 @@ dir():number {
 
 actionsType(index: number):Action|null {
   const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : null;
 }
 
 actionsTypeLength():number {
