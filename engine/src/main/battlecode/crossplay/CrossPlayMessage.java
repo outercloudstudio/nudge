@@ -44,20 +44,21 @@ public class CrossPlayMessage extends CrossPlayObject {
 
         for (int i = 0; i < numParams; i++) {
             JSONObject paramJson = paramsJson.getJSONObject(i);
-            CrossPlayObjectType type = CrossPlayObjectType.values[paramJson.getInt("type")];
+            params[i] = CrossPlayObject.fromJson(paramJson);
+            // CrossPlayObjectType type = CrossPlayObjectType.values[paramJson.getInt("type")];
 
-            switch (type) {
-                case INVALID:
-                    System.err.println("Received invalid cross-play object type!");
-                    break;
-                case CALL:
-                    CrossPlayMessage nestedMessage = CrossPlayMessage.fromJson(paramJson);
-                    params[i] = nestedMessage;
-                    break;
-                default:
-                    params[i] = new CrossPlayObject(type);
-                    break;
-            }
+            // switch (type) {
+            //     case INVALID:
+            //         System.err.println("Received invalid cross-play object type!");
+            //         break;
+            //     case CALL:
+            //         CrossPlayMessage nestedMessage = CrossPlayMessage.fromJson(paramJson);
+            //         params[i] = nestedMessage;
+            //         break;
+            //     default:
+            //         params[i] = new CrossPlayObject(type);
+            //         break;
+            // }
         }
 
         CrossPlayMessage message = new CrossPlayMessage(method, params);
@@ -79,32 +80,4 @@ public class CrossPlayMessage extends CrossPlayObject {
         sb.append("])");
         return sb.toString();
     }
-
-    // public static void main(String[] args) {
-    //     String jsonTest =
-    //     """
-    //     {
-    //         "type": 1,
-    //         "method": 1,
-    //         "params": [
-    //             {
-    //                 "type": 1,
-    //                 "method": 2,
-    //                 "params": []
-    //             },
-    //             {
-    //                 "type": 2,
-    //                 "oid": 0
-    //             },
-    //             {
-    //                 "type": 2,
-    //                 "oid": 1
-    //             }
-    //         ]
-    //     }
-    //     """;
-    //     JSONObject json = new JSONObject(jsonTest);
-    //     CrossPlayMessage message = CrossPlayMessage.fromJson(json, 2);
-    //     System.out.println("\n" + message.toString());
-    // }
 }

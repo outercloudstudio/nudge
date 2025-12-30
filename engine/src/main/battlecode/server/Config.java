@@ -107,7 +107,7 @@ public class Config {
         // Set up local properties instance.
         properties = new Properties(defaults);
 
-        for (Enumeration propertyNames = System.getProperties().propertyNames(); propertyNames.hasMoreElements(); ) {
+        for (Enumeration<?> propertyNames = System.getProperties().propertyNames(); propertyNames.hasMoreElements(); ) {
             String s = (String) propertyNames.nextElement();
             if (s.startsWith("bc.")) {
                 properties.setProperty(s, System.getProperty(s));
@@ -132,7 +132,7 @@ public class Config {
 
         // Parse them GNU-style. This allows both long and short switches
         // with arguments, i.e. "-c configfile" or "--config configfile".
-        CommandLineParser cmdParser = new GnuParser();
+        CommandLineParser cmdParser = new DefaultParser();
         CommandLine cmd;
         try {
             cmd = cmdParser.parse(options, args);

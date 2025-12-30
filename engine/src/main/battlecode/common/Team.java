@@ -52,4 +52,6 @@ public enum Team {
     public boolean isPlayer() {
         return this == A || this == B;
     }
+
+    public static Team[] values = values();
 }

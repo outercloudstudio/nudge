@@ -31,8 +31,8 @@ import static org.mockito.Mockito.verify;
  */
 public class GameMakerTest {
     private final GameInfo info = new GameInfo(
-                    "bananas", "org.bananas", null,
-                    "yellow","org.yellow", null,
+                    "bananas", "java", "org.bananas", null,
+                    "yellow", "java", "org.yellow", null,
                     new String[] {"honolulu"}, null, false
     );
 

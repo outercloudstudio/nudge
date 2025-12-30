@@ -18,6 +18,11 @@ public class GameInfo implements Serializable {
     private final String teamAName;
 
     /**
+     * The language of team A ("java" or "python").
+     */
+    private final String teamALanguage;
+
+    /**
      * The package name of team A.
      */
     private final String teamAPackage;
@@ -32,6 +37,11 @@ public class GameInfo implements Serializable {
      * The name of team B.
      */
     private final String teamBName;
+
+    /**
+     * The language of team B ("java" or "python").
+     */
+    private final String teamBLanguage;
 
     /**
      * The package name of team B.
@@ -75,15 +85,17 @@ public class GameInfo implements Serializable {
      *                 matches, or null to never save
      * @param bestOfThree whether the game is best of three
      */
-    public GameInfo(String teamAName, String teamAPackage, String teamAURL,
-                    String teamBName, String teamBPackage, String teamBURL,
+    public GameInfo(String teamAName, String teamALanguage, String teamAPackage, String teamAURL,
+                    String teamBName, String teamBLanguage, String teamBPackage, String teamBURL,
                     String[] maps,
                     File saveFile,
                     boolean bestOfThree) {
         this.teamAName = teamAName;
+        this.teamALanguage = teamALanguage;
         this.teamAPackage = teamAPackage;
         this.teamAURL = teamAURL;
         this.teamBName = teamBName;
+        this.teamBLanguage = teamBLanguage;
         this.teamBPackage = teamBPackage;
         this.teamBURL = teamBURL;
         this.maps = maps;
@@ -99,6 +111,13 @@ public class GameInfo implements Serializable {
     }
 
     /**
+     * @return the language of team A
+     */
+    public String getTeamALanguage() {
+        return teamALanguage;
+    }
+
+    /**
      * @return the package name of team A
      */
     public String getTeamAPackage() {
@@ -110,6 +129,13 @@ public class GameInfo implements Serializable {
      */
     public String getTeamAURL() {
         return teamAURL;
+    }
+
+    /**
+     * @return the language of team B
+     */
+    public String getTeamBLanguage() {
+        return teamBLanguage;
     }
 
     /**

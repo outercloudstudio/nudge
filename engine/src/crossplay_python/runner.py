@@ -10,18 +10,7 @@ from typing import Any, List
 import dis
 import inspect
 from enum import Enum
-
-class Team(Enum):
-    A = 0
-    B = 1
-    NEUTRAL = 2
-
-    def opponent(self):
-        if self == Team.A:
-            return Team.B
-        elif self == Team.B:
-            return Team.A
-        return Team.NEUTRAL
+from crossplay_python.wrappers import RobotController
 
 class GameFinishedException(Exception):
     pass
@@ -67,9 +56,9 @@ class RobotThread(Thread):
         self.run_event.set()
 
 class RobotRunner:
-
-    def __init__(self, code, game_methods, log_method, error_method, bytecode_limit, debug=False):
+    def __init__(self, code, game_methods, error_method, bytecode_limit, debug=False):
         self.instrument = Instrument(self)
+        
         self.locals = {}
         self.globals = {
             '__builtins__': dict(i for dct in [safe_builtins, limited_builtins] for i in dct.items()),
@@ -88,15 +77,7 @@ class RobotRunner:
         self.globals['__builtins__']['_unpack_sequence_'] = Guards.guarded_unpack_sequence
         self.globals['__builtins__']['_iter_unpack_sequence_'] = Guards.guarded_iter_unpack_sequence
         self.globals['__builtins__']['open'] = open
-
-        def format_print(*args):
-            print(f"[{'A' if game_methods['get_team'][0]() == Team.A else 'B'}: #{game_methods['get_id'][0]()}@{game_methods['get_round_num'][0]()}] ", end="")
-            print(*args)
-
-        def disable_print(*args):
-            pass
-
-        self.globals['__builtins__']['log'] = format_print if debug else disable_print
+        self.globals['__builtins__']['rc'] = RobotController
         self.globals['__builtins__']['enumerate'] = enumerate
         self.globals['__builtins__']['set'] = set
         self.globals['__builtins__']['frozenset'] = frozenset
@@ -204,6 +185,9 @@ class RobotRunner:
             if name == 'enum':
                 import enum
                 return enum
+            if name == 'battlecode':
+                import battlecode
+                return battlecode
 
             raise ImportError('Module "' + name + '" does not exist.')
 
@@ -247,7 +231,7 @@ class RobotRunner:
             self.error_method(traceback.format_exc(limit=5))
 
     def do_turn(self):
-        if 'turn' in self.locals and isinstance(self.locals['turn'], type(lambda: 1)):
+        if 'turn' in self.locals and isinstance(self.locals['turn'], type(lambda _: 1)):
             try:
                 exec(self.locals['turn'].__code__, self.globals, self.locals)
             except Exception as e:

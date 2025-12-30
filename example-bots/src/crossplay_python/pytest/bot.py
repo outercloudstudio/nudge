@@ -1,5 +1,5 @@
-from crossplay_python.stubs import *
-from crossplay_python.types import *
+
+from battlecode import *
 
 directions = [
     Direction.NORTH,
@@ -12,7 +12,7 @@ directions = [
     Direction.NORTHWEST,
 ]
 
-def turn(rc: RobotController):
+def turn():
     round_num_test = rc.get_round_num()
     map_width_test = rc.get_map_width()
     map_height_test = rc.get_map_height()

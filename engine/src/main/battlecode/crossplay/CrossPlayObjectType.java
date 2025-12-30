@@ -3,6 +3,7 @@ package battlecode.crossplay;
 public enum CrossPlayObjectType {
     INVALID,
     CALL,
+    NULL,
     INTEGER,
     STRING,
     BOOLEAN,

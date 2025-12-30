@@ -262,7 +262,15 @@ public class GameMaker {
             int specVersionOffset = builder.createString(GameConstants.SPEC_VERSION);
 
             int name = builder.createString(gameInfo.getTeamAName());
-            int packageName = builder.createString(gameInfo.getTeamAPackage());
+            String rawPackageName = gameInfo.getTeamAPackage();
+            String language = gameInfo.getTeamALanguage();
+            
+            if (!language.equals("java")) {
+                rawPackageName = language + "/" + rawPackageName;
+            }
+            
+            int packageName = builder.createString(rawPackageName);
+
             TeamData.startTeamData(builder);
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);
@@ -271,7 +279,15 @@ public class GameMaker {
             int teamAOffset = TeamData.endTeamData(builder);
 
             name = builder.createString(gameInfo.getTeamBName());
-            packageName = builder.createString(gameInfo.getTeamBPackage());
+            rawPackageName = gameInfo.getTeamBPackage();
+            language = gameInfo.getTeamBLanguage();
+            
+            if (!language.equals("java")) {
+                rawPackageName = language + "/" + rawPackageName;
+            }
+            
+            packageName = builder.createString(rawPackageName);
+            
             TeamData.startTeamData(builder);
             TeamData.addName(builder, name);
             TeamData.addPackageName(builder, packageName);

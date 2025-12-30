@@ -2,7 +2,7 @@ package battlecode.crossplay;
 
 import org.json.*;
 
-public class CrossPlayObject {
+public abstract class CrossPlayObject {
     public final CrossPlayObjectType type;
 
     public CrossPlayObject(CrossPlayObjectType type) {
@@ -21,7 +21,14 @@ public class CrossPlayObject {
     }
 
     public static CrossPlayObject fromJson(JSONObject json) {
-        CrossPlayObjectType type = CrossPlayObjectType.values[json.getInt("type")];
-        return new CrossPlayObject(type);
+        if (json.has("value")) {
+            return CrossPlayLiteral.fromJson(json);
+        } else if (json.has("oid")) {
+            return CrossPlayReference.fromJson(json);
+        } else if (json.getInt("type") == CrossPlayObjectType.CALL.ordinal()) {
+            return CrossPlayMessage.fromJson(json);
+        } else {
+            throw new CrossPlayException("Invalid CrossPlayObject JSON: " + json.toString());
+        }
     }
 }
