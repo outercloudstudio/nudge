@@ -49,17 +49,13 @@ public class RobotInfo {
      */
     public final int cheeseAmount;
   
-    /**
-     * Whether or not the robot is a cat and is crouching
-     */
-    public final boolean crouching;
 
     /**
      * The current robot being carried by this robot, or null if not carrying any robots.
      */
     public final RobotInfo carryingRobot;
 
-    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, Direction direction, int chirality, int cheeseAmount, RobotInfo carryingRobot, boolean crouching) {
+    public RobotInfo(int ID, Team team, UnitType type, int health, MapLocation location, Direction direction, int chirality, int cheeseAmount, RobotInfo carryingRobot) {
         super();
         this.ID = ID;
         this.team = team;
@@ -69,7 +65,6 @@ public class RobotInfo {
         this.direction = direction;
         this.chirality = chirality;
         this.cheeseAmount = cheeseAmount;
-        this.crouching = !type.isRatType() && crouching;
         this.carryingRobot = carryingRobot;
     }
 
@@ -146,15 +141,6 @@ public class RobotInfo {
     }
 
     /**
-     * Returns whether or not the robot is crouching
-     *
-     * @return if the robot is crouching
-     */
-    public boolean isCrouching(){
-        return this.crouching;
-    }
-
-    /**
      * Returns the robot this robot is carrying, or null if not carrying a robot. 
      * 
      * @return the robot the robot is carrying, or null if not carrying a robot
@@ -198,8 +184,7 @@ public class RobotInfo {
                 ", team=" + team +
                 ", health=" + health +
                 ", location=" + location +
-                ", cheese amount=" + cheeseAmount +
-                ", crouching=" + crouching +
+                ", raw cheese amount=" + cheeseAmount +
                 ", carrying=" + carryingRobot +
                 '}';
     }

@@ -57,8 +57,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // the number of messages this robot/tower has sent this turn
     private int sentMessagesCount;
 
-    // cat related stuff
-    private boolean crouching;
     private int chirality;
     private int sleepTimeRemaining;
 
@@ -266,7 +264,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 && cachedRobotInfo.type == type
                 && cachedRobotInfo.health == health
                 && cachedRobotInfo.cheeseAmount == cheeseAmount
-                && cachedRobotInfo.crouching == crouching
                 && cachedRobotInfo.chirality == chirality
                 && cachedRobotInfo.direction == dir
                 && ((cachedRobotInfo.carryingRobot == null && carryingRobot == null)
@@ -276,7 +273,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         this.cachedRobotInfo = new RobotInfo(ID, team, type, health, location, dir, chirality, cheeseAmount,
-                carryingRobot != null ? carryingRobot.getRobotInfo() : null, crouching);
+                carryingRobot != null ? carryingRobot.getRobotInfo() : null);
         return this.cachedRobotInfo;
     }
 
