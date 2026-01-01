@@ -231,7 +231,7 @@ export default class Bodies {
             }
 
             const selected = selectedBodyID === body.id || !!selectedBodyIDs?.includes(body.id)
-            const hovered = !!hoveredTile && vectorEq(body.pos, hoveredTile)
+            const hovered = !!hoveredTile && this.getBodyAtLocation(hoveredTile.x, hoveredTile.y)?.id === body.id
             const focused = !!focusedBodyIDs?.includes(body.id)
             if (overlayCtx) {
                 body.drawOverlay(match, overlayCtx, config, selected && focused, hovered || (selected && !focused))
