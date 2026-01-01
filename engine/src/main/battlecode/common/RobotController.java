@@ -168,6 +168,25 @@ public interface RobotController {
      */
     RobotInfo getCarrying();
 
+    /**
+     * Returns whether robot is being thrown.
+     * 
+     * @return true if robot is being thrown, false if not
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean isBeingThrown();
+
+    /**
+     * Returns whether robot is being carried.
+     * 
+     * @return true if robot is being carried, false if not
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean isBeingCarried();
+
+
     // ***********************************
     // ****** GENERAL VISION METHODS *****
     // ***********************************
