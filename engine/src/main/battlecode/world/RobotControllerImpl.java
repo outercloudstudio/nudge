@@ -365,7 +365,9 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void removeRatTrap(MapLocation loc) throws GameActionException {
         assertCanRemoveRatTrap(loc);
+        Trap trap = this.gameWorld.getTrap(loc);
         this.gameWorld.removeTrap(loc);
+        this.gameWorld.getMatchMaker().addRemoveTrapAction(trap.getId(), trap.getTeam());
     }
 
     @Override
@@ -397,7 +399,9 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void removeCatTrap(MapLocation loc) throws GameActionException {
         assertCanRemoveCatTrap(loc);
+        Trap trap = this.gameWorld.getTrap(loc);
         this.gameWorld.removeTrap(loc);
+        this.gameWorld.getMatchMaker().addRemoveTrapAction(trap.getId(), trap.getTeam());
     }
 
     @Override

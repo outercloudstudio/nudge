@@ -596,6 +596,14 @@ public class GameMaker {
             });
         }
 
+        public void addRemoveTrapAction(int trapID, Team team) {
+            applyToBuilders((builder) -> {
+                byte teamID = TeamMapping.id(team);
+                int action = RemoveTrap.createRemoveTrap(builder, trapID, teamID);
+                builder.addAction(action, Action.RemoveTrap);
+            });
+        }
+
         public void addTrapTriggerAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
