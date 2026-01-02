@@ -810,9 +810,10 @@ public class GameWorld {
             spawnCheese(mine);
         }
 
-        // TODO: new team info stuff in matchmaker
-        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getCheese(Team.A));
-        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getCheese(Team.B));
+        Team[] teams = {Team.A, Team.B};
+        for (Team t : teams){
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheese(t), this.teamInfo.getCheeseCollected(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+        }
         this.teamInfo.processEndOfRound();
 
         this.getMatchMaker().endRound();

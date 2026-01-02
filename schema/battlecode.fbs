@@ -426,8 +426,31 @@ table Turn {
 table Round {
     /// The IDs of teams in the Game.
     teamIds: [int];
+
     /// The total amount of cheese this round per team
     teamCheeseAmounts: [int];
+
+    /// The total amount of collected this round per team
+    teamCollectedCheeseAmounts: [int];
+
+    /// The total number of cat damage done by each team
+    teamCatDamage: [int];
+
+    /// The total number of alive rat kings per team
+    teamAliveRatKings: [int];
+   
+    /// The total number of alive baby rats per team
+    teamAliveBabyRats: [int];
+
+    /// The total number of live rat traps per team
+    teamRatTrapCount: [int];
+
+    /// The total number of live cat traps per team
+    teamCatTrapCount: [int];
+
+    /// The total number of live cat traps per team
+    teamDirtAmounts: [int];
+
    
     /// Ordered turn data for each robot during the round
     turns: [Turn];
