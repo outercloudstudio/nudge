@@ -501,7 +501,7 @@ export class Body {
                     const angleToPoint = Math.atan2(dy, dx)
                     let angleDiff = angleToPoint - directionRad
                     angleDiff = ((((angleDiff + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI
-                    if (Math.abs(angleDiff) <= (halfFOV * Math.PI) / 180 + .0001) {
+                    if (Math.abs(angleDiff) <= (halfFOV * Math.PI) / 180 + 0.0001) {
                         coords.push({ x, y })
                     }
                 }

@@ -272,8 +272,6 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
     [schema.Action.CheeseSpawn]: class CheeseSpawnAction extends Action<schema.CheeseSpawn> {
         apply(round: Round): void {
             // add cheese to map
-            const body = round.bodies.getById(this.robotId)
-            const pos = round.map.indexToLocation(this.actionData.loc())
             const amount = this.actionData.amount()
 
             round.map.cheeseData[this.actionData.loc()] = amount
@@ -394,8 +392,6 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             // add a trap to map
             const body = round.bodies.getById(this.robotId)
-            const pos = round.map.indexToLocation(this.actionData.loc())
-            const teamId = body.team.id // there is also the `team` attribute of the action, but it seems to be unnecessary.
 
             round.map.trapData[this.actionData.loc()] = 1 + body.team.id // 1 for team 0, 2 for team 1
         }

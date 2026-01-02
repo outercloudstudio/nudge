@@ -119,11 +119,13 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                     <div /*className="flex items-center gap-2"*/>
                         {/* Note: to keep animation smooth, we should still keep the elements rendered, but we pass showStats into
                             them so that they don't render any data (since we're likely hiding stats to prevent lag) */}
-                        <ResourceGraph active={showStats} property="paintPercent" propertyDisplayName="Coverage %" />
+                        <ResourceGraph active={showStats} property="cheeseAmount" propertyDisplayName="Cheese " />
                         <br />
-                        <ResourceGraph active={showStats} property="moneyAmount" propertyDisplayName="Chips" />
+                        <ResourceGraph active={showStats} property="cheesePercent" propertyDisplayName="Cheese " />
                         <br />
-                        <ResourceGraph active={showStats} property="totalPaint" propertyDisplayName="Paint" />
+                        {/* <ResourceGraph active={showStats} property="moneyAmount" propertyDisplayName="Chips" />
+                        <br />
+                        <ResourceGraph active={showStats} property="totalPaint" propertyDisplayName="Paint" /> */}
                     </div>
                 ) : (
                     <div>Select a game to see stats</div>

@@ -34,7 +34,7 @@ export const TeamTable: React.FC<TeamTableProps> = (props: TeamTableProps) => {
 
     return (
         <div className="flex flex-col">
-            <UnitsTable teamStat={teamStat} teamIdx={props.teamIdx} />
+            {/* <UnitsTable teamStat={teamStat} teamIdx={props.teamIdx} /> */}
             <ResourceTable map={map} teamStat={teamStat} teamIdx={props.teamIdx} />
         </div>
     )
@@ -47,14 +47,15 @@ interface ResourceTableProps {
 }
 
 export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, teamIdx }) => {
-    let moneyAmount = 0
-    let paintPercent = 0
-    let patternAmount = 0
+    let cheeseAmount = 0
+    let cheesePercent = 0
+    let ratCount = 0
 
     if (map && teamStat) {
-        paintPercent = teamStat.paintPercent
-        moneyAmount = teamStat.moneyAmount
-        patternAmount = teamStat.resourcePatterns
+        cheeseAmount = teamStat.cheeseAmount
+        cheesePercent = teamStat.cheesePercent
+        ratCount = teamStat.ratCount
+        // patternAmount = teamStat.resourcePatterns
     }
 
     const teamName = TEAM_COLOR_NAMES[teamIdx].toLowerCase()
@@ -63,24 +64,35 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
             <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
                 <div className="flex items-center w-[160px] ml-6">
                     <div className="w-[30px] h-[30px] mr-2">
-                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/paint_${teamName}.png`)} />
+                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/cheese_64x64.png`)} />
                     </div>
-                    <div>Coverage:</div>
+                    <div>Cheese:</div>
                     <div className="ml-1">
-                        <b>{paintPercent}%</b>
+                        <b>{cheeseAmount}</b>
                     </div>
                 </div>
                 <div className="flex items-center w-[145px]">
-                    <div className="w-[30px] h-[30px] mr-2">
-                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/chip_${teamName}.png`)} />
-                    </div>
-                    <div>Chips:</div>
+                    <div>Cheese Percent:</div>
                     <div className="ml-1">
-                        <b>{moneyAmount}</b>
+                        <b>{cheesePercent}</b>
                     </div>
                 </div>
             </div>
             <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
+                <div className="flex items-center w-[145px]">
+                    <div className="w-[30px] h-[30px] mr-2">
+                        <img
+                            style={{ transform: 'scale(1.5)' }}
+                            src={imageSource(`robots/${teamName}/rat_64x64.png`)}
+                        />
+                    </div>
+                    <div>Rat Count:</div>
+                    <div className="ml-1">
+                        <b>{ratCount}</b>
+                    </div>
+                </div>
+            </div>
+            {/* <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
                 <div className="flex items-center w-[210px] ml-6">
                     <div className="w-[30px] h-[30px] mr-3">
                         <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/grid_${teamName}.png`)} />
@@ -90,69 +102,69 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
                         <b>{patternAmount}</b>
                     </div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }
 
-interface UnitsTableProps {
-    teamStat: TeamRoundStat | undefined
-    teamIdx: 0 | 1
-}
+// interface UnitsTableProps {
+//     teamStat: TeamRoundStat | undefined
+//     teamIdx: 0 | 1
+// }
 
-export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => {
-    const columns: Array<[string, React.ReactElement]> = [
-        ['Paint Tower', <UnitsIcon teamIdx={teamIdx} robotType="paint_tower" key="0" />],
-        ['Money Tower', <UnitsIcon teamIdx={teamIdx} robotType="money_tower" key="1" />],
-        ['Defense Tower', <UnitsIcon teamIdx={teamIdx} robotType="defense_tower" key="2" />],
-        ['Soldier', <UnitsIcon teamIdx={teamIdx} robotType="soldier" key="3" />],
-        ['Splasher', <UnitsIcon teamIdx={teamIdx} robotType="splasher" key="4" />],
-        ['Mopper', <UnitsIcon teamIdx={teamIdx} robotType="mopper" key="5" />]
-    ]
+// export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => {
+//     const columns: Array<[string, React.ReactElement]> = [
+//         ['Paint Tower', <UnitsIcon teamIdx={teamIdx} robotType="paint_tower" key="0" />],
+//         ['Money Tower', <UnitsIcon teamIdx={teamIdx} robotType="money_tower" key="1" />],
+//         ['Defense Tower', <UnitsIcon teamIdx={teamIdx} robotType="defense_tower" key="2" />],
+//         ['Soldier', <UnitsIcon teamIdx={teamIdx} robotType="soldier" key="3" />],
+//         ['Splasher', <UnitsIcon teamIdx={teamIdx} robotType="splasher" key="4" />],
+//         ['Mopper', <UnitsIcon teamIdx={teamIdx} robotType="mopper" key="5" />]
+//     ]
 
-    let data: [string, number[]][] = [
-        ['Count', [0, 0, 0, 0, 0, 0]],
-        ['Paint', [0, 0, 0, 0, 0, 0]]
-    ]
-    if (teamStat) {
-        data = [
-            [
-                'Count',
-                Object.values(schema.RobotType)
-                    .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
-                    .map((k) => teamStat.robotCounts[k as schema.RobotType])
-            ],
-            [
-                'Paint',
-                Object.values(schema.RobotType)
-                    .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
-                    .map((k) => teamStat.robotPaints[k as schema.RobotType])
-            ]
-        ]
-    }
+//     let data: [string, number[]][] = [
+//         ['Count', [0, 0, 0, 0, 0, 0]],
+//         ['Paint', [0, 0, 0, 0, 0, 0]]
+//     ]
+//     if (teamStat) {
+//         data = [
+//             [
+//                 'Count',
+//                 Object.values(schema.RobotType)
+//                     .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
+//                     .map((k) => teamStat.robotCounts[k as schema.RobotType])
+//             ],
+//             [
+//                 'Paint',
+//                 Object.values(schema.RobotType)
+//                     .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
+//                     .map((k) => teamStat.robotPaints[k as schema.RobotType])
+//             ]
+//         ]
+//     }
 
-    return (
-        <>
-            <table className="my-1">
-                <thead>
-                    <tr className="mb-2">
-                        <th className="pb-1"></th>
-                        {columns.map((column) => column[1])}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((dataRow, rowIndex) => (
-                        <tr key={rowIndex}>
-                            <th className="text-xs">{dataRow[0]}</th>
-                            {dataRow[1].map((value, colIndex) => (
-                                <td className="text-center text-xs" key={rowIndex + ':' + colIndex}>
-                                    {value}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </>
-    )
-}
+//     return (
+//         <>
+//             <table className="my-1">
+//                 <thead>
+//                     <tr className="mb-2">
+//                         <th className="pb-1"></th>
+//                         {columns.map((column) => column[1])}
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     {data.map((dataRow, rowIndex) => (
+//                         <tr key={rowIndex}>
+//                             <th className="text-xs">{dataRow[0]}</th>
+//                             {dataRow[1].map((value, colIndex) => (
+//                                 <td className="text-center text-xs" key={rowIndex + ':' + colIndex}>
+//                                     {value}
+//                                 </td>
+//                             ))}
+//                         </tr>
+//                     ))}
+//                 </tbody>
+//             </table>
+//         </>
+//     )
+// }
