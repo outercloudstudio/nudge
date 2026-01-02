@@ -619,10 +619,11 @@ export class Body {
         const dimension = match.currentRound.map.staticMap.dimension
         const interpCoords = this.getInterpolatedCoords(match)
         const renderCoords = renderUtils.getRenderCoords(interpCoords.x, interpCoords.y, dimension)
-        const hpBarWidth = 0.8
+        const hpBarWidth = 0.8 * this.size
         const hpBarHeight = 0.1
-        const hpBarYOffset = 0.4
-        const hpBarX = renderCoords.x + 0.5 - hpBarWidth / 2
+        const hpBarYOffset = this.robotType === schema.RobotType.RAT_KING ? 1.4 : 0.4
+        const hpBarXOffset = this.robotType === schema.RobotType.CAT ? 0.5 : 0
+        const hpBarX = renderCoords.x + 0.5 - hpBarWidth / 2 + hpBarXOffset
         const hpBarY = renderCoords.y + 0.5 + hpBarYOffset
         ctx.fillStyle = 'rgba(0,0,0,.3)'
         ctx.fillRect(hpBarX, hpBarY, hpBarWidth, hpBarHeight)
