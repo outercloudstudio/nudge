@@ -77,7 +77,7 @@ dir():number {
 
 actionsType(index: number):Action|null {
   const offset = this.bb!.__offset(this.bb_pos, 24);
-  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : null;
+  return offset ? this.bb!.readUint8(this.bb!.__vector(this.bb_pos + offset) + index) : 0;
 }
 
 actionsTypeLength():number {
@@ -100,8 +100,13 @@ actionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
+isCooperation():boolean {
+  const offset = this.bb!.__offset(this.bb_pos, 28);
+  return offset ? !!this.bb!.readInt8(this.bb_pos + offset) : false;
+}
+
 static startTurn(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(13);
 }
 
 static addRobotId(builder:flatbuffers.Builder, robotId:number) {
@@ -176,12 +181,16 @@ static startActionsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
+static addIsCooperation(builder:flatbuffers.Builder, isCooperation:boolean) {
+  builder.addFieldInt8(12, +isCooperation, +false);
+}
+
 static endTurn(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, turningCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, dir:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, cheese:number, moveCooldown:number, turningCooldown:number, actionCooldown:number, bytecodesUsed:number, x:number, y:number, dir:number, actionsTypeOffset:flatbuffers.Offset, actionsOffset:flatbuffers.Offset, isCooperation:boolean):flatbuffers.Offset {
   Turn.startTurn(builder);
   Turn.addRobotId(builder, robotId);
   Turn.addHealth(builder, health);
@@ -195,6 +204,7 @@ static createTurn(builder:flatbuffers.Builder, robotId:number, health:number, ch
   Turn.addDir(builder, dir);
   Turn.addActionsType(builder, actionsTypeOffset);
   Turn.addActions(builder, actionsOffset);
+  Turn.addIsCooperation(builder, isCooperation);
   return Turn.endTurn(builder);
 }
 }

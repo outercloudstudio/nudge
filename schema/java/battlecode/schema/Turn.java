@@ -21,7 +21,7 @@ import java.nio.ByteOrder;
 
 @SuppressWarnings("unused")
 public final class Turn extends Table {
-  public static void ValidateVersion() { Constants.FLATBUFFERS_25_9_23(); }
+  public static void ValidateVersion() { Constants.FLATBUFFERS_24_3_25(); }
   public static Turn getRootAsTurn(ByteBuffer _bb) { return getRootAsTurn(_bb, new Turn()); }
   public static Turn getRootAsTurn(ByteBuffer _bb, Turn obj) { _bb.order(ByteOrder.LITTLE_ENDIAN); return (obj.__assign(_bb.getInt(_bb.position()) + _bb.position(), _bb)); }
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
@@ -47,6 +47,7 @@ public final class Turn extends Table {
   public int actionsLength() { int o = __offset(26); return o != 0 ? __vector_len(o) : 0; }
   public UnionVector actionsVector() { return actionsVector(new UnionVector()); }
   public UnionVector actionsVector(UnionVector obj) { int o = __offset(26); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
+  public boolean isCooperation() { int o = __offset(28); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
 
   public static int createTurn(FlatBufferBuilder builder,
       int robotId,
@@ -60,8 +61,9 @@ public final class Turn extends Table {
       int y,
       int dir,
       int actionsTypeOffset,
-      int actionsOffset) {
-    builder.startTable(12);
+      int actionsOffset,
+      boolean isCooperation) {
+    builder.startTable(13);
     Turn.addActions(builder, actionsOffset);
     Turn.addActionsType(builder, actionsTypeOffset);
     Turn.addBytecodesUsed(builder, bytecodesUsed);
@@ -71,13 +73,14 @@ public final class Turn extends Table {
     Turn.addCheese(builder, cheese);
     Turn.addHealth(builder, health);
     Turn.addRobotId(builder, robotId);
+    Turn.addIsCooperation(builder, isCooperation);
     Turn.addDir(builder, dir);
     Turn.addY(builder, y);
     Turn.addX(builder, x);
     return Turn.endTurn(builder);
   }
 
-  public static void startTurn(FlatBufferBuilder builder) { builder.startTable(12); }
+  public static void startTurn(FlatBufferBuilder builder) { builder.startTable(13); }
   public static void addRobotId(FlatBufferBuilder builder, int robotId) { builder.addInt(0, robotId, 0); }
   public static void addHealth(FlatBufferBuilder builder, int health) { builder.addInt(1, health, 0); }
   public static void addCheese(FlatBufferBuilder builder, int cheese) { builder.addInt(2, cheese, 0); }
@@ -94,6 +97,7 @@ public final class Turn extends Table {
   public static void addActions(FlatBufferBuilder builder, int actionsOffset) { builder.addOffset(11, actionsOffset, 0); }
   public static int createActionsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startActionsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addIsCooperation(FlatBufferBuilder builder, boolean isCooperation) { builder.addBoolean(12, isCooperation, false); }
   public static int endTurn(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

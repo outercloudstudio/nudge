@@ -90,7 +90,7 @@ public class FlatHelpers {
             case 5:
                 return Direction.EAST;
             case 6:
-                return Direction.SOUTHEAST;
+                return Direction.NORTHEAST;
             case 7:
                 return Direction.NORTH;
             case 8:

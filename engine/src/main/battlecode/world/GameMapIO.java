@@ -429,10 +429,9 @@ public final class GameMapIO {
                     bodyTeam = bodyTeam.opponent();
                 }
 
-                boolean initialCrouching = false;
                 int initialCheese = GameConstants.INITIAL_TEAM_CHEESE;
                 RobotInfo carryingRobot = null;
-                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), dir, chirality, initialCheese, carryingRobot, initialCrouching));
+                initialBodies.add(new RobotInfo(curId, bodyTeam, bodyType, bodyType.health, new MapLocation(bodyX, bodyY), dir, chirality, initialCheese, carryingRobot));
                 
                 System.out.println("DEBUGGING: " + "Unit type " + bodyType + " on team " + bodyTeam + " at location " + bodyX + ", " + bodyY + " with initial angle " + dirOrdinal + " with chirality " + chirality);
             }

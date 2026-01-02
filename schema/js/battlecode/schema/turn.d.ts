@@ -21,6 +21,7 @@ export declare class Turn {
     actionsTypeArray(): Uint8Array | null;
     actions(index: number, obj: any): any | null;
     actionsLength(): number;
+    isCooperation(): boolean;
     static startTurn(builder: flatbuffers.Builder): void;
     static addRobotId(builder: flatbuffers.Builder, robotId: number): void;
     static addHealth(builder: flatbuffers.Builder, health: number): void;
@@ -38,6 +39,7 @@ export declare class Turn {
     static addActions(builder: flatbuffers.Builder, actionsOffset: flatbuffers.Offset): void;
     static createActionsVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset;
     static startActionsVector(builder: flatbuffers.Builder, numElems: number): void;
+    static addIsCooperation(builder: flatbuffers.Builder, isCooperation: boolean): void;
     static endTurn(builder: flatbuffers.Builder): flatbuffers.Offset;
-    static createTurn(builder: flatbuffers.Builder, robotId: number, health: number, cheese: number, moveCooldown: number, turningCooldown: number, actionCooldown: number, bytecodesUsed: number, x: number, y: number, dir: number, actionsTypeOffset: flatbuffers.Offset, actionsOffset: flatbuffers.Offset): flatbuffers.Offset;
+    static createTurn(builder: flatbuffers.Builder, robotId: number, health: number, cheese: number, moveCooldown: number, turningCooldown: number, actionCooldown: number, bytecodesUsed: number, x: number, y: number, dir: number, actionsTypeOffset: flatbuffers.Offset, actionsOffset: flatbuffers.Offset, isCooperation: boolean): flatbuffers.Offset;
 }

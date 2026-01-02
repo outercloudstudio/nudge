@@ -44,6 +44,15 @@ public interface RobotController {
      */
     int getMapHeight();
 
+    /**
+     * Returns the game state- true if in cooperation mode, false if in backstabbing mode. 
+     *
+     * @return boolean representing the game state
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean isCooperation();
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
@@ -149,6 +158,34 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     UnitType getType();
+
+    /**
+     * Returns robot that this robot is carrying or null if this robot is not carrying another robot.
+     * 
+     * @return RobotInfo for the carried robot or null.
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    RobotInfo getCarrying();
+
+    /**
+     * Returns whether robot is being thrown.
+     * 
+     * @return true if robot is being thrown, false if not
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean isBeingThrown();
+
+    /**
+     * Returns whether robot is being carried.
+     * 
+     * @return true if robot is being carried, false if not
+     * 
+     * @battlecode.doc.costlymethod
+     */
+    boolean isBeingCarried();
+
 
     // ***********************************
     // ****** GENERAL VISION METHODS *****

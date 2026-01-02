@@ -82,6 +82,12 @@ public class GameConstants {
      */
     public static final int MOVE_STRAFE_COOLDOWN = 18;
 
+    /**
+     * The fractional slowdown a rat's movement and actions (not turning!)
+     * incur per unit of cheese the rat is currently carrying.
+     */
+    public static final double CHEESE_COOLDOWN_PENALTY = 0.01;
+
     /** The amount of cheese the ratking consumes each round. */
     public static final int RATKING_CHEESE_CONSUMPTION = 10;
 
@@ -95,7 +101,7 @@ public class GameConstants {
     public static final int SQ_CHEESE_SPAWN_RADIUS = 4;
 
     /** How much cheese each mine spawns at once */
-    public static final int CHEESE_SPAWN_AMOUNT = 2;
+    public static final int CHEESE_SPAWN_AMOUNT = 5;
 
     /** The number of rat kings a player starts with. */
     public static final int NUMBER_INITIAL_RAT_KINGS = 1;
@@ -155,7 +161,7 @@ public class GameConstants {
     public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being bitten by a rat */
-    public static final int RAT_BITE_DAMAGE = 2;
+    public static final int RAT_BITE_DAMAGE = 5;
 
     /** The damage a robot takes after being scratched by a cat */
     public static final int CAT_SCRATCH_DAMAGE = 50;

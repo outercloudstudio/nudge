@@ -366,13 +366,13 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
 
             let texture: string
             if (angle >= (7 * Math.PI) / 4 || angle <= Math.PI / 4) {
-                texture = 'robots/cat/cat_pounce_right.png'
+                texture = 'robots/cat/cat_pounce_5.png'
             } else if (angle > Math.PI / 4 && angle < (3 * Math.PI) / 4) {
-                texture = 'robots/cat/cat_pounce_up.png'
+                texture = 'robots/cat/cat_pounce_7.png'
             } else if (angle >= (3 * Math.PI) / 4 && angle <= (5 * Math.PI) / 4) {
-                texture = 'robots/cat/cat_pounce_left.png'
+                texture = 'robots/cat/cat_pounce_1.png'
             } else {
-                texture = 'robots/cat/cat_pounce_down.png'
+                texture = 'robots/cat/cat_pounce_3.png'
             }
             body.imgPath = texture
 

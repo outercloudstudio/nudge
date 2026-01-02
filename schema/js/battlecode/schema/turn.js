@@ -63,7 +63,7 @@ var Turn = /** @class */ (function () {
     };
     Turn.prototype.actionsType = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 24);
-        return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : null;
+        return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
     };
     Turn.prototype.actionsTypeLength = function () {
         var offset = this.bb.__offset(this.bb_pos, 24);
@@ -81,8 +81,12 @@ var Turn = /** @class */ (function () {
         var offset = this.bb.__offset(this.bb_pos, 26);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
+    Turn.prototype.isCooperation = function () {
+        var offset = this.bb.__offset(this.bb_pos, 28);
+        return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+    };
     Turn.startTurn = function (builder) {
-        builder.startObject(12);
+        builder.startObject(13);
     };
     Turn.addRobotId = function (builder, robotId) {
         builder.addFieldInt32(0, robotId, 0);
@@ -140,11 +144,14 @@ var Turn = /** @class */ (function () {
     Turn.startActionsVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
+    Turn.addIsCooperation = function (builder, isCooperation) {
+        builder.addFieldInt8(12, +isCooperation, +false);
+    };
     Turn.endTurn = function (builder) {
         var offset = builder.endObject();
         return offset;
     };
-    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, turningCooldown, actionCooldown, bytecodesUsed, x, y, dir, actionsTypeOffset, actionsOffset) {
+    Turn.createTurn = function (builder, robotId, health, cheese, moveCooldown, turningCooldown, actionCooldown, bytecodesUsed, x, y, dir, actionsTypeOffset, actionsOffset, isCooperation) {
         Turn.startTurn(builder);
         Turn.addRobotId(builder, robotId);
         Turn.addHealth(builder, health);
@@ -158,6 +165,7 @@ var Turn = /** @class */ (function () {
         Turn.addDir(builder, dir);
         Turn.addActionsType(builder, actionsTypeOffset);
         Turn.addActions(builder, actionsOffset);
+        Turn.addIsCooperation(builder, isCooperation);
         return Turn.endTurn(builder);
     };
     return Turn;

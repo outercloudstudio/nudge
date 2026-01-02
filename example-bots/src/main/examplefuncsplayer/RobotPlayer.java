@@ -93,7 +93,7 @@ public class RobotPlayer {
                     int randomDirection = rng.nextInt(8);
                     
                     if (rc.canTurn()) {
-                        rc.turn(directions[randomDirection]);
+                        rc.turn(rc.getDirection());
                     }
                 }
             } catch (GameActionException e) {

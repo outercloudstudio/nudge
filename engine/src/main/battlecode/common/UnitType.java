@@ -2,9 +2,9 @@ package battlecode.common;
 
 public enum UnitType {
     // health, size, speed, visionRadius, actionCooldown
-    RAT(100, 1, 5, 20, 90, 0, 10, 10000),
-    RAT_KING(500, 3, 1, 29, 90, -1, 40, 20000),
-    CAT(2000,2,10,37,180, 0, 10, 10);
+    RAT(100, 1, 5, 20, 90, 10, 10, 10000),
+    RAT_KING(500, 3, 1, 29, 360, 10, 40, 20000),
+    CAT(2000, 2, 10, 37, 180, 15, 10, 10);
 
     // amount of health robot initially starts with
     public final int health;
@@ -30,23 +30,23 @@ public enum UnitType {
     // robot's bytecode limit
     public final int bytecodeLimit;
 
-    public boolean usesBottomLeftLocationForDistance(){
+    public boolean usesBottomLeftLocationForDistance() {
         return this.size % 2 == 0;
     }
 
-    public boolean isRobotType(){
+    public boolean isRobotType() {
         return this == RAT || this == CAT || this == RAT_KING;
     }
 
-    public boolean isThrowableType(){
+    public boolean isThrowableType() {
         return this == RAT;
     }
 
-    public boolean isThrowingType(){
+    public boolean isThrowingType() {
         return this == RAT;
     }
 
-    public boolean isRatType(){
+    public boolean isRatType() {
         return this == RAT;
     }
 
@@ -58,20 +58,27 @@ public enum UnitType {
         return this == CAT;
     }
 
-    public MapLocation[] getAllLocations(MapLocation center){
+    public MapLocation[] getAllLocations(MapLocation center) {
         // return in CCW order starting from top left
         MapLocation[] locs = new MapLocation[size * size];
         int c = 0;
-        for (int i = - (size-1) / 2; i <= size / 2; i++){
-            for (int j = - (size-1) / 2; j <= size / 2; j++){
-                locs[c] = new MapLocation(center.x + i, center.y - j);
+        for (int i = -(size - 1) / 2; i <= size / 2; i++) {
+            for (int j = -(size - 1) / 2; j <= size / 2; j++) {
+
+                if (this.isCatType()) {
+                    locs[c] = new MapLocation(center.x + i, center.y + j);
+                } else {
+                    locs[c] = new MapLocation(center.x + i, center.y - j);
+                }
+
                 c += 1;
             }
         }
         return locs;
     }
-  
-    UnitType(int health, int size, int speed, int visionConeRadius, int visionConeAngle, int actionCooldown, int movementCooldown, int bytecodeLimit) {
+
+    UnitType(int health, int size, int speed, int visionConeRadius, int visionConeAngle, int actionCooldown,
+            int movementCooldown, int bytecodeLimit) {
         this.health = health;
         this.size = size;
         this.speed = speed;
@@ -82,13 +89,36 @@ public enum UnitType {
         this.bytecodeLimit = bytecodeLimit;
     }
 
-    // Getters 
-    public int getHealth() { return health; }
-    public int getSize() { return size; }
-    public int getSpeed() { return speed; }
-    public int getVisionRadiusSquared() { return visionConeRadiusSquared; }
-    public int getVisionAngle() { return visionConeAngle; }
-    public int getActionCooldown() { return actionCooldown; }
-    public int getMovementCooldown() { return movementCooldown; }
-    public int getBytecodeLimit() {return bytecodeLimit; }
+    // Getters
+    public int getHealth() {
+        return health;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public int getVisionRadiusSquared() {
+        return visionConeRadiusSquared;
+    }
+
+    public int getVisionAngle() {
+        return visionConeAngle;
+    }
+
+    public int getActionCooldown() {
+        return actionCooldown;
+    }
+
+    public int getMovementCooldown() {
+        return movementCooldown;
+    }
+
+    public int getBytecodeLimit() {
+        return bytecodeLimit;
+    }
 }
