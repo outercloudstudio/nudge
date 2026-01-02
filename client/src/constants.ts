@@ -33,7 +33,7 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     // Quals
 ]
 
-export const TEAM_COLOR_NAMES = ['Pink', 'Yellow']
+export const TEAM_COLOR_NAMES = ['Plum', 'Cheddar']
 
 export const INDICATOR_DOT_SIZE = 0.2
 export const INDICATOR_LINE_WIDTH = 0.1
