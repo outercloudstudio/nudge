@@ -401,9 +401,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // place trap animation
-            const map = match.currentRound.map
-            const body = match.currentRound.bodies.getById(this.robotId)
-            const coords = renderUtils.getRenderCoords(body.pos.x, body.pos.y, map.dimension, false)
+            const to = match.map.indexToLocation(this.actionData.loc())
+            const coords = renderUtils.getRenderCoords(to.x, to.y, match.map.dimension, false)
             const factor = match.getInterpolationFactor()
             const isEndpoint = factor == 0 || factor == 1
             const size = isEndpoint ? 1 : Math.max(factor * 1.5, 0.3)
@@ -416,6 +415,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             ctx.shadowBlur = 0
             ctx.shadowColor = ''
             ctx.globalAlpha = 1
+        }
+    },
+    [schema.Action.RemoveTrap]: class RemoveTrapAction extends Action<schema.RemoveTrap> {
+        apply(round: Round): void {
+            // remove a trap from map
+            round.map.trapData[this.actionData.loc()] = 0
         }
     },
     [schema.Action.TriggerTrap]: class TriggerTrapAction extends Action<schema.TriggerTrap> {

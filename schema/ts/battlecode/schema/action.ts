@@ -20,6 +20,7 @@ import { RatAttack } from '../../battlecode/schema/rat-attack';
 import { RatCollision } from '../../battlecode/schema/rat-collision';
 import { RatNap } from '../../battlecode/schema/rat-nap';
 import { RatSqueak } from '../../battlecode/schema/rat-squeak';
+import { RemoveTrap } from '../../battlecode/schema/remove-trap';
 import { SpawnAction } from '../../battlecode/schema/spawn-action';
 import { StunAction } from '../../battlecode/schema/stun-action';
 import { ThrowRat } from '../../battlecode/schema/throw-rat';
@@ -41,23 +42,24 @@ export enum Action {
   CatScratch = 10,
   CatPounce = 11,
   PlaceTrap = 12,
-  TriggerTrap = 13,
-  ThrowRat = 14,
-  UpgradeToRatKing = 15,
-  RatSqueak = 16,
-  DamageAction = 17,
-  StunAction = 18,
-  SpawnAction = 19,
-  DieAction = 20,
-  IndicatorStringAction = 21,
-  IndicatorDotAction = 22,
-  IndicatorLineAction = 23
+  RemoveTrap = 13,
+  TriggerTrap = 14,
+  ThrowRat = 15,
+  UpgradeToRatKing = 16,
+  RatSqueak = 17,
+  DamageAction = 18,
+  StunAction = 19,
+  SpawnAction = 20,
+  DieAction = 21,
+  IndicatorStringAction = 22,
+  IndicatorDotAction = 23,
+  IndicatorLineAction = 24
 }
 
 export function unionToAction(
   type: Action,
-  accessor: (obj:BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing) => BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null
-): BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null {
+  accessor: (obj:BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing) => BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null
+): BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null {
   switch(Action[type]) {
     case 'NONE': return null; 
     case 'CatFeed': return accessor(new CatFeed())! as CatFeed;
@@ -72,6 +74,7 @@ export function unionToAction(
     case 'CatScratch': return accessor(new CatScratch())! as CatScratch;
     case 'CatPounce': return accessor(new CatPounce())! as CatPounce;
     case 'PlaceTrap': return accessor(new PlaceTrap())! as PlaceTrap;
+    case 'RemoveTrap': return accessor(new RemoveTrap())! as RemoveTrap;
     case 'TriggerTrap': return accessor(new TriggerTrap())! as TriggerTrap;
     case 'ThrowRat': return accessor(new ThrowRat())! as ThrowRat;
     case 'UpgradeToRatKing': return accessor(new UpgradeToRatKing())! as UpgradeToRatKing;
@@ -89,9 +92,9 @@ export function unionToAction(
 
 export function unionListToAction(
   type: Action, 
-  accessor: (index: number, obj:BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing) => BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null, 
+  accessor: (index: number, obj:BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing) => BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null, 
   index: number
-): BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null {
+): BreakDirt|CatFeed|CatPounce|CatScratch|CheesePickup|CheeseSpawn|CheeseTransfer|DamageAction|DieAction|IndicatorDotAction|IndicatorLineAction|IndicatorStringAction|PlaceDirt|PlaceTrap|RatAttack|RatCollision|RatNap|RatSqueak|RemoveTrap|SpawnAction|StunAction|ThrowRat|TriggerTrap|UpgradeToRatKing|null {
   switch(Action[type]) {
     case 'NONE': return null; 
     case 'CatFeed': return accessor(index, new CatFeed())! as CatFeed;
@@ -106,6 +109,7 @@ export function unionListToAction(
     case 'CatScratch': return accessor(index, new CatScratch())! as CatScratch;
     case 'CatPounce': return accessor(index, new CatPounce())! as CatPounce;
     case 'PlaceTrap': return accessor(index, new PlaceTrap())! as PlaceTrap;
+    case 'RemoveTrap': return accessor(index, new RemoveTrap())! as RemoveTrap;
     case 'TriggerTrap': return accessor(index, new TriggerTrap())! as TriggerTrap;
     case 'ThrowRat': return accessor(index, new ThrowRat())! as ThrowRat;
     case 'UpgradeToRatKing': return accessor(index, new UpgradeToRatKing())! as UpgradeToRatKing;

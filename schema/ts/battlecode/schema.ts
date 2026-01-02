@@ -36,6 +36,7 @@ export { RatAttack } from './schema/rat-attack';
 export { RatCollision } from './schema/rat-collision';
 export { RatNap } from './schema/rat-nap';
 export { RatSqueak } from './schema/rat-squeak';
+export { RemoveTrap } from './schema/remove-trap';
 export { RobotType } from './schema/robot-type';
 export { RobotTypeMetadata } from './schema/robot-type-metadata';
 export { Round } from './schema/round';

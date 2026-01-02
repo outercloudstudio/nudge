@@ -231,7 +231,7 @@ export default class Bodies {
             }
 
             const selected = selectedBodyID === body.id || !!selectedBodyIDs?.includes(body.id)
-            const hovered = !!hoveredTile && vectorEq(body.pos, hoveredTile)
+            const hovered = !!hoveredTile && this.getBodyAtLocation(hoveredTile.x, hoveredTile.y)?.id === body.id
             const focused = !!focusedBodyIDs?.includes(body.id)
             if (overlayCtx) {
                 body.drawOverlay(match, overlayCtx, config, selected && focused, hovered || (selected && !focused))
@@ -468,19 +468,30 @@ export class Body {
         direction: number,
         fov: number
     ) {
+        const directionAngles = [
+            -1, //should not happen
+            180,
+            225,
+            270,
+            315,
+            0,
+            45,
+            90,
+            135
+        ]
         const ceiledRadius = Math.ceil(Math.sqrt(radius)) + 1
         const minX = Math.max(location.x - ceiledRadius, 0)
         const minY = Math.max(location.y - ceiledRadius, 0)
         const maxX = Math.min(location.x + ceiledRadius, match.map.width - 1)
         const maxY = Math.min(location.y + ceiledRadius, match.map.height - 1)
 
-        const coords: Vector[] = []
+        const coords: Vector[] = [location]
         const halfFOV = fov / 2
         if (direction == 0) {
             return coords
         }
-        const dirAngle = (direction * 45 + 135) % 360
-        const directionRad = (dirAngle * Math.PI) / 180
+
+        const directionRad = (directionAngles[direction] * Math.PI) / 180
 
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
@@ -490,7 +501,7 @@ export class Body {
                     const angleToPoint = Math.atan2(dy, dx)
                     let angleDiff = angleToPoint - directionRad
                     angleDiff = ((((angleDiff + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI
-                    if (Math.abs(angleDiff) <= (halfFOV * Math.PI) / 180) {
+                    if (Math.abs(angleDiff) <= (halfFOV * Math.PI) / 180 + .0001) {
                         coords.push({ x, y })
                     }
                 }

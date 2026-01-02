@@ -1,18 +1,12 @@
 package turningplayer;
 
-import battlecode.common.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.stream.Stream;
+import battlecode.common.Clock;
+import battlecode.common.Direction;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
 
 
 /**
@@ -92,7 +86,8 @@ public class RobotPlayer {
                 }
                 if (rc.canTurn()) {
                     System.out.println("Turn " + turnCount + "TURNING Clockwise");
-                    rc.turn(rc.getDirection());
+                    Direction direction = rc.getDirection().rotateRight();
+                    rc.turn(direction);
                 }
                 else{
                     System.out.println("couldn't turn on turn" + turnCount);

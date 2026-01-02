@@ -170,6 +170,11 @@ struct PlaceTrap {
     team: byte;
 }
 
+/// Remove a trap at location
+struct RemoveTrap {
+    loc: ushort;
+    team: byte;
+}
 
 /// Triggers the trap
 struct TriggerTrap {
@@ -254,6 +259,7 @@ union Action {
     CatScratch,
     CatPounce,
     PlaceTrap,
+    RemoveTrap,
     TriggerTrap,
     ThrowRat,
     UpgradeToRatKing,
