@@ -9,12 +9,17 @@ import { useRound } from '../../../playback/GameRunner'
 
 interface UnitsIconProps {
     teamIdx: 0 | 1
-    robotType: string
+    img: string
 }
 
 const UnitsIcon: React.FC<UnitsIconProps> = (props: UnitsIconProps) => {
     const color = TEAM_COLOR_NAMES[props.teamIdx].toLowerCase()
-    const imagePath = `robots/${color}/${props.robotType}.png`
+    let imagePath: string = ''
+    if (props.img == 'rat') {
+        imagePath = `robots/${color}/rat_0_64x64.png`
+    } else {
+        imagePath = `icons/${props.img}.png`
+    }
 
     return (
         <th key={imagePath} className="pb-1 w-[50px] h-[50px]">
@@ -33,10 +38,14 @@ export const TeamTable: React.FC<TeamTableProps> = (props: TeamTableProps) => {
     const map = round?.map
 
     return (
-        <div className="flex flex-col">
-            <UnitsTable teamStat={teamStat} teamIdx={props.teamIdx} />
-            <ResourceTable map={map} teamStat={teamStat} teamIdx={props.teamIdx} />
-        </div>
+        <>
+            <div className="flex flex-col">
+                <ResourceTable map={map} teamStat={teamStat} teamIdx={props.teamIdx} />
+            </div>
+            <div className="flex flex-col items-center">
+                <UnitsTable teamStat={teamStat} teamIdx={props.teamIdx} />
+            </div>
+        </>
     )
 }
 
@@ -47,14 +56,20 @@ interface ResourceTableProps {
 }
 
 export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, teamIdx }) => {
-    let moneyAmount = 0
-    let paintPercent = 0
-    let patternAmount = 0
+    let cheeseAmount = 0
+    let cheesePercent = 0
+    let catDamageAmount = 0
+    let catDamagePercent = 0
+    let ratKingCount = 0
+    let ratKingPercent = 0
 
     if (map && teamStat) {
-        paintPercent = teamStat.paintPercent
-        moneyAmount = teamStat.moneyAmount
-        patternAmount = teamStat.resourcePatterns
+        cheeseAmount = teamStat.cheeseAmount
+        cheesePercent = teamStat.cheesePercent
+        catDamageAmount = teamStat.catDamageAmount
+        catDamagePercent = teamStat.catDamagePercent
+        ratKingCount = teamStat.ratKingCount
+        ratKingPercent = teamStat.ratKingPercent
     }
 
     const teamName = TEAM_COLOR_NAMES[teamIdx].toLowerCase()
@@ -62,32 +77,55 @@ export const ResourceTable: React.FC<ResourceTableProps> = ({ map, teamStat, tea
         <div className="flex flex-col items-center">
             <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
                 <div className="flex items-center w-[160px] ml-6">
-                    <div className="w-[30px] h-[30px] mr-2">
-                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/paint_${teamName}.png`)} />
+                    <div className="w-[30px] h-[30px] mr-5">
+                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/cheese_64x64.png`)} />
                     </div>
-                    <div>Coverage:</div>
+                    <div>Count:</div>
                     <div className="ml-1">
-                        <b>{paintPercent}%</b>
+                        <b>{cheeseAmount}</b>
                     </div>
                 </div>
                 <div className="flex items-center w-[145px]">
-                    <div className="w-[30px] h-[30px] mr-2">
-                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/chip_${teamName}.png`)} />
-                    </div>
-                    <div>Chips:</div>
+                    <div>Percent:</div>
                     <div className="ml-1">
-                        <b>{moneyAmount}</b>
+                        <b>{cheesePercent}</b>
                     </div>
                 </div>
             </div>
             <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
-                <div className="flex items-center w-[210px] ml-6">
-                    <div className="w-[30px] h-[30px] mr-3">
-                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`icons/grid_${teamName}.png`)} />
+                <div className="flex items-center w-[160px] ml-6">
+                    <div className="w-[30px] h-[30px] mr-5">
+                        <img style={{ transform: 'scale(1.5)' }} src={imageSource(`robots/cat/cat_0.png`)} />
                     </div>
-                    <div>Active Boosts:</div>
+                    <div>Count:</div>
                     <div className="ml-1">
-                        <b>{patternAmount}</b>
+                        <b>{catDamageAmount}</b>
+                    </div>
+                </div>
+                <div className="flex items-center w-[145px]">
+                    <div>Percent:</div>
+                    <div className="ml-1">
+                        <b>{catDamagePercent}</b>
+                    </div>
+                </div>
+            </div>
+            <div className="flex items-center w-full mt-2 mb-1 text-xs font-bold justify-around">
+                <div className="flex items-center w-[160px] ml-6">
+                    <div className="w-[30px] h-[30px] mr-5">
+                        <img
+                            style={{ transform: 'scale(1.5)' }}
+                            src={imageSource(`robots/${teamName}/rat_king_64x64.png`)}
+                        />
+                    </div>
+                    <div>Count:</div>
+                    <div className="ml-1">
+                        <b>{ratKingCount}</b>
+                    </div>
+                </div>
+                <div className="flex items-center w-[145px]">
+                    <div>Percent:</div>
+                    <div className="ml-1">
+                        <b>{ratKingPercent}</b>
                     </div>
                 </div>
             </div>
@@ -102,33 +140,15 @@ interface UnitsTableProps {
 
 export const UnitsTable: React.FC<UnitsTableProps> = ({ teamStat, teamIdx }) => {
     const columns: Array<[string, React.ReactElement]> = [
-        ['Paint Tower', <UnitsIcon teamIdx={teamIdx} robotType="paint_tower" key="0" />],
-        ['Money Tower', <UnitsIcon teamIdx={teamIdx} robotType="money_tower" key="1" />],
-        ['Defense Tower', <UnitsIcon teamIdx={teamIdx} robotType="defense_tower" key="2" />],
-        ['Soldier', <UnitsIcon teamIdx={teamIdx} robotType="soldier" key="3" />],
-        ['Splasher', <UnitsIcon teamIdx={teamIdx} robotType="splasher" key="4" />],
-        ['Mopper', <UnitsIcon teamIdx={teamIdx} robotType="mopper" key="5" />]
+        ['Dirt', <UnitsIcon teamIdx={teamIdx} img="dirt" key="0" />],
+        ['Rat Traps', <UnitsIcon teamIdx={teamIdx} img="rat_trap" key="1" />],
+        ['Cat Traps', <UnitsIcon teamIdx={teamIdx} img="cat_trap" key="2" />],
+        ['Baby Rats', <UnitsIcon teamIdx={teamIdx} img="rat" key="3" />]
     ]
 
-    let data: [string, number[]][] = [
-        ['Count', [0, 0, 0, 0, 0, 0]],
-        ['Paint', [0, 0, 0, 0, 0, 0]]
-    ]
+    let data: [string, number[]][] = [['Count', [0, 0, 0, 0]]]
     if (teamStat) {
-        data = [
-            [
-                'Count',
-                Object.values(schema.RobotType)
-                    .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
-                    .map((k) => teamStat.robotCounts[k as schema.RobotType])
-            ],
-            [
-                'Paint',
-                Object.values(schema.RobotType)
-                    .filter((k) => typeof k === 'number' && k !== schema.RobotType.NONE)
-                    .map((k) => teamStat.robotPaints[k as schema.RobotType])
-            ]
-        ]
+        data = [['Count', [teamStat.dirtAmount, teamStat.ratTrapAmount, teamStat.catTrapAmount, teamStat.babyRatCount]]]
     }
 
     return (

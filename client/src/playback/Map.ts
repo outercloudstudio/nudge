@@ -287,10 +287,10 @@ export class CurrentMap {
         //     }
         // }
         if (markerA) {
-            info.push(`Silver Marker (${markerA === 1 ? 'Primary' : 'Secondary'})`)
+            info.push(`Cheddar Marker (${markerA === 1 ? 'Primary' : 'Secondary'})`)
         }
         if (markerB) {
-            info.push(`Gold Marker (${markerB === 3 ? 'Primary' : 'Secondary'})`)
+            info.push(`Plum Marker (${markerB === 3 ? 'Primary' : 'Secondary'})`)
         }
         if (wall) {
             info.push('Wall')

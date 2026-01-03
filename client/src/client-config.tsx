@@ -50,8 +50,8 @@ const DEFAULT_CONFIG = {
 
 const configDescription: Record<keyof ClientConfig, string> = {
     showAllIndicators: 'Show all indicator dots and lines',
-    showTeamOneIndicators: 'Show all indicator dots and lines just for Silver team (team 1)',
-    showTeamTwoIndicators: 'Show all indicator dots and lines just for Gold team (team 2)',
+    showTeamOneIndicators: 'Show all indicator dots and lines just for Cheddar team (team 1)',
+    showTeamTwoIndicators: 'Show all indicator dots and lines just for Plum team (team 2)',
     showAllRobotRadii: 'Show all robot view and attack radii',
     showTimelineMarkers: 'Show user-generated markers on the timeline',
     showHealthBars: 'Show health bars below all robots',

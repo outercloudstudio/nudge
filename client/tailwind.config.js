@@ -34,10 +34,6 @@ module.exports = {
                 team0: 'var(--color-team0)',
                 team1: 'var(--color-team1)',
 
-                paintTeam00: 'var(--color-paint-team0-0)',
-                paintTeam01: 'var(--color-paint-team0-1)',
-                paintTeam10: 'var(--color-paint-team1-0)',
-                paintTeam11: 'var(--color-paint-team1-1)',
                 walls: 'var(--color-walls)',
                 tile: 'var(--color-tile)',
                 gameareaBackground: 'var(--color-gamearea-background)',

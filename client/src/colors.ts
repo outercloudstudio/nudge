@@ -68,8 +68,8 @@ export class Color {
 export const Sections = {
     INTERFACE: { displayName: 'Interface' } as ColorSection,
     GENERAL: { displayName: 'General' } as ColorSection,
-    SILVER: { displayName: 'Silver' } as ColorSection,
-    GOLD: { displayName: 'Gold' } as ColorSection
+    CHEDDAR: { displayName: 'Cheddar' } as ColorSection,
+    PLUM: { displayName: 'Plum' } as ColorSection
 }
 
 // Colors placed in here will appear in their section in the same order.
@@ -120,42 +120,14 @@ export const Colors = {
     DIRT_COLOR: new Color('DIRT_COLOR', '#991111', '--color-dirt', 'Dirt', Sections.GENERAL),
     TILES_COLOR: new Color('TILES_COLOR', '#4c301e', '--color-tile', 'Tiles', Sections.GENERAL),
 
-    TEAM_ONE: new Color('TEAM_ONE', '#cdcdcc', '--color-team0', 'Text', Sections.SILVER),
-    PAINT_TEAMONE_ONE: new Color(
-        'PAINT_TEAMONE_ONE',
-        '#666666',
-        '--color-paint-team0-0',
-        'Primary Paint',
-        Sections.SILVER
-    ),
-    PAINT_TEAMONE_TWO: new Color(
-        'PAINT_TEAMONE_TWO',
-        '#565656',
-        '--color-paint-team0-1',
-        'Secondary Paint',
-        Sections.SILVER
-    ),
+    TEAM_ONE: new Color('TEAM_ONE', '#fcc00d', '--color-team0', 'Text', Sections.CHEDDAR),
 
-    TEAM_TWO: new Color('TEAM_TWO', '#fee493', '--color-team1', 'Text', Sections.GOLD),
-    PAINT_TEAMTWO_ONE: new Color(
-        'PAINT_TEAMTWO_ONE',
-        '#b28b52',
-        '--color-paint-team1-0',
-        'Primary Paint',
-        Sections.GOLD
-    ),
-    PAINT_TEAMTWO_TWO: new Color(
-        'PAINT_TEAMTWO_TWO',
-        '#997746',
-        '--color-paint-team1-1',
-        'Secondary Paint',
-        Sections.GOLD
-    )
+    TEAM_TWO: new Color('TEAM_TWO', '#c91c7e', '--color-team1', 'Text', Sections.PLUM)
 }
 
 export const Presets: ColorPreset[] = [
     {
-        displayName: 'Battlecode 2025',
+        displayName: 'Battlecode 2026',
         data: {
             version: 0,
             colors: {
@@ -178,12 +150,8 @@ export const Presets: ColorPreset[] = [
                 LIGHT_CARD: '#f7f7f722',
                 WALLS_COLOR: '#547f31',
                 TILES_COLOR: '#4c301e',
-                TEAM_ONE: '#cdcdcc',
-                PAINT_TEAMONE_ONE: '#666666',
-                PAINT_TEAMONE_TWO: '#565656',
-                TEAM_TWO: '#fee493',
-                PAINT_TEAMTWO_ONE: '#b28b52',
-                PAINT_TEAMTWO_TWO: '#997746'
+                TEAM_ONE: '#fcc00d',
+                TEAM_TWO: '#c91c7e'
             }
         }
     }
