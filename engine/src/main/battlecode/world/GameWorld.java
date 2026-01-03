@@ -59,7 +59,8 @@ public class GameWorld {
     private CheeseMine[] cheeseMineLocs;
 
     // bfs map
-    private Direction[][] bfs_map;
+    private Direction[][] bfs_map_0;
+    private Direction[][] bfs_map_1;
 
     private int numCats;
 
@@ -95,6 +96,28 @@ public class GameWorld {
                 return gameMap.getWidth() - 1 - x;
         }
     }
+
+
+    public Direction flipDirBySymmetry(Direction d){
+        MapSymmetry symmetry = this.gameMap.getSymmetry();
+        int dx = d.getDeltaX();
+        int dy = d.getDeltaY();
+        switch (symmetry) {
+            case HORIZONTAL:
+                dy *= -1;
+                break;
+            case VERTICAL:
+                dx *= -1;
+                break;
+            case ROTATIONAL:
+                dx *= -1;
+                dy *= -1;
+                break;
+        } 
+
+        return Direction.fromDelta(dx, dy);
+    }
+
 
     public MapLocation symmetryLocation(MapLocation p) {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
@@ -172,25 +195,33 @@ public class GameWorld {
         }
 
         // cat bfs map
-        this.bfs_map = new Direction[width*height][width*height];
+        this.bfs_map_0 = new Direction[width*height][width*height];
+        this.bfs_map_1 = new Direction[width*height][width*height];
         
         for (int target_x=0; target_x < width; target_x++){
-            for (int target_y=0; target_y < width; target_y++){
+            for (int target_y=0; target_y < height; target_y++){
                 MapLocation source = new MapLocation(target_x, target_y);
-                bfsFromTarget(source);
+                bfsFromTarget(source, 0);
+                bfsFromTarget(source, 1);
             }
         }
 
 
     }
 
-    public void bfsFromTarget(MapLocation target){
+    public void bfsFromTarget(MapLocation target, int chirality){
         // bfs form target to all possible sources, set source direction to target
+
+        Direction[][] bfs_map;
+        if (chirality == 0)
+            bfs_map = this.bfs_map_0;
+        else
+            bfs_map = this.bfs_map_1;
 
         Queue<MapLocation> queue = new LinkedList<MapLocation>();
         queue.add(target);
 
-        this.bfs_map[locationToIndex(target)][locationToIndex(target)] = Direction.CENTER;
+        bfs_map[locationToIndex(target)][locationToIndex(target)] = Direction.CENTER;
 
         while(!queue.isEmpty()){
             MapLocation nextLoc = queue.poll();
@@ -199,17 +230,26 @@ public class GameWorld {
             for (Direction d : Direction.allDirections()){
                 if (d == Direction.CENTER)
                     continue;
-
+                if (chirality == 1)
+                    d = flipDirBySymmetry(d);
+                
                 MapLocation neighbor = nextLoc.add(d);
 
-                if (this.gameMap.onTheMap(neighbor) && this.bfs_map[locationToIndex(neighbor)][locationToIndex(target)] != null){
+                if (this.gameMap.onTheMap(neighbor) && bfs_map[locationToIndex(neighbor)][locationToIndex(target)] != null){
                     // visited already
                     continue;
                 }
 
                 // check this path works for all cat locations
                 boolean validPath = true;
-                Direction[] dirsFromCenterLoc = {Direction.CENTER, Direction.NORTH, Direction.NORTHEAST, Direction.EAST};
+                
+                Direction[] dirsFromCenterLoc;
+                if (chirality == 0){
+                    dirsFromCenterLoc = new Direction[]{Direction.CENTER, Direction.NORTH, Direction.NORTHEAST, Direction.EAST};
+                }
+                else{
+                    dirsFromCenterLoc = new Direction[]{flipDirBySymmetry(Direction.CENTER), flipDirBySymmetry(Direction.NORTH), flipDirBySymmetry(Direction.NORTHEAST), flipDirBySymmetry(Direction.EAST)};
+                }
                 for (Direction dirFromCenter : dirsFromCenterLoc){
                     MapLocation neighborCorner = neighbor.add(dirFromCenter);
                     if (!this.gameMap.onTheMap(neighborCorner) || this.getWall(neighborCorner)){
@@ -220,15 +260,18 @@ public class GameWorld {
                 }
                 if (validPath){
                     Direction reverseDirection = d.opposite();
-                    this.bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
+                    bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
                     queue.add(neighbor);
                 }
             }   
         }
     }
 
-    public Direction getBfsDir(MapLocation from, MapLocation to){
-        return this.bfs_map[locationToIndex(from)][locationToIndex(to)];
+    public Direction getBfsDir(MapLocation from, MapLocation to, int chirality){
+        if (chirality==0)
+            return bfs_map_0[locationToIndex(from)][locationToIndex(to)];
+        else
+            return bfs_map_1[locationToIndex(from)][locationToIndex(to)];
     }
 
     /**

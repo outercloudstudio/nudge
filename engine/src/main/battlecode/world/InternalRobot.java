@@ -69,8 +69,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private int currentWaypoint;
     private CatStateType catState;
-    private MapLocation[] rawCatWaypoints;
-    private MapLocation[] adjustedCatWaypoints;
+    private MapLocation[] catWaypoints;
     private MapLocation catTargetLoc;
     private int catTurns;
     private RobotInfo catTarget;
@@ -127,36 +126,18 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
             // set waypoints
             int[] waypointIndexLocations = gw.getGameMap().getCatWaypointsByID(this.ID);
-            rawCatWaypoints = new MapLocation[waypointIndexLocations.length];
-            adjustedCatWaypoints = new MapLocation[waypointIndexLocations.length];
+            catWaypoints = new MapLocation[waypointIndexLocations.length];
             for (int i = 0; i < waypointIndexLocations.length; i++){
-                rawCatWaypoints[i] = this.gameWorld.indexToLocation(waypointIndexLocations[i]);
-                if (this.chirality == 0){
-                    adjustedCatWaypoints[i] = rawCatWaypoints[i];
-                }
-                else{
-                    MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
-                    switch (symmetry) {
-                        case VERTICAL:
-                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.EAST.opposite());
-                            break;
-                        case HORIZONTAL:
-                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.NORTH.opposite());
-                            break;
-                        case ROTATIONAL:
-                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.NORTHEAST.opposite());
-                            break;
-                        default:
-                            throw new RuntimeException("Invalid symmetry");
-                    }
-                }
+                catWaypoints[i] = this.gameWorld.indexToLocation(waypointIndexLocations[i]);
+                if (chirality == 1) // TODO: THIS IS TEMPORARY, REMOVE ONCE CLIENT MAKES CAT WAYPOINT CHANGE
+                    catWaypoints[i] = new MapLocation(catWaypoints[i].x+1, catWaypoints[i].y);
+
             }
 
-            this.catTargetLoc = this.adjustedCatWaypoints[0];
+            this.catTargetLoc = this.catWaypoints[0];
 
         } else {
-            this.rawCatWaypoints = new MapLocation[0];
-            this.adjustedCatWaypoints = new MapLocation[0];
+            this.catWaypoints = new MapLocation[0];
             this.catTargetLoc = null;
         }
 
@@ -204,7 +185,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public MapLocation[] getAllPartLocations() {
-        return this.getType().getAllLocations(this.location);
+        if (this.type.isCatType())
+            return getAllPartLocationsByChirality();
+        else
+            return this.getType().getAllLocations(this.location);
     }
 
     public MapLocation getDiedLocation() {
@@ -895,36 +879,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             return null;
         }
 
-        // Test all 4 corners of the cat
-        MapLocation cornerToTest;
-        Direction rotateDir;
-        // Check each part of the robot to see if we can pounce so that the part lands
-        // on the target location
-        MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
-
-        if (chirality == 0) { // check in clockwise order
-            cornerToTest = this.getLocation();
-            rotateDir = Direction.NORTH;
-        } else {
-            switch (symmetry) {
-                case VERTICAL:
-                    cornerToTest = this.getLocation().add(Direction.EAST);
-                    rotateDir = Direction.NORTH;
-                    break;
-                case HORIZONTAL:
-                    cornerToTest = this.getLocation().add(Direction.NORTH);
-                    rotateDir = Direction.SOUTH;
-                    break;
-                case ROTATIONAL:
-                    cornerToTest = this.getLocation().add(Direction.NORTHEAST);
-                    rotateDir = Direction.WEST;
-                    break;
-                default:
-                    throw new RuntimeException("Invalid symmetry");
-            }
-        }
-
-        for (int i = 0; i < 4; i += 1) {
+        for (MapLocation cornerToTest : getAllPartLocationsByChirality()){
             // attempt pounce that matches cornerToTest to target location
             Direction directionFromCornerToTestToCenter = cornerToTest.directionTo(this.getLocation());
 
@@ -932,7 +887,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
             // assuming getLocation returns the bottom left corner of the cat
             int dx = directionFromCornerToTestToCenter.dx + (loc.x - this.getLocation().x);
             int dy = directionFromCornerToTestToCenter.dy + (loc.y - this.getLocation().y);
-
             boolean validLandingTiles = true;
 
             // check passability of all landing tiles (and no cat)
@@ -956,15 +910,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 System.out.println("pounceTraj=" + pounceTraj[0] + ", " + pounceTraj[1]);
                 return pounceTraj;
             }
-            // try another robot part
-            cornerToTest.add(rotateDir);
-            if (chirality == 0) {
-                rotateDir = rotateDir.rotateRight();
-                rotateDir = rotateDir.rotateRight();
-            } else {
-                rotateDir = rotateDir.rotateLeft();
-                rotateDir = rotateDir.rotateLeft();
-            }
+
         }
         return null;
     }
@@ -992,6 +938,77 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.addMovementCooldownTurns(this.dir);
         this.addMovementCooldownTurns(this.dir);
 
+    }
+
+    public MapLocation getCatCornerByChirality(){
+        // returns corner to use when chirality matters
+        MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
+        MapLocation chiralityCorner;
+
+        if (this.chirality == 0){
+            chiralityCorner = this.getLocation();
+        }
+        else{
+            switch (symmetry) {
+                case VERTICAL:
+                    chiralityCorner = this.getLocation().add(Direction.EAST);
+                    break;
+                case HORIZONTAL:
+                    chiralityCorner = this.getLocation().add(Direction.NORTH);
+                    break;
+                case ROTATIONAL:
+                    chiralityCorner = this.getLocation().add(Direction.NORTHEAST);
+                    break;
+                default:
+                    throw new RuntimeException("Invalid symmetry");
+            }
+        }
+
+        return chiralityCorner;
+    }
+    
+    public MapLocation[] getAllPartLocationsByChirality(){
+        // returns part locations in proper order based on cat chirality
+        MapLocation startingCorner = getCatCornerByChirality();
+        Direction rotateDir;
+
+        MapLocation[] allPartLocations = new MapLocation[4];
+        // Check each part of the robot to see if we can pounce so that the part lands
+        // on the target location
+        MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
+
+        if (chirality == 0) { // check in clockwise order
+            rotateDir = Direction.NORTH;
+        } else {
+            switch (symmetry) {
+                case VERTICAL:
+                    rotateDir = Direction.NORTH;
+                    break;
+                case HORIZONTAL:
+                    rotateDir = Direction.SOUTH;
+                    break;
+                case ROTATIONAL:
+                    rotateDir = Direction.WEST;
+                    break;
+                default:
+                    throw new RuntimeException("Invalid symmetry");
+            }
+        }
+
+        for (int i = 0; i < 4; i += 1){
+            allPartLocations[i] = startingCorner;
+
+            startingCorner.add(rotateDir);
+            if (chirality == 0) {
+                rotateDir = rotateDir.rotateRight();
+                rotateDir = rotateDir.rotateRight();
+            } else {
+                rotateDir = rotateDir.rotateLeft();
+                rotateDir = rotateDir.rotateLeft();
+            }
+        }
+
+        return allPartLocations;
     }
 
     // *********************************
@@ -1138,6 +1155,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 case EXPLORE:
 
                     // try seeing nearby rats
+                    
                     Message squeak = getFrontMessage();
                     RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
 
@@ -1160,15 +1178,21 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         this.catTargetLoc = squeak.getSource();
                         this.catState = CatStateType.CHASE;
                     } else {
-                        MapLocation waypoint = adjustedCatWaypoints[currentWaypoint];
+                        MapLocation waypoint = catWaypoints[currentWaypoint];
 
-                        if (this.location.equals(waypoint)) {
-                            currentWaypoint = (currentWaypoint + 1) % adjustedCatWaypoints.length;
+                        if (getCatCornerByChirality().equals(waypoint)) {
+                            currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
                         }
-                        this.catTargetLoc = adjustedCatWaypoints[currentWaypoint];
+                        this.catTargetLoc = catWaypoints[currentWaypoint];
                     }
 
-                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
+                    this.dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
+
+                    System.out.println("IN EXPLORE MODE " + " Direction set to " + this.dir + " corner is " + getCatCornerByChirality() + " target is " + this.catTargetLoc);
+                    System.out.println("HERE ARE MY WAYPOINTS: ");
+                    for (MapLocation mp : this.catWaypoints){
+                        System.out.println(mp);
+                    }
 
                     if (this.controller.canMove(this.dir)) {
                         System.out.println("TRYING TO MOVE");
@@ -1209,9 +1233,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 case CHASE:
                     System.out.println("CAT " + this.ID + "Entering Chase");
 
-                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
+                    this.dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
 
-                    if (this.location.equals(this.catTargetLoc)) {
+                    if (getCatCornerByChirality().equals(this.catTargetLoc)) {
                         this.catState = CatStateType.SEARCH;
                     }
 
@@ -1306,7 +1330,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                     }
 
-                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
+                    this.dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
 
                     // pounce towards target if possible
                     pounceTraj = canPounce(this.catTargetLoc);
