@@ -620,15 +620,15 @@ public class GameMaker {
         public void addPlaceTrapAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
-                int action = PlaceTrap.createPlaceTrap(builder, locationToInt(loc), teamID);
+                int action = PlaceTrap.createPlaceTrap(builder, locationToInt(loc), teamID, type==TrapType.RAT_TRAP);
                 builder.addAction(action, Action.PlaceTrap);
             });
         }
 
-        public void addRemoveTrapAction(int trapID, Team team) {
+        public void addRemoveTrapAction(MapLocation loc, Team team) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
-                int action = RemoveTrap.createRemoveTrap(builder, trapID, teamID);
+                int action = RemoveTrap.createRemoveTrap(builder, locationToInt(loc), teamID);
                 builder.addAction(action, Action.RemoveTrap);
             });
         }

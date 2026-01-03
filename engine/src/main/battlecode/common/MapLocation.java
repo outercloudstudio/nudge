@@ -113,15 +113,15 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      * location.
      *
      * @param location the location to compute the squared distance to
-     * @return the ceiling of the squared distance to the given location
+     * @return the squared distance to the given location
      *
      * @battlecode.doc.costlymethod
      */
-    public final int bottomLeftDistanceSquaredTo(MapLocation location) {
+    public final float bottomLeftDistanceSquaredTo(MapLocation location) {
         double dx = this.x + 0.5 - location.x;
         double dy = this.y + 0.5 - location.y;
 
-        return (int) Math.ceil(dx * dx + dy * dy);
+        return (float) (dx * dx + dy * dy);
     }
 
     /**

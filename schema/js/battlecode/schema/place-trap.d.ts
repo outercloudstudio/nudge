@@ -8,6 +8,7 @@ export declare class PlaceTrap {
     __init(i: number, bb: flatbuffers.ByteBuffer): PlaceTrap;
     loc(): number;
     team(): number;
+    isRatTrapType(): boolean;
     static sizeOf(): number;
-    static createPlaceTrap(builder: flatbuffers.Builder, loc: number, team: number): flatbuffers.Offset;
+    static createPlaceTrap(builder: flatbuffers.Builder, loc: number, team: number, isRatTrapType: boolean): flatbuffers.Offset;
 }

@@ -24,13 +24,17 @@ team():number {
   return this.bb!.readInt8(this.bb_pos + 2);
 }
 
+isRatTrapType():boolean {
+  return !!this.bb!.readInt8(this.bb_pos + 3);
+}
+
 static sizeOf():number {
   return 4;
 }
 
-static createPlaceTrap(builder:flatbuffers.Builder, loc: number, team: number):flatbuffers.Offset {
+static createPlaceTrap(builder:flatbuffers.Builder, loc: number, team: number, isRatTrapType: boolean):flatbuffers.Offset {
   builder.prep(2, 4);
-  builder.pad(1);
+  builder.writeInt8(Number(Boolean(isRatTrapType)));
   builder.writeInt8(team);
   builder.writeInt16(loc);
   return builder.offset();

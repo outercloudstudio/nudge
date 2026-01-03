@@ -69,7 +69,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     private int currentWaypoint;
     private CatStateType catState;
-    private MapLocation[] catWaypoints;
+    private MapLocation[] rawCatWaypoints;
+    private MapLocation[] adjustedCatWaypoints;
     private MapLocation catTargetLoc;
     private int catTurns;
     private RobotInfo catTarget;
@@ -126,14 +127,36 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
             // set waypoints
             int[] waypointIndexLocations = gw.getGameMap().getCatWaypointsByID(this.ID);
-            catWaypoints = new MapLocation[waypointIndexLocations.length];
-            for (int i = 0; i < waypointIndexLocations.length; i++)
-                catWaypoints[i] = this.gameWorld.indexToLocation(waypointIndexLocations[i]);
+            rawCatWaypoints = new MapLocation[waypointIndexLocations.length];
+            adjustedCatWaypoints = new MapLocation[waypointIndexLocations.length];
+            for (int i = 0; i < waypointIndexLocations.length; i++){
+                rawCatWaypoints[i] = this.gameWorld.indexToLocation(waypointIndexLocations[i]);
+                if (this.chirality == 0){
+                    adjustedCatWaypoints[i] = rawCatWaypoints[i];
+                }
+                else{
+                    MapSymmetry symmetry = this.gameWorld.getGameMap().getSymmetry();
+                    switch (symmetry) {
+                        case VERTICAL:
+                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.EAST.opposite());
+                            break;
+                        case HORIZONTAL:
+                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.NORTH.opposite());
+                            break;
+                        case ROTATIONAL:
+                            adjustedCatWaypoints[i] = rawCatWaypoints[i].add(Direction.NORTHEAST.opposite());
+                            break;
+                        default:
+                            throw new RuntimeException("Invalid symmetry");
+                    }
+                }
+            }
 
-            this.catTargetLoc = this.catWaypoints[0];
+            this.catTargetLoc = this.adjustedCatWaypoints[0];
 
         } else {
-            this.catWaypoints = new MapLocation[0];
+            this.rawCatWaypoints = new MapLocation[0];
+            this.adjustedCatWaypoints = new MapLocation[0];
             this.catTargetLoc = null;
         }
 
@@ -1114,20 +1137,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
             switch (this.catState) {
                 case EXPLORE:
 
-                    MapLocation waypoint = catWaypoints[currentWaypoint];
-
-                    if (this.location.equals(waypoint)) {
-                        currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
-                    }
-
-                    this.dir = this.location.directionTo(catWaypoints[currentWaypoint]);
-
                     // try seeing nearby rats
                     Message squeak = getFrontMessage();
                     RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
-
-                    // this.gameWorld.getAllRobotsWithinConeRadiusSquared(this.location,
-                    // this.dir, getVisionConeAngle(), getVisionRadiusSquared(), team);
 
                     boolean ratVisible = false;
                     RobotInfo rat = null;
@@ -1148,21 +1160,26 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         this.catTargetLoc = squeak.getSource();
                         this.catState = CatStateType.CHASE;
                     } else {
-                        this.catTargetLoc = waypoint;
+                        MapLocation waypoint = adjustedCatWaypoints[currentWaypoint];
+
+                        if (this.location.equals(waypoint)) {
+                            currentWaypoint = (currentWaypoint + 1) % adjustedCatWaypoints.length;
+                        }
+                        this.catTargetLoc = adjustedCatWaypoints[currentWaypoint];
                     }
 
-                    Direction toWaypoint = this.location.directionTo(this.catTargetLoc);
-                    this.dir = this.location.directionTo(this.catTargetLoc);
+                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
 
-                    if (this.controller.canMove(toWaypoint)) {
+                    if (this.controller.canMove(this.dir)) {
+                        System.out.println("TRYING TO MOVE");
                         try {
-                            this.controller.move(toWaypoint);
+                            this.controller.move(this.dir);
                         } catch (GameActionException e) {
                         }
 
                     } else {
                         for (MapLocation partLoc : this.getAllPartLocations()) {
-                            MapLocation nextLoc = partLoc.add(toWaypoint);
+                            MapLocation nextLoc = partLoc.add(this.dir);
 
                             if (this.controller.canRemoveDirt(nextLoc)) {
                                 System.out.println("stuck more here cuz of dirt " + this.gameWorld.currentRound);
@@ -1192,8 +1209,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 case CHASE:
                     System.out.println("CAT " + this.ID + "Entering Chase");
 
-                    Direction toTarget = this.location.directionTo(this.catTargetLoc);
-                    this.dir = toTarget;
+                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
 
                     if (this.location.equals(this.catTargetLoc)) {
                         this.catState = CatStateType.SEARCH;
@@ -1290,7 +1306,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                     }
 
-                    this.dir = this.location.directionTo(this.catTargetLoc);
+                    this.dir = this.gameWorld.getBfsDir(this.location, this.catTargetLoc);
 
                     // pounce towards target if possible
                     pounceTraj = canPounce(this.catTargetLoc);

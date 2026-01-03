@@ -58,6 +58,9 @@ public class GameWorld {
     private ArrayList<CheeseMine> cheeseMines;
     private CheeseMine[] cheeseMineLocs;
 
+    // bfs map
+    private Direction[][] bfs_map;
+
     private int numCats;
 
     private int[][] sharedArray;
@@ -167,6 +170,65 @@ public class GameWorld {
             spawnRobot(robotInfo.ID, robotInfo.type, newLocation, robotInfo.direction, robotInfo.chirality,
                     robotInfo.team);
         }
+
+        // cat bfs map
+        this.bfs_map = new Direction[width*height][width*height];
+        
+        for (int target_x=0; target_x < width; target_x++){
+            for (int target_y=0; target_y < width; target_y++){
+                MapLocation source = new MapLocation(target_x, target_y);
+                bfsFromTarget(source);
+            }
+        }
+
+
+    }
+
+    public void bfsFromTarget(MapLocation target){
+        // bfs form target to all possible sources, set source direction to target
+
+        Queue<MapLocation> queue = new LinkedList<MapLocation>();
+        queue.add(target);
+
+        this.bfs_map[locationToIndex(target)][locationToIndex(target)] = Direction.CENTER;
+
+        while(!queue.isEmpty()){
+            MapLocation nextLoc = queue.poll();
+            
+            // check neighbors
+            for (Direction d : Direction.allDirections()){
+                if (d == Direction.CENTER)
+                    continue;
+
+                MapLocation neighbor = nextLoc.add(d);
+
+                if (this.gameMap.onTheMap(neighbor) && this.bfs_map[locationToIndex(neighbor)][locationToIndex(target)] != null){
+                    // visited already
+                    continue;
+                }
+
+                // check this path works for all cat locations
+                boolean validPath = true;
+                Direction[] dirsFromCenterLoc = {Direction.CENTER, Direction.NORTH, Direction.NORTHEAST, Direction.EAST};
+                for (Direction dirFromCenter : dirsFromCenterLoc){
+                    MapLocation neighborCorner = neighbor.add(dirFromCenter);
+                    if (!this.gameMap.onTheMap(neighborCorner) || this.getWall(neighborCorner)){
+                        // location not on map or has walls
+                        validPath = false;
+                        break;
+                    }
+                }
+                if (validPath){
+                    Direction reverseDirection = d.opposite();
+                    this.bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
+                    queue.add(neighbor);
+                }
+            }   
+        }
+    }
+
+    public Direction getBfsDir(MapLocation from, MapLocation to){
+        return this.bfs_map[locationToIndex(from)][locationToIndex(to)];
     }
 
     /**
