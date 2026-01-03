@@ -23,10 +23,12 @@ class PlaceTrap(object):
     def Loc(self): return self._tab.Get(flatbuffers.number_types.Uint16Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(0))
     # PlaceTrap
     def Team(self): return self._tab.Get(flatbuffers.number_types.Int8Flags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(2))
+    # PlaceTrap
+    def IsRatTrapType(self): return self._tab.Get(flatbuffers.number_types.BoolFlags, self._tab.Pos + flatbuffers.number_types.UOffsetTFlags.py_type(3))
 
-def CreatePlaceTrap(builder, loc, team):
+def CreatePlaceTrap(builder, loc, team, isRatTrapType):
     builder.Prep(2, 4)
-    builder.Pad(1)
+    builder.PrependBool(isRatTrapType)
     builder.PrependInt8(team)
     builder.PrependUint16(loc)
     return builder.Offset()

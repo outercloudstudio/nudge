@@ -620,7 +620,7 @@ public class GameMaker {
         public void addPlaceTrapAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
-                int action = PlaceTrap.createPlaceTrap(builder, locationToInt(loc), teamID);
+                int action = PlaceTrap.createPlaceTrap(builder, locationToInt(loc), teamID, type==TrapType.RAT_TRAP);
                 builder.addAction(action, Action.PlaceTrap);
             });
         }

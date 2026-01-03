@@ -21,12 +21,15 @@ var PlaceTrap = /** @class */ (function () {
     PlaceTrap.prototype.team = function () {
         return this.bb.readInt8(this.bb_pos + 2);
     };
+    PlaceTrap.prototype.isRatTrapType = function () {
+        return !!this.bb.readInt8(this.bb_pos + 3);
+    };
     PlaceTrap.sizeOf = function () {
         return 4;
     };
-    PlaceTrap.createPlaceTrap = function (builder, loc, team) {
+    PlaceTrap.createPlaceTrap = function (builder, loc, team, isRatTrapType) {
         builder.prep(2, 4);
-        builder.pad(1);
+        builder.writeInt8(Number(Boolean(isRatTrapType)));
         builder.writeInt8(team);
         builder.writeInt16(loc);
         return builder.offset();

@@ -29,10 +29,11 @@ public final class PlaceTrap extends Struct {
 
   public int loc() { return bb.getShort(bb_pos + 0) & 0xFFFF; }
   public byte team() { return bb.get(bb_pos + 2); }
+  public boolean isRatTrapType() { return 0!=bb.get(bb_pos + 3); }
 
-  public static int createPlaceTrap(FlatBufferBuilder builder, int loc, byte team) {
+  public static int createPlaceTrap(FlatBufferBuilder builder, int loc, byte team, boolean isRatTrapType) {
     builder.prep(2, 4);
-    builder.pad(1);
+    builder.putBoolean(isRatTrapType);
     builder.putByte(team);
     builder.putShort((short) loc);
     return builder.offset();
