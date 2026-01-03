@@ -16,6 +16,7 @@ public class TeamInfo {
     private int[] globalCheese;
     private int[] dirtCounts;
     private int[] oldCheeseCounts;
+    private int[] cheeseCollected;
     private int[] totalNumRats;
     private int[] numRatKings;
     private int[] damageToCats;
@@ -31,6 +32,7 @@ public class TeamInfo {
         this.globalCheese = new int[2];
         this.dirtCounts = new int[2];
         this.oldCheeseCounts = new int[2];
+        this.cheeseCollected = new int[2];
         this.totalNumRats = new int[2];
         this.damageToCats = new int[2];
         this.numRatKings = new int[2];
@@ -50,6 +52,17 @@ public class TeamInfo {
 
     public int getCheese(Team team) {
         return this.globalCheese[team.ordinal()];
+    }
+
+    /**
+     * Get the amount of cheese collected.
+     * 
+     * @param team the team to query
+     * @return the team's cheese count
+     */
+
+    public int getCheeseCollected(Team team) {
+        return this.cheeseCollected[team.ordinal()];
     }
 
     /**
@@ -102,6 +115,11 @@ public class TeamInfo {
         return this.points[team.ordinal()];
     }
 
+    // *********************************
+    // ***** UPDATE METHODS ************
+    // *********************************
+
+
     /**
      * Change the total number of rats belonging to a team
      * 
@@ -120,10 +138,6 @@ public class TeamInfo {
         this.numRatKings[team.ordinal()] += num;
     }
 
-    // *********************************
-    // ***** UPDATE METHODS ************
-    // *********************************
-
     /**
      * Add to the amount of cheese. If amount is negative, subtract from cheese
      * instead.
@@ -138,6 +152,16 @@ public class TeamInfo {
             throw new IllegalArgumentException("Invalid cheese change");
         }
         this.globalCheese[team.ordinal()] += amount;
+    }
+
+    /**
+     * Add to the amount of cheese collected.
+     * 
+     * @param team   the team to query
+     * @param amount    cheese collected
+     */
+    public void addCheeseCollected(Team team, int amount) {
+        this.cheeseCollected[team.ordinal()] += amount;
     }
 
     /**

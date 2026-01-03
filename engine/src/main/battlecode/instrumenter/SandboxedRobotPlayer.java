@@ -426,7 +426,6 @@ public class SandboxedRobotPlayer {
      * @return a stream to use for System.out in the sandboxed player
      */
     private void updateOut() {
-        //TODO this is ugly
         if (systemOut instanceof RoboPrintStream) {
             ((RoboPrintStream) systemOut).updateHeader(
                         robotController.getTeam(),

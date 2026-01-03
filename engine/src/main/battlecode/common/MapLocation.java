@@ -185,9 +185,6 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
         }
 
         double adjustment = 1e-3;
-        // TODO: may have to fix this; also maybe there's a better way to do this whole
-        // function given that all looking directions and all cones are all in 45 degree
-        // intervals???
 
         boolean isValidDistance = useTopRight ? this.bottomLeftDistanceSquaredTo(location) <= distanceSquared
                 : this.distanceSquaredTo(location) <= distanceSquared;

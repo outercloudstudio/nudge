@@ -139,23 +139,6 @@ public class ObjectInfo {
         catHealthByID.put(id, newHealth);
     }
 
-    // public void moveRobot(InternalRobot robot, MapLocation newLocation) {
-    //     // MapLocation loc = robot.getLocation();
-
-    //     // robotIndex.delete(fromPoint(loc),robot.getID());
-    //     // robotIndex.add(fromPoint(newLocation),robot.getID());
-    // }
-
-    // TODO: do we need this robot index stuff anymore? can we just delete it?
-
-    public void clearRobotIndex(InternalRobot robot) {
-        // robotIndex.delete(fromPoint(robot.getLocation()), robot.getID());
-    }
-
-    public void addRobotIndex(InternalRobot robot, MapLocation newLocation) {
-        // robotIndex.add(fromPoint(newLocation),robot.getID());
-    }
-
     // ****************************
     // *** ADDING OBJECTS *********
     // ****************************
@@ -173,8 +156,6 @@ public class ObjectInfo {
 
         dynamicBodyExecOrder.add(id);
 
-    //    MapLocation loc = robot.getLocation();
-    //    robotIndex.add(fromPoint(loc),robot.getID());
     }
 
     // ****************************

@@ -448,6 +448,7 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.addCheese(loc, -amountCheeseAvail);
         this.robot.addCheese(amountCheeseAvail);
         this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
+        this.gameWorld.getTeamInfo().addCheeseCollected(this.getTeam(), amountCheeseAvail);
     }
 
     @Override

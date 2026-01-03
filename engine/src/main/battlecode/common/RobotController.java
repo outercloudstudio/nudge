@@ -798,7 +798,6 @@ public interface RobotController {
      */
     boolean canAttack(MapLocation loc);
 
-    // TODO: update docstrings from paint related stuff to rat related stuff
     /**
      * Performs the specific attack for this robot type, defaulting to a bite with 
      * no cheese for rats and a scratch for cats

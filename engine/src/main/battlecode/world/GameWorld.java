@@ -438,7 +438,6 @@ public class GameWorld {
 
         TrapType type = trap.getType();
         Team team = trap.getTeam();
-        int trapId = trap.getId();
 
         int idx = locationToIndex(loc);
         this.trapLocations[idx] = trap;
@@ -447,11 +446,9 @@ public class GameWorld {
             this.trapTriggers[locationToIndex(adjLoc)].add(trap);
         }
 
-        matchMaker.addTrap(trap);
         int[] trapTypeCounts = this.trapCounts.get(type);
         trapTypeCounts[team.ordinal()] += 1;
         this.trapCounts.put(type, trapTypeCounts);
-        trapId++;
     }
 
     public void removeTrap(MapLocation loc) {
@@ -493,7 +490,7 @@ public class GameWorld {
         }
 
         this.trapLocations[locationToIndex(loc)] = null;
-        matchMaker.addTriggeredTrap(trap.getId());
+        // matchMaker.addTriggeredTrap(trap.getId());
         matchMaker.addTrapTriggerAction(trap.getId(), loc, triggeringTeam, type);
 
         removeTrap(loc);
@@ -739,17 +736,17 @@ public class GameWorld {
         ArrayList<Integer> teamPoints = new ArrayList<>();
 
         int total_num_rat_kings = teamInfo.getNumRatKings(Team.A) + teamInfo.getNumRatKings(Team.B);
-        int total_amount_cheese = teamInfo.getCheese(Team.A) + teamInfo.getCheese(Team.B);
+        int total_amount_cheese_collected = teamInfo.getCheeseCollected(Team.A) + teamInfo.getCheeseCollected(Team.B);
         int total_amount_cat_damage = teamInfo.getDamageToCats(Team.A) + teamInfo.getDamageToCats(Team.B);
 
         for (Team team : List.of(Team.A, Team.B)) {
 
             float proportion_rat_kings = teamInfo.getNumRatKings(team) / total_num_rat_kings;
-            float proportion_cheese = teamInfo.getCheese(team) / total_amount_cheese;
+            float proportion_cheese_collected = teamInfo.getCheeseCollected(team) / total_amount_cheese_collected;
             float proportion_cat_damage = teamInfo.getDamageToCats(team) / total_amount_cat_damage;
 
             int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings
-                    + cheese_weight * 100 * proportion_cheese);
+                    + cheese_weight * 100 * proportion_cheese_collected);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
         }
@@ -810,9 +807,10 @@ public class GameWorld {
             spawnCheese(mine);
         }
 
-        // TODO: new team info stuff in matchmaker
-        this.matchMaker.addTeamInfo(Team.A, this.teamInfo.getCheese(Team.A));
-        this.matchMaker.addTeamInfo(Team.B, this.teamInfo.getCheese(Team.B));
+        Team[] teams = {Team.A, Team.B};
+        for (Team t : teams){
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheese(t), this.teamInfo.getCheeseCollected(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+        }
         this.teamInfo.processEndOfRound();
 
         this.getMatchMaker().endRound();

@@ -341,15 +341,22 @@ public class GameMaker {
 
         // Round statistics
         private TIntArrayList teamIDs;
+        private TIntArrayList teamCollectedCheeseAmount;
+        private TIntArrayList teamCatDamage;
         private TIntArrayList teamCheeseAmounts;
+        private TIntArrayList teamAliveRatKings;
+        private TIntArrayList teamAliveBabyRats;
+        private TIntArrayList teamRatTrapCount;
+        private TIntArrayList teamCatTrapCount;
+        private TIntArrayList teamDirtCount;
 
         private TIntArrayList diedIds; // ints
 
-        private TIntArrayList trapAddedIds;
-        private TIntArrayList trapAddedX;
-        private TIntArrayList trapAddedY;
-        private TByteArrayList trapAddedTypes;
-        private TByteArrayList trapAddedTeams;
+        // private TIntArrayList trapAddedIds;
+        // private TIntArrayList trapAddedX;
+        // private TIntArrayList trapAddedY;
+        // private TByteArrayList trapAddedTypes;
+        // private TByteArrayList trapAddedTeams;
 
         private TIntArrayList trapTriggeredIds;
 
@@ -366,7 +373,15 @@ public class GameMaker {
 
         public MatchMaker() {
             this.teamIDs = new TIntArrayList();
+            this.teamCollectedCheeseAmount = new TIntArrayList();
+            this.teamCatDamage = new TIntArrayList();
             this.teamCheeseAmounts = new TIntArrayList();
+            this.teamAliveRatKings = new TIntArrayList();
+            this.teamAliveBabyRats = new TIntArrayList();
+            this.teamDirtCount = new TIntArrayList();
+            this.teamRatTrapCount = new TIntArrayList();
+            this.teamCatTrapCount = new TIntArrayList();
+
             this.diedIds = new TIntArrayList();
             this.currentRound = 0;
             this.logger = new ByteArrayOutputStream();
@@ -375,12 +390,12 @@ public class GameMaker {
             this.timelineMarkerLabels = new ArrayList<>();
             this.timelineMarkerColors = new ArrayList<>();
             
-            this.trapAddedIds = new TIntArrayList();
-            this.trapAddedX = new TIntArrayList();
-            this.trapAddedY = new TIntArrayList();
-            this.trapAddedTypes = new TByteArrayList();
-            this.trapAddedTeams = new TByteArrayList();
-            this.trapTriggeredIds = new TIntArrayList();
+            // this.trapAddedIds = new TIntArrayList();
+            // this.trapAddedX = new TIntArrayList();
+            // this.trapAddedY = new TIntArrayList();
+            // this.trapAddedTypes = new TByteArrayList();
+            // this.trapAddedTeams = new TByteArrayList();
+            // this.trapTriggeredIds = new TIntArrayList();
 
         }
 
@@ -479,6 +494,14 @@ public class GameMaker {
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toNativeArray());
                 int teamCheeseAmountsP = Round.createTeamCheeseAmountsVector(builder,
                         teamCheeseAmounts.toNativeArray());
+                int teamCollectedCheeseAmountP = Round.createTeamCollectedCheeseAmountsVector(builder, teamCollectedCheeseAmount.toNativeArray());
+                int teamCatDamageP = Round.createTeamCatDamageVector(builder, teamCatDamage.toNativeArray());
+                int teamAliveRatKingsP = Round.createTeamAliveRatKingsVector(builder, teamAliveRatKings.toNativeArray());
+                int teamAliveBabyRatsP = Round.createTeamAliveBabyRatsVector(builder, teamAliveBabyRats.toNativeArray());
+                int teamDirtCountP = Round.createTeamDirtAmountsVector(builder, teamDirtCount.toNativeArray());
+                int teamRatTrapCountP = Round.createTeamRatTrapCountVector(builder, teamRatTrapCount.toNativeArray());
+                int teamCatTrapCountP = Round.createTeamCatTrapCountVector(builder, teamCatTrapCount.toNativeArray());
+
                 int diedIdsP = Round.createDiedIdsVector(builder, diedIds.toNativeArray());
 
                 builder.startRound();
@@ -486,6 +509,13 @@ public class GameMaker {
                 Round.addTeamIds(builder, teamIDsP);
                 Round.addRoundId(builder, this.currentRound);
                 Round.addTeamCheeseAmounts(builder, teamCheeseAmountsP);
+                Round.addTeamCollectedCheeseAmounts(builder, teamCollectedCheeseAmountP);
+                Round.addTeamCatDamage(builder, teamCatDamageP);
+                Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsP);
+                Round.addTeamAliveRatKings(builder, teamAliveRatKingsP);
+                Round.addTeamDirtAmounts(builder, teamDirtCountP);
+                Round.addTeamRatTrapCount(builder, teamRatTrapCountP);
+                Round.addTeamCatTrapCount(builder, teamCatTrapCountP);
                 Round.addDiedIds(builder, diedIdsP);
 
                 int round = builder.finishRound();
@@ -587,8 +617,6 @@ public class GameMaker {
             });
         }
 
-        // TODO: add the rest
-
         public void addPlaceTrapAction(int trapID, MapLocation loc, Team team, TrapType type) {
             applyToBuilders((builder) -> {
                 byte teamID = TeamMapping.id(team);
@@ -678,9 +706,16 @@ public class GameMaker {
             });
         }
 
-        public void addTeamInfo(Team team, int cheeseAmount) {
+        public void addTeamInfo(Team team, int totalCheeseAmount, int collectedCheeseAmount, int catDamage, int aliveRatKings, int aliveBabyRats, int amountDirtCollected, int ratTrapCount, int catTrapCount) {
             teamIDs.add(TeamMapping.id(team));
-            teamCheeseAmounts.add(cheeseAmount);
+            teamCheeseAmounts.add(totalCheeseAmount);
+            teamCollectedCheeseAmount.add(collectedCheeseAmount);
+            teamCatDamage.add(catDamage);
+            teamAliveRatKings.add(aliveRatKings);
+            teamAliveBabyRats.add(aliveBabyRats);
+            teamDirtCount.add(amountDirtCollected);
+            teamRatTrapCount.add(ratTrapCount);
+            teamCatTrapCount.add(catTrapCount);
         }
 
         public void addTimelineMarker(Team team, String label, int red, int green, int blue) {
@@ -733,18 +768,18 @@ public class GameMaker {
             diedIds.add(id);
         }
 
-        public void addTrap(Trap trap) {
-            trapAddedIds.add(trap.getId());
-            MapLocation loc = trap.getLocation();
-            trapAddedX.add(loc.x);
-            trapAddedY.add(loc.y);
-            trapAddedTypes.add(FlatHelpers.getSchemaTrapTypeFromTrapType(trap.getType()));
-            trapAddedTeams.add(TeamMapping.id(trap.getTeam()));
-        }
+        // public void addTrap(Trap trap) {
+        //     trapAddedIds.add(trap.getId());
+        //     MapLocation loc = trap.getLocation();
+        //     trapAddedX.add(loc.x);
+        //     trapAddedY.add(loc.y);
+        //     trapAddedTypes.add(FlatHelpers.getSchemaTrapTypeFromTrapType(trap.getType()));
+        //     trapAddedTeams.add(TeamMapping.id(trap.getTeam()));
+        // }
 
-        public void addTriggeredTrap(int id) {
-            trapTriggeredIds.add(id);
-        }
+        // public void addTriggeredTrap(int id) {
+        //     trapTriggeredIds.add(id);
+        // }
 
         private int locationToInt(MapLocation loc) {
             return loc.x + this.currentMapWidth * loc.y;
@@ -752,7 +787,22 @@ public class GameMaker {
 
         private void clearRoundData() {
             this.teamIDs.clear();
+            this.teamCollectedCheeseAmount.clear();
+            this.teamCatDamage.clear();
             this.teamCheeseAmounts.clear();
+            this.teamAliveRatKings.clear();
+            this.teamAliveBabyRats.clear();
+            this.teamDirtCount.clear();
+            this.teamRatTrapCount.clear();
+            this.teamCatTrapCount.clear();
+
+            // this.trapAddedIds.clear();
+            // this.trapAddedX.clear();
+            // this.trapAddedY.clear();
+            // this.trapAddedTypes.clear();
+            // this.trapAddedTeams.clear();
+            // this.trapTriggeredIds.clear();
+
             this.diedIds.clear();
         }
 
