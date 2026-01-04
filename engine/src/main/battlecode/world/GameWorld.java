@@ -230,10 +230,16 @@ public class GameWorld {
             for (Direction d : Direction.allDirections()){
                 if (d == Direction.CENTER)
                     continue;
-                if (chirality == 1)
-                    d = flipDirBySymmetry(d);
+
+                Direction useDir;
+                if (chirality == 1){
+                    useDir = flipDirBySymmetry(d);
+                }
+                else{
+                    useDir = d;
+                }
                 
-                MapLocation neighbor = nextLoc.add(d);
+                MapLocation neighbor = nextLoc.add(useDir);
 
                 if (this.gameMap.onTheMap(neighbor) && bfs_map[locationToIndex(neighbor)][locationToIndex(target)] != null){
                     // visited already
@@ -259,7 +265,7 @@ public class GameWorld {
                     }
                 }
                 if (validPath){
-                    Direction reverseDirection = d.opposite();
+                    Direction reverseDirection = useDir.opposite();
                     bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
                     queue.add(neighbor);
                 }
@@ -970,7 +976,7 @@ public class GameWorld {
 
         InternalRobot robot = new InternalRobot(this, ID, team, type, location, dir, chirality);
 
-        for (MapLocation loc : type.getAllTypeLocations(location)) {
+        for (MapLocation loc : robot.getAllPartLocations()) {
             addRobot(loc, robot);
         }
 
@@ -1070,6 +1076,13 @@ public class GameWorld {
             if (robot.isCarryingRobot()) {
                 InternalRobot carryingRobot = robot.getCarryingRobot();
                 carryingRobot.getDropped(loc);
+            }
+            if (robot.isGrabbedByRobot()) {
+                InternalRobot carrier = robot.getGrabbedByRobot();
+                robot.clearGrabbedByRobot();
+                if (carrier != null && carrier.getCarryingRobot() == robot) {
+                    carrier.clearCarryingRobot();
+                }
             }
             if (robot.getCheese() > 0) {
                 addCheese(loc, robot.getCheese());
