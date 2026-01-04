@@ -895,7 +895,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 scratch(loc);
                 break;
             default:
-                // TODO
                 break;
         }
     }
@@ -941,6 +940,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
                 } else if (this.gameWorld.getRobot(landingTile) != null
                         && this.gameWorld.getRobot(landingTile).getType().isCatType()) {
                     // will land on another cat
+                    validLandingTiles = false;
+                } else if (this.gameWorld.getRobot(landingTile) != null
+                        && this.gameWorld.getRobot(landingTile).getType().isRatKingType()) {
+                    // will land on a rat king
                     validLandingTiles = false;
                 }
             }
@@ -1254,7 +1257,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                     continue;
                                 }
 
-                            } else {
+                            } else if (this.controller.canAttack(nextLoc)) {
+                                try {
+                                    this.controller.attack(nextLoc);
+                                } catch (GameActionException e) {
+                                    continue;
+                                }
+                            }
+                            else {
                                 System.out.println("Cat " + this.ID + " is stuck on " + nextLoc + " cooldown "
                                         + this.getMovementCooldownTurns());
 
@@ -1296,6 +1306,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                 try {
                                     this.controller.removeDirt(nextLoc);
                                     this.addActionCooldownTurns(GameConstants.CAT_DIG_ADDITIONAL_COOLDOWN);
+                                } catch (GameActionException e) {
+                                    continue;
+                                }
+                            }
+                            else if (this.controller.canAttack(nextLoc)) {
+                                try {
+                                    this.controller.attack(nextLoc);
                                 } catch (GameActionException e) {
                                     continue;
                                 }
@@ -1392,6 +1409,13 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                     continue;
                                 }
 
+                            }
+                            else if (this.controller.canAttack(nextLoc)) {
+                                try {
+                                    this.controller.attack(nextLoc);
+                                } catch (GameActionException e) {
+                                    continue;
+                                }
                             }
                         }
                     }
