@@ -437,6 +437,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         // this.gameWorld.getObjectInfo().moveRobot(this, loc);
         this.location = this.location.translate(dx, dy);
+
+        if (!this.type.isCatType() && this.isCarryingRobot()){
+            this.carryingRobot.setInternalLocationOnly(this.location);
+        }
     }
 
     // public boolean canMove(int dx, int dy) {
@@ -632,6 +636,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     public void grabRobot(MapLocation loc) {
+        System.out.println("GRABBING ACTION BY ROBOT WITH ID " + this.getID());
 
         InternalRobot targetRobot = this.gameWorld.getRobot(loc);
 
@@ -1413,6 +1418,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.gameWorld.getMatchMaker().endTurn(this.ID, this.health, this.cheeseAmount, this.movementCooldownTurns,
                 this.actionCooldownTurns, this.turningCooldownTurns, this.bytecodesUsed, this.location, this.dir, this.gameWorld.isCooperation);
+        if (this.isCarryingRobot())
+                this.gameWorld.getMatchMaker().endTurn(this.carryingRobot.ID, this.carryingRobot.health, this.carryingRobot.cheeseAmount, this.carryingRobot.movementCooldownTurns,
+                this.carryingRobot.actionCooldownTurns, this.carryingRobot.turningCooldownTurns, this.carryingRobot.bytecodesUsed, this.location, this.carryingRobot.dir, this.gameWorld.isCooperation);
         this.roundsAlive++;
     }
 
