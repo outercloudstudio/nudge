@@ -789,9 +789,9 @@ public interface RobotController {
     // ****************************
 
     /**
-     * Tests whether this robot can attack the given location.
+     * Tests whether this robot can attack (aka bite) the given location.
      *
-     * @param loc target location to attack
+     * @param loc target location to attack (bite)
      * @return whether it is possible to attack the given location
      *
      * @battlecode.doc.costlymethod
@@ -799,10 +799,20 @@ public interface RobotController {
     boolean canAttack(MapLocation loc);
 
     /**
-     * Performs the specific attack for this robot type, defaulting to a bite with 
-     * no cheese for rats and a scratch for cats
+     * Tests whether this robot can attack (bite) the given location with the given amount of cheese.
      *
-     * @param loc the target location to attack (for splashers, the center location)
+     * @param loc target location to attack (bite)
+     * @param cheeseAmount amount of cheese to spend on the attack
+     * @return whether it is possible to attack the given location with this cheese amount
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canAttack(MapLocation loc, int cheeseAmount);
+
+    /**
+     * Performs a rat attack (aka bite) action, defaulting to a bite with no cheese for rats
+     *
+     * @param loc the target location to attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -810,10 +820,10 @@ public interface RobotController {
     void attack(MapLocation loc) throws GameActionException;
 
     /**
-     * Performs the specific attack for this robot type, defaulting to a bite with 
-     * no cheese for rats and a scratch for cats
+     * Performs the specific attack for this robot type, consuming the specified amount of cheese 
+     * for increasing bite strength
      *
-     * @param loc the target location to attack (for splashers, the center location)
+     * @param loc the target location to attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod

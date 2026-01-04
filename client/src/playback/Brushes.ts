@@ -131,7 +131,7 @@ const makeEditorActionData = (
         case schema.Action.DieAction:
             return { id: () => targetId, dieType: () => 0 }
         case schema.Action.PlaceTrap:
-            return { loc: () => loc, team: () => 0 }
+            return { isRatTrapType: () => true, loc: () => loc, team: () => 0 }
         case schema.Action.PlaceDirt:
             return { loc: () => loc }
         case schema.Action.RatAttack:

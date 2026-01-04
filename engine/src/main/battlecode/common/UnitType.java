@@ -58,8 +58,8 @@ public enum UnitType {
         return this == CAT;
     }
 
-    public MapLocation[] getAllLocations(MapLocation center) {
-        // return in CCW order starting from top left
+    public MapLocation[] getAllTypeLocations(MapLocation center) {
+        // return robot part locations in order of increasing x and y values, starting from bottom left corner
         MapLocation[] locs = new MapLocation[size * size];
         int c = 0;
         for (int i = -(size - 1) / 2; i <= size / 2; i++) {

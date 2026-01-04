@@ -86,7 +86,7 @@ export default class RoundStat {
                 assert(team != undefined, `team ${i} not found in game.teams in round`)
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in round`)
 
-                teamStat.cheeseAmount = delta.teamCollectedCheeseAmounts(i) ?? assert.fail('missing cheese amount')
+                teamStat.cheeseAmount = delta.teamEnemyDamage(i) ?? assert.fail('missing cheese amount')
                 teamStat.cheesePercent = teamStat.cheeseAmount / totalCheese
                 teamStat.catDamageAmount = delta.teamCatDamage(i) ?? assert.fail('missing cat damage amount')
                 teamStat.catDamagePercent = teamStat.catDamageAmount / totalCatDamage

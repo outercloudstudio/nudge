@@ -393,7 +393,11 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // add a trap to map
             const body = round.bodies.getById(this.robotId)
 
-            round.map.trapData[this.actionData.loc()] = 1 + body.team.id // 1 for team 0, 2 for team 1
+            if (this.actionData.isRatTrapType()) {
+                round.map.ratTrapData[this.actionData.loc()] = 1 + body.team.id // 1 for team 0, 2 for team 1
+            } else {
+                round.map.catTrapData[this.actionData.loc()] = 1 + body.team.id // 1 for team 0, 2 for team 1
+            }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // place trap animation
@@ -403,11 +407,17 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const isEndpoint = factor == 0 || factor == 1
             const size = isEndpoint ? 1 : Math.max(factor * 1.5, 0.3)
             const alpha = isEndpoint ? 1 : (factor < 0.5 ? factor : 1 - factor) * 2
+            let imgPath: string
+            if (this.actionData.isRatTrapType()) {
+                imgPath = 'icons/rat_trap.png'
+            } else {
+                imgPath = 'icons/cat_trap.png'
+            }
 
             ctx.globalAlpha = alpha
             ctx.shadowBlur = 4
             ctx.shadowColor = 'black'
-            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded('icons/trap.png'), coords, size)
+            renderUtils.renderCenteredImageOrLoadingIndicator(ctx, getImageIfLoaded(imgPath), coords, size)
             ctx.shadowBlur = 0
             ctx.shadowColor = ''
             ctx.globalAlpha = 1
@@ -416,13 +426,15 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
     [schema.Action.RemoveTrap]: class RemoveTrapAction extends Action<schema.RemoveTrap> {
         apply(round: Round): void {
             // remove a trap from map
-            round.map.trapData[this.actionData.loc()] = 0
+            round.map.ratTrapData[this.actionData.loc()] = 0
+            round.map.catTrapData[this.actionData.loc()] = 0
         }
     },
     [schema.Action.TriggerTrap]: class TriggerTrapAction extends Action<schema.TriggerTrap> {
         apply(round: Round): void {
             // remove trap from map
-            round.map.trapData[this.actionData.loc()] = 0 // remove trap
+            round.map.ratTrapData[this.actionData.loc()] = 0 // remove trap
+            round.map.catTrapData[this.actionData.loc()] = 0 // remove trap
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // trap triggering animation

@@ -660,7 +660,7 @@ export class Body {
             `${this.robotType === schema.RobotType.RAT ? 'Cheese: ' + this.cheese : ''}`,
             `Move Cooldown: ${this.moveCooldown}`,
             `Action Cooldown: ${this.actionCooldown}`,
-            `Turning Cooldown: ${this.turningCooldown}`,
+            `${this.robotType !== schema.RobotType.CAT ? 'Turning Cooldown: ' + this.turningCooldown : ''}`,
             `Bytecodes Used: ${this.bytecodesUsed}${
                 this.bytecodesUsed >= this.metadata.bytecodeLimit() ? ' <EXCEEDED!>' : ''
             }`

@@ -59,7 +59,7 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** The amount of cheese each team starts with. */
-    public static final int INITIAL_TEAM_CHEESE = 5000;
+    public static final int INITIAL_TEAM_CHEESE = 2500;
 
     /** The maximum number of rat kings that a team can have. */
     public static final int MAX_NUMBER_OF_RAT_KINGS = 5; // TODO need to specify!
@@ -89,7 +89,7 @@ public class GameConstants {
     public static final double CHEESE_COOLDOWN_PENALTY = 0.01;
 
     /** The amount of cheese the ratking consumes each round. */
-    public static final int RATKING_CHEESE_CONSUMPTION = 5;
+    public static final int RATKING_CHEESE_CONSUMPTION = 3;
 
     /** The amount of health the ratking loses by not eating cheese. */
     public static final int RATKING_HEALTH_LOSS = 10;
@@ -161,7 +161,7 @@ public class GameConstants {
     public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being bitten by a rat */
-    public static final int RAT_BITE_DAMAGE = 5;
+    public static final int RAT_BITE_DAMAGE = 10;
 
     /** The damage a robot takes after being scratched by a cat */
     public static final int CAT_SCRATCH_DAMAGE = 50;

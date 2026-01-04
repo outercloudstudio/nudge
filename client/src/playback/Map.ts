@@ -39,7 +39,8 @@ export class CurrentMap {
     public readonly staticMap: StaticMap
     public readonly dirt: Int8Array
     public readonly markers: [Int8Array, Int8Array] // Each team has markers
-    public readonly trapData: Int8Array
+    public readonly ratTrapData: Int8Array
+    public readonly catTrapData: Int8Array
     public readonly cheeseData: Int8Array
     public readonly resourcePatterns: ResourcePatternData[]
 
@@ -62,7 +63,8 @@ export class CurrentMap {
             this.cheeseData = new Int8Array(from.cheese)
             this.markers = [new Int8Array(this.width * this.height), new Int8Array(this.width * this.height)]
             this.resourcePatterns = []
-            this.trapData = new Int8Array(this.width * this.height)
+            this.ratTrapData = new Int8Array(this.width * this.height)
+            this.catTrapData = new Int8Array(this.width * this.height)
         } else {
             // Create current map from current map (copy)
 
@@ -73,7 +75,8 @@ export class CurrentMap {
 
             // Assumes ResourcePatternData is immutable
             this.resourcePatterns = [...from.resourcePatterns]
-            this.trapData = new Int8Array(from.trapData)
+            this.ratTrapData = new Int8Array(from.ratTrapData)
+            this.catTrapData = new Int8Array(from.catTrapData)
         }
     }
 
@@ -173,11 +176,20 @@ export class CurrentMap {
                     )
                 }
 
-                const trap = this.trapData[schemaIdx]
-                if (trap) {
+                const ratTrap = this.ratTrapData[schemaIdx]
+                if (ratTrap) {
                     renderUtils.renderCenteredImageOrLoadingIndicator(
                         ctx,
-                        getImageIfLoaded('icons/trap.png'),
+                        getImageIfLoaded('icons/rat_trap.png'),
+                        coords,
+                        1.0
+                    )
+                }
+                const catTrap = this.catTrapData[schemaIdx]
+                if (catTrap) {
+                    renderUtils.renderCenteredImageOrLoadingIndicator(
+                        ctx,
+                        getImageIfLoaded('icons/cat_trap.png'),
                         coords,
                         1.0
                     )

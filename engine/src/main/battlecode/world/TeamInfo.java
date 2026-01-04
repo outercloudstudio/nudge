@@ -20,6 +20,7 @@ public class TeamInfo {
     private int[] numBabyRats;
     private int[] numRatKings;
     private int[] damageToCats;
+    private int[] damageSuffered;
     private int[] points;
 
     /**
@@ -35,6 +36,7 @@ public class TeamInfo {
         this.cheeseCollected = new int[2];
         this.numBabyRats = new int[2];
         this.damageToCats = new int[2];
+        this.damageSuffered = new int[2];
         this.numRatKings = new int[2];
         this.points = new int[2];
     }
@@ -106,6 +108,16 @@ public class TeamInfo {
     }
 
     /**
+     * Get how much damage this team suffered
+     * 
+     * @param team the team to query
+     * @return the team's total amount of health lost
+     */
+    public int getDamageSuffered(Team team) {
+        return this.damageSuffered[team.ordinal()];
+    }
+
+    /**
      * Get the amount of points belonging to a team
      * 
      * @param team the team to query
@@ -172,6 +184,16 @@ public class TeamInfo {
      */
     public void addDamageToCats(Team team, int amount) {
         this.damageToCats[team.ordinal()] += amount;
+    }
+
+    /**
+     * Add to the damage done to other team's rats for a team.
+     * 
+     * @param team   team to attribute damage to
+     * @param amount the change in the amount of damage done to enemy rats
+     */
+    public void addDamageSuffered(Team team, int amount) {
+        this.damageSuffered[team.ordinal()] += amount;
     }
 
     /**

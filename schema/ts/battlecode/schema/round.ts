@@ -65,19 +65,19 @@ teamCheeseAmountsArray():Int32Array|null {
 }
 
 /**
- * The total amount of collected this round per team
+ * The total amount of damage done to the enemy team
  */
-teamCollectedCheeseAmounts(index: number):number|null {
+teamEnemyDamage(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-teamCollectedCheeseAmountsLength():number {
+teamEnemyDamageLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-teamCollectedCheeseAmountsArray():Int32Array|null {
+teamEnemyDamageArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
@@ -277,16 +277,16 @@ static startTeamCheeseAmountsVector(builder:flatbuffers.Builder, numElems:number
   builder.startVector(4, numElems, 4);
 }
 
-static addTeamCollectedCheeseAmounts(builder:flatbuffers.Builder, teamCollectedCheeseAmountsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, teamCollectedCheeseAmountsOffset, 0);
+static addTeamEnemyDamage(builder:flatbuffers.Builder, teamEnemyDamageOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(2, teamEnemyDamageOffset, 0);
 }
 
-static createTeamCollectedCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamCollectedCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamCollectedCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -294,7 +294,7 @@ static createTeamCollectedCheeseAmountsVector(builder:flatbuffers.Builder, data:
   return builder.endVector();
 }
 
-static startTeamCollectedCheeseAmountsVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamEnemyDamageVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
@@ -470,11 +470,11 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createRound(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset, teamCheeseAmountsOffset:flatbuffers.Offset, teamCollectedCheeseAmountsOffset:flatbuffers.Offset, teamCatDamageOffset:flatbuffers.Offset, teamAliveRatKingsOffset:flatbuffers.Offset, teamAliveBabyRatsOffset:flatbuffers.Offset, teamRatTrapCountOffset:flatbuffers.Offset, teamCatTrapCountOffset:flatbuffers.Offset, teamDirtAmountsOffset:flatbuffers.Offset, turnsOffset:flatbuffers.Offset, diedIdsOffset:flatbuffers.Offset, roundId:number):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset, teamCheeseAmountsOffset:flatbuffers.Offset, teamEnemyDamageOffset:flatbuffers.Offset, teamCatDamageOffset:flatbuffers.Offset, teamAliveRatKingsOffset:flatbuffers.Offset, teamAliveBabyRatsOffset:flatbuffers.Offset, teamRatTrapCountOffset:flatbuffers.Offset, teamCatTrapCountOffset:flatbuffers.Offset, teamDirtAmountsOffset:flatbuffers.Offset, turnsOffset:flatbuffers.Offset, diedIdsOffset:flatbuffers.Offset, roundId:number):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIds(builder, teamIdsOffset);
   Round.addTeamCheeseAmounts(builder, teamCheeseAmountsOffset);
-  Round.addTeamCollectedCheeseAmounts(builder, teamCollectedCheeseAmountsOffset);
+  Round.addTeamEnemyDamage(builder, teamEnemyDamageOffset);
   Round.addTeamCatDamage(builder, teamCatDamageOffset);
   Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
   Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);

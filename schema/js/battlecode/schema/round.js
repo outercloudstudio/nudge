@@ -56,17 +56,17 @@ var Round = /** @class */ (function () {
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
     /**
-     * The total amount of collected this round per team
+     * The total amount of damage done to the enemy team
      */
-    Round.prototype.teamCollectedCheeseAmounts = function (index) {
+    Round.prototype.teamEnemyDamage = function (index) {
         var offset = this.bb.__offset(this.bb_pos, 8);
         return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
     };
-    Round.prototype.teamCollectedCheeseAmountsLength = function () {
+    Round.prototype.teamEnemyDamageLength = function () {
         var offset = this.bb.__offset(this.bb_pos, 8);
         return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
     };
-    Round.prototype.teamCollectedCheeseAmountsArray = function () {
+    Round.prototype.teamEnemyDamageArray = function () {
         var offset = this.bb.__offset(this.bb_pos, 8);
         return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
     };
@@ -224,17 +224,17 @@ var Round = /** @class */ (function () {
     Round.startTeamCheeseAmountsVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
-    Round.addTeamCollectedCheeseAmounts = function (builder, teamCollectedCheeseAmountsOffset) {
-        builder.addFieldOffset(2, teamCollectedCheeseAmountsOffset, 0);
+    Round.addTeamEnemyDamage = function (builder, teamEnemyDamageOffset) {
+        builder.addFieldOffset(2, teamEnemyDamageOffset, 0);
     };
-    Round.createTeamCollectedCheeseAmountsVector = function (builder, data) {
+    Round.createTeamEnemyDamageVector = function (builder, data) {
         builder.startVector(4, data.length, 4);
         for (var i = data.length - 1; i >= 0; i--) {
             builder.addInt32(data[i]);
         }
         return builder.endVector();
     };
-    Round.startTeamCollectedCheeseAmountsVector = function (builder, numElems) {
+    Round.startTeamEnemyDamageVector = function (builder, numElems) {
         builder.startVector(4, numElems, 4);
     };
     Round.addTeamCatDamage = function (builder, teamCatDamageOffset) {
@@ -348,11 +348,11 @@ var Round = /** @class */ (function () {
         var offset = builder.endObject();
         return offset;
     };
-    Round.createRound = function (builder, teamIdsOffset, teamCheeseAmountsOffset, teamCollectedCheeseAmountsOffset, teamCatDamageOffset, teamAliveRatKingsOffset, teamAliveBabyRatsOffset, teamRatTrapCountOffset, teamCatTrapCountOffset, teamDirtAmountsOffset, turnsOffset, diedIdsOffset, roundId) {
+    Round.createRound = function (builder, teamIdsOffset, teamCheeseAmountsOffset, teamEnemyDamageOffset, teamCatDamageOffset, teamAliveRatKingsOffset, teamAliveBabyRatsOffset, teamRatTrapCountOffset, teamCatTrapCountOffset, teamDirtAmountsOffset, turnsOffset, diedIdsOffset, roundId) {
         Round.startRound(builder);
         Round.addTeamIds(builder, teamIdsOffset);
         Round.addTeamCheeseAmounts(builder, teamCheeseAmountsOffset);
-        Round.addTeamCollectedCheeseAmounts(builder, teamCollectedCheeseAmountsOffset);
+        Round.addTeamEnemyDamage(builder, teamEnemyDamageOffset);
         Round.addTeamCatDamage(builder, teamCatDamageOffset);
         Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
         Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);

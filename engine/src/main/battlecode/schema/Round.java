@@ -49,14 +49,14 @@ public final class Round extends Table {
   public ByteBuffer teamCheeseAmountsAsByteBuffer() { return __vector_as_bytebuffer(6, 4); }
   public ByteBuffer teamCheeseAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 6, 4); }
   /**
-   * The total amount of collected this round per team
+   * The total amount of damage done to the enemy team
    */
-  public int teamCollectedCheeseAmounts(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
-  public int teamCollectedCheeseAmountsLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
-  public IntVector teamCollectedCheeseAmountsVector() { return teamCollectedCheeseAmountsVector(new IntVector()); }
-  public IntVector teamCollectedCheeseAmountsVector(IntVector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
-  public ByteBuffer teamCollectedCheeseAmountsAsByteBuffer() { return __vector_as_bytebuffer(8, 4); }
-  public ByteBuffer teamCollectedCheeseAmountsInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 4); }
+  public int teamEnemyDamage(int j) { int o = __offset(8); return o != 0 ? bb.getInt(__vector(o) + j * 4) : 0; }
+  public int teamEnemyDamageLength() { int o = __offset(8); return o != 0 ? __vector_len(o) : 0; }
+  public IntVector teamEnemyDamageVector() { return teamEnemyDamageVector(new IntVector()); }
+  public IntVector teamEnemyDamageVector(IntVector obj) { int o = __offset(8); return o != 0 ? obj.__assign(__vector(o), bb) : null; }
+  public ByteBuffer teamEnemyDamageAsByteBuffer() { return __vector_as_bytebuffer(8, 4); }
+  public ByteBuffer teamEnemyDamageInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 8, 4); }
   /**
    * The total number of cat damage done by each team
    */
@@ -138,7 +138,7 @@ public final class Round extends Table {
   public static int createRound(FlatBufferBuilder builder,
       int teamIdsOffset,
       int teamCheeseAmountsOffset,
-      int teamCollectedCheeseAmountsOffset,
+      int teamEnemyDamageOffset,
       int teamCatDamageOffset,
       int teamAliveRatKingsOffset,
       int teamAliveBabyRatsOffset,
@@ -158,7 +158,7 @@ public final class Round extends Table {
     Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);
     Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
     Round.addTeamCatDamage(builder, teamCatDamageOffset);
-    Round.addTeamCollectedCheeseAmounts(builder, teamCollectedCheeseAmountsOffset);
+    Round.addTeamEnemyDamage(builder, teamEnemyDamageOffset);
     Round.addTeamCheeseAmounts(builder, teamCheeseAmountsOffset);
     Round.addTeamIds(builder, teamIdsOffset);
     return Round.endRound(builder);
@@ -171,9 +171,9 @@ public final class Round extends Table {
   public static void addTeamCheeseAmounts(FlatBufferBuilder builder, int teamCheeseAmountsOffset) { builder.addOffset(1, teamCheeseAmountsOffset, 0); }
   public static int createTeamCheeseAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamCheeseAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
-  public static void addTeamCollectedCheeseAmounts(FlatBufferBuilder builder, int teamCollectedCheeseAmountsOffset) { builder.addOffset(2, teamCollectedCheeseAmountsOffset, 0); }
-  public static int createTeamCollectedCheeseAmountsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
-  public static void startTeamCollectedCheeseAmountsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
+  public static void addTeamEnemyDamage(FlatBufferBuilder builder, int teamEnemyDamageOffset) { builder.addOffset(2, teamEnemyDamageOffset, 0); }
+  public static int createTeamEnemyDamageVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
+  public static void startTeamEnemyDamageVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static void addTeamCatDamage(FlatBufferBuilder builder, int teamCatDamageOffset) { builder.addOffset(3, teamCatDamageOffset, 0); }
   public static int createTeamCatDamageVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addInt(data[i]); return builder.endVector(); }
   public static void startTeamCatDamageVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }

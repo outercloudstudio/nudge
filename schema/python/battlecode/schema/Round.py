@@ -84,9 +84,9 @@ class Round(object):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(6))
         return o == 0
 
-    # The total amount of collected this round per team
+    # The total amount of damage done to the enemy team
     # Round
-    def TeamCollectedCheeseAmounts(self, j: int):
+    def TeamEnemyDamage(self, j: int):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             a = self._tab.Vector(o)
@@ -94,21 +94,21 @@ class Round(object):
         return 0
 
     # Round
-    def TeamCollectedCheeseAmountsAsNumpy(self):
+    def TeamEnemyDamageAsNumpy(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             return self._tab.GetVectorAsNumpy(flatbuffers.number_types.Int32Flags, o)
         return 0
 
     # Round
-    def TeamCollectedCheeseAmountsLength(self) -> int:
+    def TeamEnemyDamageLength(self) -> int:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             return self._tab.VectorLen(o)
         return 0
 
     # Round
-    def TeamCollectedCheeseAmountsIsNone(self) -> bool:
+    def TeamEnemyDamageIsNone(self) -> bool:
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         return o == 0
 
@@ -373,17 +373,17 @@ def RoundStartTeamCheeseAmountsVector(builder, numElems: int) -> int:
 def StartTeamCheeseAmountsVector(builder, numElems: int) -> int:
     return RoundStartTeamCheeseAmountsVector(builder, numElems)
 
-def RoundAddTeamCollectedCheeseAmounts(builder: flatbuffers.Builder, teamCollectedCheeseAmounts: int):
-    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(teamCollectedCheeseAmounts), 0)
+def RoundAddTeamEnemyDamage(builder: flatbuffers.Builder, teamEnemyDamage: int):
+    builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(teamEnemyDamage), 0)
 
-def AddTeamCollectedCheeseAmounts(builder: flatbuffers.Builder, teamCollectedCheeseAmounts: int):
-    RoundAddTeamCollectedCheeseAmounts(builder, teamCollectedCheeseAmounts)
+def AddTeamEnemyDamage(builder: flatbuffers.Builder, teamEnemyDamage: int):
+    RoundAddTeamEnemyDamage(builder, teamEnemyDamage)
 
-def RoundStartTeamCollectedCheeseAmountsVector(builder, numElems: int) -> int:
+def RoundStartTeamEnemyDamageVector(builder, numElems: int) -> int:
     return builder.StartVector(4, numElems, 4)
 
-def StartTeamCollectedCheeseAmountsVector(builder, numElems: int) -> int:
-    return RoundStartTeamCollectedCheeseAmountsVector(builder, numElems)
+def StartTeamEnemyDamageVector(builder, numElems: int) -> int:
+    return RoundStartTeamEnemyDamageVector(builder, numElems)
 
 def RoundAddTeamCatDamage(builder: flatbuffers.Builder, teamCatDamage: int):
     builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(teamCatDamage), 0)

@@ -943,12 +943,20 @@ public final class RobotControllerImpl implements RobotController {
     // ****** ATTACK / HEAL ********
     // *****************************
 
-    private void assertCanAttackRat(MapLocation loc) throws GameActionException {
+    private void assertCanAttackRat(MapLocation loc, int cheeseConsumed) throws GameActionException {
         assertIsActionReady();
         // Attack is limited to vision radius
         assertCanActLocation(loc, this.getType().getVisionRadiusSquared());
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
+        
+        if (this.gameWorld.getTeamInfo().getCheese(this.getTeam()) + this.getAllCheese() < cheeseConsumed) {
+            throw new RuntimeException("Not enough cheese to bite!");
+        }
+
+        if (this.getType() == UnitType.CAT) {
+            throw new RuntimeException("Unit must be a baby rat or rat king to bite!");
+        }
     }
 
     private void assertCanAttackCat(MapLocation loc) throws GameActionException {
@@ -958,20 +966,20 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cats cannot attack squares with walls or dirt on them!");
     }
 
-    private void assertCanAttack(MapLocation loc) throws GameActionException {
+    private void assertCanAttack(MapLocation loc, int cheeseConsumed) throws GameActionException {
         if (loc == null) {
             throw new GameActionException(CANT_DO_THAT, "Robot units must specify a location to attack");
         }
 
         switch (this.robot.getType()) {
             case BABY_RAT, RAT_KING:
-                assertCanAttackRat(loc);
+                assertCanAttackRat(loc, cheeseConsumed);
                 break;
             case CAT:
                 assertCanAttackCat(loc);
                 break;
             default:
-                assertCanAttackRat(loc);
+                assertCanAttackRat(loc, cheeseConsumed);
                 break;
         }
     }
@@ -979,7 +987,17 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canAttack(MapLocation loc) {
         try {
-            assertCanAttack(loc);
+            assertCanAttack(loc, 0);
+            return true;
+        } catch (GameActionException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean canAttack(MapLocation loc, int cheeseConsumed) {
+        try {
+            assertCanAttack(loc, 0);
             return true;
         } catch (GameActionException e) {
             return false;
@@ -988,7 +1006,7 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void attack(MapLocation loc) throws GameActionException {
-        assertCanAttack(loc);
+        assertCanAttack(loc, 0);
         if (this.robot.getType().isRobotType())
             this.robot.addActionCooldownTurns(this.robot.getType().actionCooldown);
         this.robot.attack(loc);
@@ -996,7 +1014,7 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public void attack(MapLocation loc, int cheese) throws GameActionException {
-        assertCanAttack(loc);
+        assertCanAttack(loc, cheese);
         if (this.robot.getCheese() + this.gameWorld.getTeamInfo().getCheese(this.robot.getTeam()) < cheese) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to attack!");
         }
