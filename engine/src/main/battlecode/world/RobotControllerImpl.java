@@ -1025,6 +1025,9 @@ public final class RobotControllerImpl implements RobotController {
         if (this.gameWorld.getTeamInfo().getCheese(this.robot.getTeam()) < GameConstants.RAT_KING_UPGRADE_CHEESE_COST) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to upgrade to a rat king");
         }
+        if (this.gameWorld.getTeamInfo().getNumRatKings(this.robot.getTeam()) >= GameConstants.MAX_NUMBER_OF_RAT_KINGS){
+            throw new GameActionException(CANT_DO_THAT, "Cannot have more than " +GameConstants.MAX_NUMBER_OF_RAT_KINGS + "rat kings per team!" );
+        }
         int numAllyRats = 0;
         for (Direction d : Direction.allDirections()) {
             MapLocation curLoc = this.adjacentLocation(d);
@@ -1140,9 +1143,6 @@ public final class RobotControllerImpl implements RobotController {
     public void writePersistentArray(int index, int value) throws GameActionException {
         if (!this.getType().isRatKingType()) {
             throw new GameActionException(CANT_DO_THAT, "Only rat kings can write to the persistent array!");
-        } else if (index < 0 || index >= GameConstants.PERSISTENT_ARRAY_SIZE) {
-            throw new GameActionException(CANT_DO_THAT,
-                    "Index " + index + " is out of bounds for the persistent array!");
         } else if (value < 0 || value > GameConstants.COMM_ARRAY_MAX_VALUE) {
             throw new GameActionException(CANT_DO_THAT,
                     "Value " + value + " is out of bounds for the persistent array!");

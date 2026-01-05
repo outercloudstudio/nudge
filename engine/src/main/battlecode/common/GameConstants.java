@@ -134,7 +134,7 @@ public class GameConstants {
     public static final int BUILD_DISTANCE_SQUARED = 2;
 
     /** The maximum number of rounds a message will exist for */
-    public static final int MESSAGE_ROUND_DURATION = 5; // TODO need to spec messages as a whole!
+    public static final int MESSAGE_ROUND_DURATION = 5;
 
     /** The maximum number of messages a robot can send per turn */
     public static final int MAX_MESSAGES_SENT_ROBOT = 1;
@@ -174,9 +174,6 @@ public class GameConstants {
      */
     public static final int HEALTH_GRAB_THRESHOLD = 0;
 
-    /** The area effected by the cat's attack. */
-    public static final int CAT_ATTACK_AOE_RADIUS_SQUARED = 4; // TODO need to specify!
-
     /** The cheese cost for upgrading a rat into a rat king */
     public static final int RAT_KING_UPGRADE_CHEESE_COST = 50;
 
@@ -186,8 +183,6 @@ public class GameConstants {
     /** The cheese cost to place a tile of dirt */
     public static final int PLACE_DIRT_CHEESE_COST = 10;
 
-    /** After this many turns, cats will begin moving if they haven't already. */
-    public static final int CAT_GRACE_PERIOD = 100;
 
     // *********************************
     // ****** COMMUNICATION ************
@@ -199,8 +194,6 @@ public class GameConstants {
     /** The maximum value of an integer in the shared array and persistent array. */
     public static final int COMM_ARRAY_MAX_VALUE = 1023;
 
-    /** The size of the persistent array. */
-    public static final int PERSISTENT_ARRAY_SIZE = 5;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -215,12 +208,7 @@ public class GameConstants {
     /**
      * The amount added to the turning cooldown counter when turning
      */
-    public static final int TURNING_COOLDOWN = 5; // TODO not sure
-
-    /**
-     * The amount added to the movement cooldown counter when a king moves
-     */
-    public static final int DRAGGING_MOVEMENT_COOLDOWN = 15; // TODO need to specify!
+    public static final int TURNING_COOLDOWN = 10;
 
     /**
      * The amount added to the action cooldown counter after a king builds a robot
@@ -240,8 +228,7 @@ public class GameConstants {
     public static final int DIG_COOLDOWN = 25;
 
     /**
-     * The multiplier to the cooldowns when carrying another robot; TODO increases
-     * exponentially when >1 robot is carried?
+     * The multiplier to the cooldowns when carrying another robot
      */
     public static final double CARRY_COOLDOWN_MULTIPLIER = 1.5;
 
@@ -252,9 +239,7 @@ public class GameConstants {
     public static final int MAX_CARRY_DURATION = 10;
 
     /**
-     * The total number turns a rat can travel for while thrown (rats are stunned
-     * while
-     * thrown)
+     * The total number turns a rat can travel for while thrown (rats are stunned while thrown)
      */
     public static final int THROW_DURATION = 4;
 

@@ -30,8 +30,6 @@ import java.util.zip.GZIPOutputStream;
 
 import static battlecode.util.FlatHelpers.*;
 
-// TODO: new actions for this year's game and update all call sites
-
 /**
  * Writes a game to a flatbuffer, hooray.
  */

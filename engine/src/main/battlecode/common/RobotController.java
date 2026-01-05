@@ -345,8 +345,7 @@ public interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
-     * Given a senseable location, returns whether that location is passable (a
-     * wall).
+     * Given a senseable location, returns whether that location is passable (i.e. no wall or dirt)
      * 
      * @param loc the given location
      * @return whether that location is passable
@@ -511,7 +510,7 @@ public interface RobotController {
 
     /**
      * Returns the number of turning cooldown turns remaining before this unit can
-     * move again.
+     * turn again.
      * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT},
      * isTurningReady()
      * is true and the robot can turn again. This number decreases by
@@ -534,7 +533,7 @@ public interface RobotController {
      * location is not on the map, if the target location is occupied, if the target
      * location is impassible, or if there are cooldown turns remaining.
      *
-     * @return true if it is possible to call <code>move</code> without an exception
+     * @return true if it is possible to call <code>moveForward</code> without an exception
      *
      * @battlecode.doc.costlymethod
      */

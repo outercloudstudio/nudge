@@ -785,7 +785,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
         setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
 
-        this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_TARGET_COOLDOWN);
+        this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_GROUND_COOLDOWN);
     }
 
     public void hitTarget(boolean isSecondMove) {
@@ -803,12 +803,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
         if (this.health > 0){
             this.gameWorld.addRobot(this.location, this);
         }
-        setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
-        setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
-        setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
+        setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
+        setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
+        setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
 
-        this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_GROUND_COOLDOWN);
+        this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_TARGET_COOLDOWN);
     }
 
     public void travelFlying(boolean isSecondMove) {

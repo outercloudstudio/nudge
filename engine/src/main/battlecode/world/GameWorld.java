@@ -193,7 +193,6 @@ public class GameWorld {
         }
 
         this.sharedArray = new int[2][GameConstants.SHARED_ARRAY_SIZE];
-        this.persistentArray = new int[2][GameConstants.PERSISTENT_ARRAY_SIZE];
         // TODO make persistent array last between matches
 
         RobotInfo[] initialBodies = gm.getInitialBodies();
