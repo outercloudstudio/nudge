@@ -100,9 +100,7 @@ public class Main {
                     options.getBoolean("bc.game.best-of-three") && maps.length == 3
             ));
             server.terminateNotification();
-            CrossPlay.resetFiles();
             server.run();
-            CrossPlay.clearTempFiles();
             return server.getState() == ServerState.FINISHED;
         } catch (Exception e) {
             ErrorReporter.report(e, true);

@@ -49,9 +49,9 @@ public class SandboxedRobotPlayer {
     private final RobotController robotController;
 
     /**
-     * The cross-play helper object for non-Java languages.
+     * A handle to the cross play server used for communicating with external bots
      */
-    private final CrossPlay crossPlay;
+    private final CrossPlay crossPlayServer;
 
     /**
      * The seed to use in all "random" operations.
@@ -119,6 +119,7 @@ public class SandboxedRobotPlayer {
      *
      * @param teamName          the name of the team to create a player for
      * @param teamLanguage      the language that the team's code is written in
+     * @param crossPlayServer   handle to a CrossPlay server
      * @param robotController   the robot we're loading a player for
      * @param seed              the seed the robot should use for random operations
      * @param loader            the classloader to load classes with
@@ -128,6 +129,7 @@ public class SandboxedRobotPlayer {
      */
     public SandboxedRobotPlayer(String teamName,
                                 CrossPlayLanguage teamLanguage,
+                                CrossPlay crossPlayServer,
                                 RobotController robotController,
                                 int seed,
                                 TeamClassLoaderFactory.Loader loader,
@@ -136,7 +138,7 @@ public class SandboxedRobotPlayer {
                                 PlayerControlProvider provider)
             throws InstrumentationException {
         this.robotController = robotController;
-        this.crossPlay = new CrossPlay();
+        this.crossPlayServer = crossPlayServer;
         this.seed = seed;
         this.terminated = false;
         this.notifier = new Object();
@@ -311,8 +313,10 @@ public class SandboxedRobotPlayer {
             throws InvocationTargetException, IllegalAccessException, InstrumentationException {
         while (true) {
             try {
-                /*int bytecodeUsed =*/ crossPlay.playTurn(robotController, systemOut);
                 // TODO set bytecode limit somehow (maybe in python, maybe here)
+                //int bytecodeUsed = crossPlay.playTurn(robotController, systemOut);
+
+                crossPlayServer.playTurn(robotController, systemOut);
             } catch (GameActionException e) {
                 String message = "GameActionException thrown during cross-play turn: " + e.getMessage();
 

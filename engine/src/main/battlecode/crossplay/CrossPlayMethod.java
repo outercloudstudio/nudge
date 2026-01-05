@@ -1,5 +1,8 @@
 package battlecode.crossplay;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
 public enum CrossPlayMethod {
     INVALID,
     START_TURN,

@@ -2,6 +2,7 @@ package battlecode.world.control;
 
 import battlecode.common.GameConstants;
 import battlecode.common.Team;
+import battlecode.crossplay.CrossPlay;
 import battlecode.crossplay.CrossPlayLanguage;
 import battlecode.instrumenter.InstrumentationException;
 import battlecode.instrumenter.TeamClassLoaderFactory;
@@ -57,6 +58,11 @@ public class PlayerControlProvider implements RobotControlProvider {
     private final CrossPlayLanguage teamLanguage;
 
     /**
+     * A handle to the cross play server used for communicating with external bots
+     */
+    private final CrossPlay crossPlayServer;
+
+    /**
      * The printstream robots should write to (besides System.out).
      */
     private final OutputStream robotOut;
@@ -94,11 +100,13 @@ public class PlayerControlProvider implements RobotControlProvider {
     public PlayerControlProvider(Team team,
                                  String teamPackage,
                                  CrossPlayLanguage teamLanguage,
+                                 CrossPlay crossPlayServer,
                                  String teamURL,
                                  OutputStream robotOut,
                                  boolean profilingEnabled) {
         this.teamPackage = teamPackage;
         this.teamLanguage = teamLanguage;
+        this.crossPlayServer = crossPlayServer;
         this.sandboxes = new HashMap<>(); // GameWorld maintains order for us
         this.factory = new TeamClassLoaderFactory(teamURL);
         this.robotOut = robotOut;
@@ -143,6 +151,9 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     @Override
     public void robotSpawned(InternalRobot robot) {
+        if (teamLanguage != CrossPlayLanguage.JAVA) {
+            crossPlayServer.sendSpawnBot(robot.getID(), robot.getTeam());
+        }
         try {
             Profiler profiler = null;
             if (profilerCollection != null && robot.getTeam() == team) {
@@ -152,6 +163,7 @@ public class PlayerControlProvider implements RobotControlProvider {
             final SandboxedRobotPlayer player = new SandboxedRobotPlayer(
                     teamPackage,
                     teamLanguage,
+                    crossPlayServer,
                     robot.getController(),
                     robot.getID(),
                     factory.createLoader(profiler != null),
@@ -172,6 +184,9 @@ public class PlayerControlProvider implements RobotControlProvider {
 
     @Override
     public void robotKilled(InternalRobot robot) {
+        if (teamLanguage != CrossPlayLanguage.JAVA) {
+            crossPlayServer.sendDestroyBot(robot.getID());
+        }
         // Note that a robot may be killed even if it is not in Sandboxes, if
         // there was an error while loading it.
 

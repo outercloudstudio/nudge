@@ -10,7 +10,7 @@ from typing import Any, List
 import dis
 import inspect
 from enum import Enum
-from crossplay_python.wrappers import RobotController
+from .wrappers import RobotController
 
 class GameFinishedException(Exception):
     pass

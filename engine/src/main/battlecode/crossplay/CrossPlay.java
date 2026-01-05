@@ -1,291 +1,215 @@
 package battlecode.crossplay;
 
-import java.util.ArrayList;
-import org.json.*;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-import battlecode.common.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import battlecode.common.GameActionException;
+import battlecode.common.RobotController;
+import battlecode.common.Team;
 import battlecode.instrumenter.stream.RoboPrintStream;
+import battlecode.server.Server;
 
 /**
  * Allows bots written in different languages to be run by the Java engine using a message-passing system.
- * Any language can be supported as long as a file analogous to runner.py is written.
  * Battlecode 2026 supports Java and Python.
  */
 public class CrossPlay {
-    public static final String
-        CROSS_PLAY_DIR = "crossplay_temp", // temporary directory for cross-play files
-        MESSAGE_FILE_JAVA = "messages_java.json", // messages from the java engine
-        MESSAGE_FILE_OTHER = "messages_other.json", // messages from the other language's runner script
-        LOCK_FILE_JAVA = "lock_java.txt", // lock file created by the java engine
-        LOCK_FILE_OTHER = "lock_other.txt", // lock file created by the other language's runner script
-        STARTED_FILE_JAVA = "started_java.txt", // file created by the java engine when it starts
-        STARTED_FILE_OTHER = "started_other.txt"; // file created by the other language's runner
+    private static final int IPC_PORT = 27185;
 
-    private final boolean finalizer;
-    private boolean initialized;
-    private ArrayList<Object> objects;
-    private RobotController rc;
-    private CrossPlayReference rcRef;
-    private int roundNum;
-    private Team team;
-    private int id;
+    private RobotController processingRobot;
     private OutputStream out;
+    private ServerSocket serverSocket;
+    private Socket socket;
+    private DataInputStream socketIn;
+    private DataOutputStream socketOut;
+
+    private final ObjectMapper objectMapper;
 
     public CrossPlay() {
-        this.objects = new ArrayList<>();
-        this.finalizer = false;
-        this.initialized = false;
+        this.objectMapper = new ObjectMapper();
     }
 
-    public CrossPlay(boolean finalizer) {
-        this.objects = new ArrayList<>();
-        this.finalizer = finalizer;
-        this.initialized = false;
-    }
+    private void initSocket() {
+        if (socket != null) return;
 
-    private void clearObjects() {
-        this.objects.clear();
-    }
-
-    public static void resetFiles() {
+        Server.debug("Init crossplay socket");
         try {
-            Path crossPlayDir = Paths.get(CROSS_PLAY_DIR);
+            serverSocket = new ServerSocket(IPC_PORT);
+            socket = serverSocket.accept();
 
-            if (!Files.exists(crossPlayDir) || !Files.isDirectory(crossPlayDir)) {
-                Files.createDirectory(crossPlayDir);
-            } else if (Files.exists(crossPlayDir.resolve(STARTED_FILE_JAVA))) {
-                System.out.println("DEBUGGING: Detected existing crossplay_temp/started_java.txt file. "
-                    + "This indicates that a previous cross-play match did not terminate cleanly. "
-                    + "Deleting the old crossplay_temp files.");
-            } else if (Files.exists(crossPlayDir.resolve(STARTED_FILE_OTHER))) {
-                System.out.println("DEBUGGING: Python cross-play runner already started. Using existing cross-play temp directory.");
-                return;
-            }
+            Server.debug("Crossplay connection accepted");
 
-            Files.deleteIfExists(crossPlayDir.resolve(MESSAGE_FILE_JAVA));
-            Files.deleteIfExists(crossPlayDir.resolve(MESSAGE_FILE_OTHER));
-            Files.deleteIfExists(crossPlayDir.resolve(LOCK_FILE_JAVA));
-            Files.deleteIfExists(crossPlayDir.resolve(LOCK_FILE_OTHER));
-
-            Files.createFile(crossPlayDir.resolve(STARTED_FILE_JAVA));
-        } catch (Exception e) {
-            throw new CrossPlayException("Failed to clear cross-play lock files.");
-        }
-    }
-
-    public static void clearTempFiles() {
-        try {
-            Path crossPlayDir = Paths.get(CROSS_PLAY_DIR);
-
-            if (Files.exists(crossPlayDir)) {
-                Files.deleteIfExists(crossPlayDir.resolve(MESSAGE_FILE_JAVA));
-                Files.deleteIfExists(crossPlayDir.resolve(MESSAGE_FILE_OTHER));
-                Files.deleteIfExists(crossPlayDir.resolve(LOCK_FILE_JAVA));
-                Files.deleteIfExists(crossPlayDir.resolve(LOCK_FILE_OTHER));
-                Files.deleteIfExists(crossPlayDir.resolve(STARTED_FILE_JAVA));
-                Files.deleteIfExists(crossPlayDir.resolve(STARTED_FILE_OTHER));
-                Files.delete(crossPlayDir);
-            }
+            socketIn = new DataInputStream(socket.getInputStream());
+            socketOut = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            throw new CrossPlayException("Failed to clear cross-play lock files.");
+            throw new CrossPlayException("Failed to initialize CrossPlay socket IPC: " + e.toString());
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getLiteralValue(CrossPlayObject obj) {
-        if (obj instanceof CrossPlayLiteral lit) {
-            Object value = lit.value;
-
-            try {
-                return (T) value;
-            } catch (ClassCastException e) {
-                throw new CrossPlayException("Tried to get object of type " + obj.type + " but it does not match expected type.");
-            }
-        } else {
-            throw new CrossPlayException("Tried to get value of non-literal cross-play object");
-        }
+    private void sendJson(JsonNode json) throws IOException {
+        Server.debug("Sending json: " + json.toString());
+        initSocket();
+        byte[] bytes = objectMapper.writeValueAsBytes(json);
+        socketOut.writeInt(bytes.length);
+        socketOut.write(bytes);
+        socketOut.flush();
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T getObject(CrossPlayObject obj) {
-        if (obj instanceof CrossPlayReference ref) {
-            Object rawObj = this.objects.get(ref.objectId);
-
-            try {
-                return (T) rawObj;
-            } catch (ClassCastException e) {
-                throw new CrossPlayException("Tried to get object of type " + obj.type + " but it does not match expected type.");
-            }
-        } else {
-            throw new CrossPlayException("Tried to retrieve Java value of non-reference cross-play object");
-        }
+    private JsonNode receiveJson() throws IOException {
+        initSocket();
+        int len = socketIn.readInt();
+        byte[] bytes = socketIn.readNBytes(len);
+        return objectMapper.readTree(bytes);
     }
 
-    private void setObject(CrossPlayReference ref, Object value) {
-        if (ref.objectId >= this.objects.size()) {
-            // extend the array
-            for (int i = this.objects.size(); i <= ref.objectId; i++) {
-                this.objects.add(null);
-            }
-        }
-
-        this.objects.set(ref.objectId, value);
+    public void cleanup() {
+        try {
+            sendEndGame();
+        } catch (Exception e) {}
+        
+        try {
+            if (socket != null) socket.close();
+            if (serverSocket != null) serverSocket.close();
+        } catch (IOException ignored) {}
     }
 
-    private CrossPlayReference setNextObject(CrossPlayObjectType type, Object value) {
-        CrossPlayReference ref = new CrossPlayReference(type, this.objects.size());
-        setObject(ref, value);
-        return ref;
-    }
-
-    public int runMessagePassing() throws GameActionException {
-        Path crossPlayDir = Paths.get(CROSS_PLAY_DIR);
-        Path javaMessagePath = crossPlayDir.resolve(MESSAGE_FILE_JAVA);
-        Path otherMessagePath = crossPlayDir.resolve(MESSAGE_FILE_OTHER);
-        Path javaLockPath = crossPlayDir.resolve(LOCK_FILE_JAVA);
-        Path otherLockPath = crossPlayDir.resolve(LOCK_FILE_OTHER);
-        // System.out.println("Waiting for message Python -> Java...");
-
+    public int runMessagePassing() throws GameActionException, CrossPlayException {
         while (true) {
             try {
-                if (!Files.exists(otherMessagePath) || Files.exists(javaMessagePath) || Files.exists(otherLockPath)) {
-                    Thread.sleep(0, 100000); // TODO currently 0.1 ms, maybe make shorter
-                    // System.out.println("Still waiting for message Python -> Java...");
-                    continue;
-                }
+                JsonNode messageJson = receiveJson();
+                CrossPlayMessage message = objectMapper.treeToValue(messageJson, CrossPlayMessage.class);
 
-                if (Files.exists(javaLockPath)) {
-                    throw new CrossPlayException("Detected existing java lock file while waiting for other language's message."
-                        + " This should never happen under normal operation.");
-                }
+                JsonNode result = processMessage(message);
+                sendJson(result);
 
-                Files.createFile(javaLockPath);
-                String messageContent = Files.readString(otherMessagePath);
-                JSONObject messageJson = new JSONObject(messageContent);
-                CrossPlayMessage message = CrossPlayMessage.fromJson(messageJson);
-
-                // System.out.println("Received message Python -> Java: " + messageJson.toString());
-
-                CrossPlayObject result = processMessage(message);
-                String resultContent = result.toJson().toString();
-                Files.writeString(javaMessagePath, resultContent);
-
-                Files.delete(otherMessagePath);
-                Files.delete(javaLockPath);
-
-                if (message.method == CrossPlayMethod.END_TURN) {
-                    // System.out.println("Received terminate message, ending cross-play message passing.");
-                    int bytecodeUsed = getLiteralValue(message.params[0]);
-                    return bytecodeUsed;
-                } else if (this.finalizer && message.method == CrossPlayMethod.START_TURN) {
-                    // System.out.println("Finalizer received start turn message, ending cross-play message passing.");
+                if (message.method() == CrossPlayMethod.END_TURN) {
+                    if (message.params() != null && message.params().isArray() && message.params().size() > 0) {
+                        return message.params().get(0).asInt();
+                    }
                     return 0;
                 }
 
-                // System.out.println("Sent response Java -> Python: " + resultContent);
-                // System.out.println("Waiting for message Python -> Java...");
-            } catch (InterruptedException e) {
-                throw new CrossPlayException("Cross-play message passing thread was interrupted.");
+            } catch (JsonProcessingException e) {
+                throw new CrossPlayException("Protocol error: Invalid JSON received from client: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                throw new CrossPlayException("Protocol error: Failed to map JSON to CrossPlayMessage: " + e.getMessage());
             } catch (IOException e) {
-                throw new CrossPlayException("Cross-play message passing failed due to file I/O error: " + e.getMessage());
+                throw new CrossPlayException("Socket IPC failed: " + e.toString());
             }
         }
     }
 
-    private CrossPlayObject processMessage(CrossPlayMessage message) {
-        CrossPlayObject result;
-        RobotController rc;
+    private JsonNode processMessage(CrossPlayMessage message) {
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
 
-        // TODO add cases for all methods
-        switch (message.method) {
+        switch (message.method()) {
             case INVALID:
                 throw new CrossPlayException("Received invalid cross-play method!");
-            case START_TURN:
-                // System.out.println("Processing START_TURN");
-                if (this.finalizer) {
-                    result = new CrossPlayLiteral(CrossPlayObjectType.ARRAY, new CrossPlayObject[] {
-                        CrossPlayLiteral.NULL,
-                        CrossPlayLiteral.NULL,
-                        CrossPlayLiteral.NULL,
-                        CrossPlayLiteral.NULL,
-                        CrossPlayLiteral.TRUE
-                    });
-                } else {
-                    result = new CrossPlayLiteral(CrossPlayObjectType.ARRAY, new CrossPlayObject[] {
-                        this.rcRef,
-                        CrossPlayLiteral.ofInt(this.roundNum),
-                        CrossPlayLiteral.ofTeam(this.team),
-                        CrossPlayLiteral.ofInt(this.id),
-                        CrossPlayLiteral.FALSE
-                    });
-                }
-                break;
+
             case END_TURN:
-                // System.out.println("Processing END_TURN");
-                result = new CrossPlayLiteral(CrossPlayObjectType.NULL, null);
-                break;
+                return nodeFactory.nullNode(); // Or object with type NULL if strict backward compat needed, but assuming raw JSON now.
+
             case RC_GET_ROUND_NUM:
-                // System.out.println("Processing RC_GET_ROUND_NUM");
-                rc = this.<RobotController>getObject(message.params[0]);
-                result = new CrossPlayLiteral(CrossPlayObjectType.INTEGER, rc.getRoundNum());
-                break;
+                return nodeFactory.numberNode(this.processingRobot.getRoundNum());
+
             case RC_GET_MAP_WIDTH:
-                // System.out.println("Processing RC_GET_MAP_WIDTH");
-                rc = this.<RobotController>getObject(message.params[0]);
-                result = new CrossPlayLiteral(CrossPlayObjectType.INTEGER, rc.getMapWidth());
-                break;
+                return nodeFactory.numberNode(this.processingRobot.getMapWidth());
+
             case RC_GET_MAP_HEIGHT:
-                // System.out.println("Processing RC_GET_MAP_HEIGHT");
-                rc = this.<RobotController>getObject(message.params[0]);
-                result = new CrossPlayLiteral(CrossPlayObjectType.INTEGER, rc.getMapHeight());
-                break;
+                return nodeFactory.numberNode(this.processingRobot.getMapHeight());
+
             case LOG:
-                // System.out.println("Processing LOG");
-                String msg = getLiteralValue(message.params[0]);
-
-                if (this.out instanceof RoboPrintStream rps) {
-                    rps.println(msg);
+                if (message.params() != null && message.params().isArray() && message.params().size() > 0) {
+                    String msg = message.params().get(0).asText();
+                    if (this.out instanceof RoboPrintStream rps) {
+                        rps.println(msg);
+                    }
                 }
+                return nodeFactory.nullNode();
 
-                result = new CrossPlayLiteral(CrossPlayObjectType.NULL, null);
-                break;
             default:
-                throw new CrossPlayException("Received unknown cross-play method: " + message.method);
+                throw new CrossPlayException("Received unknown cross-play method: " + message.method());
         }
+    }
 
-        return result;
+    private void sendStartTurn() {
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        ObjectNode startTurn = nodeFactory.objectNode();
+        startTurn.put("type", "start_turn");
+        startTurn.put("round", this.processingRobot.getRoundNum());
+        startTurn.put("team", this.processingRobot.getTeam().ordinal());
+        startTurn.put("id", this.processingRobot.getID());
+
+        try {
+            sendJson(startTurn);
+        } catch (IOException e) {
+             throw new CrossPlayException("Failed to send start turn: " + e.toString());
+        }
+    }
+    
+    public void sendSpawnBot(int id, Team team) {
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        ObjectNode spawnBot = nodeFactory.objectNode();
+        spawnBot.put("type", "spawn_bot");
+        spawnBot.put("id", id);
+        spawnBot.put("team", team.ordinal());
+        
+        try {
+            sendJson(spawnBot);
+        } catch (IOException e) {
+            throw new CrossPlayException("Failed to send spawn bot: " + e.toString());
+        }
+    }
+    
+    public void sendDestroyBot(int id) {
+        // If socket isn't initialized, we can't send destroy message, but that's fine 
+        // because it means no bots have been spawned or connected yet.
+        if (socket == null) return;
+        
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        ObjectNode destroyBot = nodeFactory.objectNode();
+        destroyBot.put("type", "destroy_bot");
+        destroyBot.put("id", id);
+        
+        try {
+            sendJson(destroyBot);
+        } catch (IOException e) {
+            throw new CrossPlayException("Failed to send destroy bot: " + e.toString());
+        }
+    }
+    
+    public void sendEndGame() {
+        if (socket == null) return;
+        
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        ObjectNode endGame = nodeFactory.objectNode();
+        endGame.put("type", "end_game");
+        
+        try {
+            sendJson(endGame);
+        } catch (IOException e) {
+            // Ignore errors during cleanup
+        }
     }
 
     public int playTurn(RobotController rc, OutputStream systemOut) throws GameActionException {
-        // System.out.println("playTurn called for CrossPlay instance " + this.hashCode());
-
-        if (this.rc == rc && this.roundNum == rc.getRoundNum()) {
-            // System.out.println("playTurn returned early for CrossPlay instance " + this.hashCode());
-            return 0;
-        }
-
-        this.rc = rc;
-        this.roundNum = rc.getRoundNum();
-        this.team = rc.getTeam();
-        this.id = rc.getID();
+        this.processingRobot = rc;
         this.out = systemOut;
 
-        if (this.initialized) {
-            this.rcRef = new CrossPlayReference(CrossPlayObjectType.ROBOT_CONTROLLER, 0);
-        } else {
-            clearObjects();
-            this.rcRef = setNextObject(CrossPlayObjectType.ROBOT_CONTROLLER, this.rc);
-            this.initialized = true;
-            // System.out.println("Cross-play bot initialized!");
-        }
+        // Send start turn message to prime the client
+        this.sendStartTurn();
 
-        // System.out.println("Running message passing for CrossPlay instance " + this.hashCode());
-        int bytecodeUsed = runMessagePassing();
-        // System.out.println("playTurn finished for CrossPlay instance " + this.hashCode());
-        return bytecodeUsed;
+        return runMessagePassing();
     }
 }
