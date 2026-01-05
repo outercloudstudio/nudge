@@ -133,12 +133,6 @@ public class GameConstants {
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
 
-    /** The maximum squared radius a robot can send a message to */
-    public static final int MESSAGE_RADIUS_SQUARED = 20; // TODO need to spec messages as a whole!
-
-    /** The maxmimum squared radius a tower can broadcast a message */
-    public static final int BROADCAST_RADIUS_SQUARED = 80; // TODO need to spec messages as a whole!
-
     /** The maximum number of rounds a message will exist for */
     public static final int MESSAGE_ROUND_DURATION = 5; // TODO need to spec messages as a whole!
 
