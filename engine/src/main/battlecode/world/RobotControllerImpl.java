@@ -171,7 +171,7 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public RobotInfo getCarrying() {
-        if (this.robot.isCarryingRobot())
+        if (!this.robot.isCarryingRobot())
             return null;
         else
             return this.robot.getCarryingRobot().getRobotInfo();
@@ -1206,6 +1206,7 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.addCheese(-amount);
         InternalRobot robot = this.gameWorld.getRobot(loc);
         this.gameWorld.getTeamInfo().addCheese(getTeam(), amount);
+        this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), amount);
         this.robot.addActionCooldownTurns(GameConstants.CHEESE_TRANSFER_COOLDOWN);
         this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), amount);
     }
@@ -1278,6 +1279,11 @@ public final class RobotControllerImpl implements RobotController {
         assertCanActLocation(loc, 1);
         assertIsActionReady();
 
+        if (!this.robot.getType().isThrowingType()) {
+            throw new RuntimeException("Unit must be a rat to grab other rats");
+        } else if (this.robot.isCarryingRobot()) {
+            throw new RuntimeException("Already carrying a rat");
+        } 
         // Must be a rat-type
         if (!this.robot.getType().isBabyRatType()) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can grab other rats!");

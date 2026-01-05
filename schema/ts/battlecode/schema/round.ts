@@ -47,38 +47,20 @@ teamIdsArray():Int32Array|null {
 }
 
 /**
- * The total amount of cheese this round per team
+ * The total amount of cheese transferred per team
  */
-teamCheeseAmounts(index: number):number|null {
+teamCheeseTransferred(index: number):number|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
-teamCheeseAmountsLength():number {
+teamCheeseTransferredLength():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-teamCheeseAmountsArray():Int32Array|null {
+teamCheeseTransferredArray():Int32Array|null {
   const offset = this.bb!.__offset(this.bb_pos, 6);
-  return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
-}
-
-/**
- * The total amount of damage done to the enemy team
- */
-teamEnemyDamage(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
-}
-
-teamEnemyDamageLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
-}
-
-teamEnemyDamageArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -86,17 +68,17 @@ teamEnemyDamageArray():Int32Array|null {
  * The total number of cat damage done by each team
  */
 teamCatDamage(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamCatDamageLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamCatDamageArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 10);
+  const offset = this.bb!.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -104,17 +86,17 @@ teamCatDamageArray():Int32Array|null {
  * The total number of alive rat kings per team
  */
 teamAliveRatKings(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamAliveRatKingsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamAliveRatKingsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 12);
+  const offset = this.bb!.__offset(this.bb_pos, 10);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -122,17 +104,17 @@ teamAliveRatKingsArray():Int32Array|null {
  * The total number of alive baby rats per team
  */
 teamAliveBabyRats(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamAliveBabyRatsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamAliveBabyRatsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 14);
+  const offset = this.bb!.__offset(this.bb_pos, 12);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -140,17 +122,17 @@ teamAliveBabyRatsArray():Int32Array|null {
  * The total number of live rat traps per team
  */
 teamRatTrapCount(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamRatTrapCountLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamRatTrapCountArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 16);
+  const offset = this.bb!.__offset(this.bb_pos, 14);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -158,17 +140,17 @@ teamRatTrapCountArray():Int32Array|null {
  * The total number of live cat traps per team
  */
 teamCatTrapCount(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamCatTrapCountLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamCatTrapCountArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 18);
+  const offset = this.bb!.__offset(this.bb_pos, 16);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -176,17 +158,17 @@ teamCatTrapCountArray():Int32Array|null {
  * The total number of live cat traps per team
  */
 teamDirtAmounts(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 teamDirtAmountsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 teamDirtAmountsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 20);
+  const offset = this.bb!.__offset(this.bb_pos, 18);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -194,12 +176,12 @@ teamDirtAmountsArray():Int32Array|null {
  * Ordered turn data for each robot during the round
  */
 turns(index: number, obj?:Turn):Turn|null {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? (obj || new Turn()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
 }
 
 turnsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 22);
+  const offset = this.bb!.__offset(this.bb_pos, 20);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
@@ -207,17 +189,17 @@ turnsLength():number {
  * The IDs of bodies that died at the end of the round, with no attributable cause.
  */
 diedIds(index: number):number|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.readInt32(this.bb!.__vector(this.bb_pos + offset) + index * 4) : 0;
 }
 
 diedIdsLength():number {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 diedIdsArray():Int32Array|null {
-  const offset = this.bb!.__offset(this.bb_pos, 24);
+  const offset = this.bb!.__offset(this.bb_pos, 22);
   return offset ? new Int32Array(this.bb!.bytes().buffer, this.bb!.bytes().byteOffset + this.bb!.__vector(this.bb_pos + offset), this.bb!.__vector_len(this.bb_pos + offset)) : null;
 }
 
@@ -227,12 +209,12 @@ diedIdsArray():Int32Array|null {
  * It should increase by one for each following round.
  */
 roundId():number {
-  const offset = this.bb!.__offset(this.bb_pos, 26);
+  const offset = this.bb!.__offset(this.bb_pos, 24);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
 
 static startRound(builder:flatbuffers.Builder) {
-  builder.startObject(12);
+  builder.startObject(11);
 }
 
 static addTeamIds(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset) {
@@ -256,16 +238,16 @@ static startTeamIdsVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addTeamCheeseAmounts(builder:flatbuffers.Builder, teamCheeseAmountsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(1, teamCheeseAmountsOffset, 0);
+static addTeamCheeseTransferred(builder:flatbuffers.Builder, teamCheeseTransferredOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(1, teamCheeseTransferredOffset, 0);
 }
 
-static createTeamCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
+static createTeamCheeseTransferredVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
 /**
  * @deprecated This Uint8Array overload will be removed in the future.
  */
-static createTeamCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
+static createTeamCheeseTransferredVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
+static createTeamCheeseTransferredVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
   builder.startVector(4, data.length, 4);
   for (let i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]!);
@@ -273,33 +255,12 @@ static createTeamCheeseAmountsVector(builder:flatbuffers.Builder, data:number[]|
   return builder.endVector();
 }
 
-static startTeamCheeseAmountsVector(builder:flatbuffers.Builder, numElems:number) {
-  builder.startVector(4, numElems, 4);
-}
-
-static addTeamEnemyDamage(builder:flatbuffers.Builder, teamEnemyDamageOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(2, teamEnemyDamageOffset, 0);
-}
-
-static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
-/**
- * @deprecated This Uint8Array overload will be removed in the future.
- */
-static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Uint8Array):flatbuffers.Offset;
-static createTeamEnemyDamageVector(builder:flatbuffers.Builder, data:number[]|Int32Array|Uint8Array):flatbuffers.Offset {
-  builder.startVector(4, data.length, 4);
-  for (let i = data.length - 1; i >= 0; i--) {
-    builder.addInt32(data[i]!);
-  }
-  return builder.endVector();
-}
-
-static startTeamEnemyDamageVector(builder:flatbuffers.Builder, numElems:number) {
+static startTeamCheeseTransferredVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
 static addTeamCatDamage(builder:flatbuffers.Builder, teamCatDamageOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(3, teamCatDamageOffset, 0);
+  builder.addFieldOffset(2, teamCatDamageOffset, 0);
 }
 
 static createTeamCatDamageVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -320,7 +281,7 @@ static startTeamCatDamageVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addTeamAliveRatKings(builder:flatbuffers.Builder, teamAliveRatKingsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(4, teamAliveRatKingsOffset, 0);
+  builder.addFieldOffset(3, teamAliveRatKingsOffset, 0);
 }
 
 static createTeamAliveRatKingsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -341,7 +302,7 @@ static startTeamAliveRatKingsVector(builder:flatbuffers.Builder, numElems:number
 }
 
 static addTeamAliveBabyRats(builder:flatbuffers.Builder, teamAliveBabyRatsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(5, teamAliveBabyRatsOffset, 0);
+  builder.addFieldOffset(4, teamAliveBabyRatsOffset, 0);
 }
 
 static createTeamAliveBabyRatsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -362,7 +323,7 @@ static startTeamAliveBabyRatsVector(builder:flatbuffers.Builder, numElems:number
 }
 
 static addTeamRatTrapCount(builder:flatbuffers.Builder, teamRatTrapCountOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(6, teamRatTrapCountOffset, 0);
+  builder.addFieldOffset(5, teamRatTrapCountOffset, 0);
 }
 
 static createTeamRatTrapCountVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -383,7 +344,7 @@ static startTeamRatTrapCountVector(builder:flatbuffers.Builder, numElems:number)
 }
 
 static addTeamCatTrapCount(builder:flatbuffers.Builder, teamCatTrapCountOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(7, teamCatTrapCountOffset, 0);
+  builder.addFieldOffset(6, teamCatTrapCountOffset, 0);
 }
 
 static createTeamCatTrapCountVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -404,7 +365,7 @@ static startTeamCatTrapCountVector(builder:flatbuffers.Builder, numElems:number)
 }
 
 static addTeamDirtAmounts(builder:flatbuffers.Builder, teamDirtAmountsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(8, teamDirtAmountsOffset, 0);
+  builder.addFieldOffset(7, teamDirtAmountsOffset, 0);
 }
 
 static createTeamDirtAmountsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -425,7 +386,7 @@ static startTeamDirtAmountsVector(builder:flatbuffers.Builder, numElems:number) 
 }
 
 static addTurns(builder:flatbuffers.Builder, turnsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(9, turnsOffset, 0);
+  builder.addFieldOffset(8, turnsOffset, 0);
 }
 
 static createTurnsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
@@ -441,7 +402,7 @@ static startTurnsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addDiedIds(builder:flatbuffers.Builder, diedIdsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(10, diedIdsOffset, 0);
+  builder.addFieldOffset(9, diedIdsOffset, 0);
 }
 
 static createDiedIdsVector(builder:flatbuffers.Builder, data:number[]|Int32Array):flatbuffers.Offset;
@@ -462,7 +423,7 @@ static startDiedIdsVector(builder:flatbuffers.Builder, numElems:number) {
 }
 
 static addRoundId(builder:flatbuffers.Builder, roundId:number) {
-  builder.addFieldInt32(11, roundId, 0);
+  builder.addFieldInt32(10, roundId, 0);
 }
 
 static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -470,11 +431,10 @@ static endRound(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createRound(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset, teamCheeseAmountsOffset:flatbuffers.Offset, teamEnemyDamageOffset:flatbuffers.Offset, teamCatDamageOffset:flatbuffers.Offset, teamAliveRatKingsOffset:flatbuffers.Offset, teamAliveBabyRatsOffset:flatbuffers.Offset, teamRatTrapCountOffset:flatbuffers.Offset, teamCatTrapCountOffset:flatbuffers.Offset, teamDirtAmountsOffset:flatbuffers.Offset, turnsOffset:flatbuffers.Offset, diedIdsOffset:flatbuffers.Offset, roundId:number):flatbuffers.Offset {
+static createRound(builder:flatbuffers.Builder, teamIdsOffset:flatbuffers.Offset, teamCheeseTransferredOffset:flatbuffers.Offset, teamCatDamageOffset:flatbuffers.Offset, teamAliveRatKingsOffset:flatbuffers.Offset, teamAliveBabyRatsOffset:flatbuffers.Offset, teamRatTrapCountOffset:flatbuffers.Offset, teamCatTrapCountOffset:flatbuffers.Offset, teamDirtAmountsOffset:flatbuffers.Offset, turnsOffset:flatbuffers.Offset, diedIdsOffset:flatbuffers.Offset, roundId:number):flatbuffers.Offset {
   Round.startRound(builder);
   Round.addTeamIds(builder, teamIdsOffset);
-  Round.addTeamCheeseAmounts(builder, teamCheeseAmountsOffset);
-  Round.addTeamEnemyDamage(builder, teamEnemyDamageOffset);
+  Round.addTeamCheeseTransferred(builder, teamCheeseTransferredOffset);
   Round.addTeamCatDamage(builder, teamCatDamageOffset);
   Round.addTeamAliveRatKings(builder, teamAliveRatKingsOffset);
   Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsOffset);
