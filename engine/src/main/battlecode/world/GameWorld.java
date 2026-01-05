@@ -857,32 +857,32 @@ public class GameWorld {
     public boolean setWinnerIfMorePoints() {
         double cat_weight; // cat damage
         double king_weight; // number of kings
-        double rat_damage_weight; // amount damage lost by other team throughout the game
+        double cheese_transfer_weight; // amount cheese transferred
 
         if (isCooperation()) {
             cat_weight = 0.5;
             king_weight = 0.3;
-            rat_damage_weight = 0.2;
+            cheese_transfer_weight = 0.2;
         } else {
             cat_weight = 0.3;
             king_weight = 0.5;
-            rat_damage_weight = 0.2;
+            cheese_transfer_weight = 0.2;
         }
 
         ArrayList<Integer> teamPoints = new ArrayList<>();
 
         int total_num_rat_kings = teamInfo.getNumRatKings(Team.A) + teamInfo.getNumRatKings(Team.B);
-        int total_amount_rat_damage = teamInfo.getDamageSuffered(Team.A) + teamInfo.getDamageSuffered(Team.B);
+        int total_amount_cheese_transferred = teamInfo.getCheeseTransferred(Team.A) + teamInfo.getCheeseTransferred(Team.B);
         int total_amount_cat_damage = teamInfo.getDamageToCats(Team.A) + teamInfo.getDamageToCats(Team.B);
 
         for (Team team : List.of(Team.A, Team.B)) {
 
             float proportion_rat_kings = teamInfo.getNumRatKings(team) / total_num_rat_kings;
-            float proportion_damage_to_other_rats = teamInfo.getDamageSuffered(team.opponent()) / total_amount_rat_damage;
+            float proportion_cheese_transferred = teamInfo.getCheeseTransferred(team) / total_amount_cheese_transferred;
             float proportion_cat_damage = teamInfo.getDamageToCats(team) / total_amount_cat_damage;
 
             int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings
-                    + rat_damage_weight * 100 * proportion_damage_to_other_rats);
+                    + cheese_transfer_weight * 100 * proportion_cheese_transferred);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
         }
@@ -945,7 +945,7 @@ public class GameWorld {
 
         Team[] teams = {Team.A, Team.B};
         for (Team t : teams){
-            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheese(t), this.teamInfo.getDamageSuffered(t.opponent()), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
 

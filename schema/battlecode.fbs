@@ -428,11 +428,8 @@ table Round {
     /// The IDs of teams in the Game.
     teamIds: [int];
 
-    /// The total amount of cheese this round per team
-    teamCheeseAmounts: [int];
-
-    /// The total amount of damage done to the enemy team
-    teamEnemyDamage: [int];
+    /// The total amount of cheese transferred per team
+    teamCheeseTransferred: [int];
 
     /// The total number of cat damage done by each team
     teamCatDamage: [int];

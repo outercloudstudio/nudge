@@ -1206,6 +1206,7 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.addCheese(-amount);
         InternalRobot robot = this.gameWorld.getRobot(loc);
         this.gameWorld.getTeamInfo().addCheese(getTeam(), amount);
+        this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), amount);
         this.robot.addActionCooldownTurns(GameConstants.CHEESE_TRANSFER_COOLDOWN);
         this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), amount);
     }

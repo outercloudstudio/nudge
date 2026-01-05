@@ -341,9 +341,8 @@ public class GameMaker {
 
         // Round statistics
         private TIntArrayList teamIDs;
-        private TIntArrayList teamEnemyDamage;
         private TIntArrayList teamCatDamage;
-        private TIntArrayList teamCheeseAmounts;
+        private TIntArrayList teamCheeseTransferred;
         private TIntArrayList teamAliveRatKings;
         private TIntArrayList teamAliveBabyRats;
         private TIntArrayList teamRatTrapCount;
@@ -373,9 +372,8 @@ public class GameMaker {
 
         public MatchMaker() {
             this.teamIDs = new TIntArrayList();
-            this.teamEnemyDamage = new TIntArrayList();
             this.teamCatDamage = new TIntArrayList();
-            this.teamCheeseAmounts = new TIntArrayList();
+            this.teamCheeseTransferred = new TIntArrayList();
             this.teamAliveRatKings = new TIntArrayList();
             this.teamAliveBabyRats = new TIntArrayList();
             this.teamDirtCount = new TIntArrayList();
@@ -492,9 +490,8 @@ public class GameMaker {
             createEvent((builder) -> {
                 // Round statistics
                 int teamIDsP = Round.createTeamIdsVector(builder, teamIDs.toNativeArray());
-                int teamCheeseAmountsP = Round.createTeamCheeseAmountsVector(builder,
-                        teamCheeseAmounts.toNativeArray());
-                int teamEnemyDamageP = Round.createTeamEnemyDamageVector(builder, teamEnemyDamage.toNativeArray());
+                int teamCheeseTransferredP = Round.createTeamCheeseTransferredVector(builder,
+                        teamCheeseTransferred.toNativeArray());
                 int teamCatDamageP = Round.createTeamCatDamageVector(builder, teamCatDamage.toNativeArray());
                 int teamAliveRatKingsP = Round.createTeamAliveRatKingsVector(builder, teamAliveRatKings.toNativeArray());
                 int teamAliveBabyRatsP = Round.createTeamAliveBabyRatsVector(builder, teamAliveBabyRats.toNativeArray());
@@ -508,8 +505,7 @@ public class GameMaker {
 
                 Round.addTeamIds(builder, teamIDsP);
                 Round.addRoundId(builder, this.currentRound);
-                Round.addTeamCheeseAmounts(builder, teamCheeseAmountsP);
-                Round.addTeamEnemyDamage(builder, teamEnemyDamageP);
+                Round.addTeamCheeseTransferred(builder, teamCheeseTransferredP);
                 Round.addTeamCatDamage(builder, teamCatDamageP);
                 Round.addTeamAliveBabyRats(builder, teamAliveBabyRatsP);
                 Round.addTeamAliveRatKings(builder, teamAliveRatKingsP);
@@ -706,10 +702,9 @@ public class GameMaker {
             });
         }
 
-        public void addTeamInfo(Team team, int totalCheeseAmount, int enemyDamage, int catDamage, int aliveRatKings, int aliveBabyRats, int amountDirtCollected, int ratTrapCount, int catTrapCount) {
+        public void addTeamInfo(Team team, int cheeseTransferred, int catDamage, int aliveRatKings, int aliveBabyRats, int amountDirtCollected, int ratTrapCount, int catTrapCount) {
             teamIDs.add(TeamMapping.id(team));
-            teamCheeseAmounts.add(totalCheeseAmount);
-            teamEnemyDamage.add(enemyDamage);
+            teamCheeseTransferred.add(cheeseTransferred);
             teamCatDamage.add(catDamage);
             teamAliveRatKings.add(aliveRatKings);
             teamAliveBabyRats.add(aliveBabyRats);
@@ -787,9 +782,8 @@ public class GameMaker {
 
         private void clearRoundData() {
             this.teamIDs.clear();
-            this.teamEnemyDamage.clear();
             this.teamCatDamage.clear();
-            this.teamCheeseAmounts.clear();
+            this.teamCheeseTransferred.clear();
             this.teamAliveRatKings.clear();
             this.teamAliveBabyRats.clear();
             this.teamDirtCount.clear();

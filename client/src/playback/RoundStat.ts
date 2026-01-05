@@ -76,7 +76,7 @@ export default class RoundStat {
             let totalCatDamage = 0
             let totalRatKings = 0
             for (let i = 0; i < delta.teamIdsLength(); i++) {
-                totalCheese += delta.teamCheeseAmounts(i)!
+                totalCheese += delta.teamCheeseTransferred(i)!
                 totalCatDamage += delta.teamCatDamage(i)!
                 totalRatKings += delta.teamAliveRatKings(i)!
             }
@@ -86,7 +86,7 @@ export default class RoundStat {
                 assert(team != undefined, `team ${i} not found in game.teams in round`)
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in round`)
 
-                teamStat.cheeseAmount = delta.teamEnemyDamage(i) ?? assert.fail('missing cheese amount')
+                teamStat.cheeseAmount = delta.teamCheeseTransferred(i) ?? assert.fail('missing cheese amount')
                 teamStat.cheesePercent = teamStat.cheeseAmount / totalCheese
                 teamStat.catDamageAmount = delta.teamCatDamage(i) ?? assert.fail('missing cat damage amount')
                 teamStat.catDamagePercent = teamStat.catDamageAmount / totalCatDamage
