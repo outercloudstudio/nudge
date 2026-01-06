@@ -562,17 +562,6 @@ export class StaticMap {
             this.dimension.height
         )
 
-        const dirtImg = getImageIfLoaded('dirty.png')
-        if (dirtImg) {
-            ctx.drawImage(
-                dirtImg,
-                this.dimension.minCorner.x,
-                this.dimension.minCorner.y,
-                this.dimension.width,
-                this.dimension.height
-            )
-        }
-
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {
                 const schemaIdx = this.locationToIndexUnchecked(i, j)
