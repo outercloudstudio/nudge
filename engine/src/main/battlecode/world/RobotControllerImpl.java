@@ -866,17 +866,17 @@ public final class RobotControllerImpl implements RobotController {
         }
     }
 
-    private void assertCanBuildRobot(MapLocation loc) throws GameActionException {
+    private void assertCanBuildRat(MapLocation loc) throws GameActionException {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.BUILD_ROBOT_RADIUS_SQUARED);
         assertIsActionReady();
         if (!this.robot.getType().isRatKingType()) {
-            throw new GameActionException(CANT_DO_THAT, "Only rat kings can spawn other robots!");
+            throw new GameActionException(CANT_DO_THAT, "Only rat kings can spawn other rats!");
         }
         int cost = getCurrentRatCost();
 
         if (this.gameWorld.getTeamInfo().getCheese(this.robot.getTeam()) < cost) {
-            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build new robot!");
+            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build new rat!");
         }
 
         if (isLocationOccupied(loc)) {
@@ -884,14 +884,14 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         if (!sensePassability(loc)) {
-            throw new GameActionException(CANT_DO_THAT, "Location has a wall or ruin!");
+            throw new GameActionException(CANT_DO_THAT, "Location has dirt or a wall!");
         }
     }
 
     @Override
-    public boolean canBuildRobot(MapLocation loc) {
+    public boolean canBuildRat(MapLocation loc) {
         try {
-            assertCanBuildRobot(loc);
+            assertCanBuildRat(loc);
             return true;
         } catch (GameActionException e) {
             return false;
@@ -899,8 +899,8 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void buildRobot(MapLocation loc) throws GameActionException {
-        assertCanBuildRobot(loc);
+    public void buildRat(MapLocation loc) throws GameActionException {
+        assertCanBuildRat(loc);
         this.robot.addActionCooldownTurns(GameConstants.BUILD_ROBOT_COOLDOWN);
         this.gameWorld.spawnRobot(UnitType.BABY_RAT, loc, this.getDirection(), this.robot.getChirality(),
                 this.robot.getTeam());
