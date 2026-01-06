@@ -108,13 +108,13 @@ jobs:
       # the same result
       - name: Upload dist files artifact
         if: matrix.upload-dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-dist
           path: ./client/dist
       
       - name: Upload client artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-${{ matrix.build-name }}
           path: |
@@ -157,14 +157,14 @@ jobs:
           distribution: adopt
 
       - name: Download all client artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./client/artifacts
 
       # Always cleanup even if other commands failed so we don't unnecessarily store
       # the artifacts in the cloud 
       - name: Cleanup client artifacts
-        uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
+        uses: geekyeggo/delete-artifact@v5
         if: always()
         with:
           name: client-*

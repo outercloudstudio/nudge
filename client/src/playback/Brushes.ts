@@ -317,6 +317,15 @@ export class WallsBrush extends SymmetricMapEditorBrush<StaticMap> {
             const cheeseMine = this.map.cheeseMines.findIndex((l) => squareIntersects(l, pos, 2))
             const dirt = this.map.initialDirt[idx]
 
+            for (const waypoints of this.map.catWaypoints.values()) {
+                for (const waypoint of waypoints) {
+                    if (waypoint.x === pos.x && waypoint.y === pos.y) return true
+                    for (let nei of this.map.getNeighbors(waypoint.x, waypoint.y)) {
+                        if (nei.x === pos.x && nei.y === pos.y) return true
+                    }
+                }
+            }
+
             if (cheeseMine !== -1 || dirt) return true
 
             this.map.walls[idx] = 1
@@ -476,11 +485,13 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
     public symmetricApply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean) {
         const isCat: boolean = fields.isCat.value
         const selectedBodyID = GameRenderer.getSelectedRobot()
+        let lastSelectedCatLoc: Vector | null = null
 
         if (selectedBodyID !== null && selectedBodyID !== undefined) {
             const body = this.bodies.bodies.get(selectedBodyID)
             if (body && body.robotType === schema.RobotType.CAT) {
                 this.lastSelectedCat = selectedBodyID
+                lastSelectedCatLoc = this.bodies.getById(this.lastSelectedCat)?.pos
             }
         }
 
@@ -491,6 +502,7 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
             if (!robotOne) {
                 const symmetricPoint = this.map.applySymmetryCat(this.bodies.getById(this.lastSelectedCat)!.pos)
                 currentCat = this.bodies.getBodyAtLocation(symmetricPoint.x, symmetricPoint.y)!.id
+                lastSelectedCatLoc = this.map.applySymmetry(lastSelectedCatLoc!)
             }
 
             // if undoing a waypoint addition
@@ -518,6 +530,9 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
                 return null
             }
 
+            if (!this.map.catWaypoints.has(currentCat)) {
+                this.map.catWaypoints.set(currentCat, [lastSelectedCatLoc!])
+            }
             this.map.catWaypoints.get(currentCat)?.push({ x, y })
 
             return () => {
@@ -535,7 +550,6 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
 
             const id = this.bodies.getNextID()
             this.bodies.spawnBodyFromValues(id, schema.RobotType.CAT, team, pos, 0, robotOne ? 0 : 1)
-            this.map.catWaypoints.set(id, [{ x: x, y: y }]) // add initial waypoint at spawn location
 
             return id
         }
@@ -546,23 +560,27 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
             if (!body) return null
 
             const team = body.team
+            const pos = body.pos
             this.bodies.removeBody(body.id)
             const waypoints = this.map.catWaypoints.get(body.id)
             this.map.catWaypoints.delete(body.id)
 
-            return { team, waypoints }
+            return { team, waypoints, pos }
         }
-
         if (isCat) {
             // shouldnt matter which team we add to since cats are neutral
             const id = add(x, y, this.bodies.game.teams[0])
             if (id) return () => this.bodies.removeBody(id)
             return null
         } else {
-            const { team, waypoints } = remove(x, y)!
+            const removed = remove(x, y)
+            if (!removed) return null
+
+            const { team, waypoints, pos } = removed
             if (!team) return null
+
             return () => {
-                add(x, y, team)
+                add(pos.x, pos.y, team)
                 if (waypoints) {
                     this.map.catWaypoints.set(this.bodies.getBodyAtLocation(x, y)!.id, waypoints)
                 }
@@ -573,6 +591,10 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
     // Override default symmetric apply behavior because cats occupy a 2x2 footprint
     public apply(x: number, y: number, fields: Record<string, MapEditorBrushField>, robotOne: boolean): UndoFunction {
         const undoFunctions: UndoFunction[] = []
+
+        const body = this.bodies.getBodyAtLocation(x, y)
+        const anchor = body?.pos
+
         const undo0 = this.symmetricApply(x, y, fields, robotOne)
 
         // Return early if brush could not be applied
@@ -580,7 +602,12 @@ export class CatBrush extends SymmetricMapEditorBrush<StaticMap> {
 
         undoFunctions.push(undo0)
 
-        const symmetryPoint = this.map.applySymmetryCat({ x: x, y: y })
+        let symmetryPoint: { x: number; y: number }
+        if (fields.catOrWaypointMode.value === 1) {
+            symmetryPoint = this.map.applySymmetry({ x: x, y: y })
+        } else {
+            symmetryPoint = !anchor ? this.map.applySymmetryCat({ x: x, y: y }) : this.map.applySymmetryCat(anchor)
+        }
         if (symmetryPoint.x != x || symmetryPoint.y != y) {
             const undo1 = this.symmetricApply(symmetryPoint.x, symmetryPoint.y, fields, !robotOne)
 

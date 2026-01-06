@@ -2,18 +2,15 @@ package battlecode.common;
 
 public enum UnitType {
     // health, size, speed, visionRadius, actionCooldown
-    BABY_RAT(100, 1, 5, 20, 90, 10, 10, 10000),
-    RAT_KING(500, 3, 1, 29, 360, 10, 40, 20000),
-    CAT(2000, 2, 10, 37, 180, 15, 10, 10);
+    BABY_RAT(100, 1, 20, 90, 10, 10, 10000),
+    RAT_KING(500, 3, 25, 360, 10, 40, 20000),
+    CAT(10_000, 2, 30, 180, 15, 10, 10000);
 
     // amount of health robot initially starts with
     public final int health;
 
     // robot's size as a length (so number of squares occupied is size^2)
     public final int size;
-
-    // robot's movement speed
-    public final int speed;
 
     // robot's vision radius
     public final int visionConeRadiusSquared;
@@ -58,8 +55,8 @@ public enum UnitType {
         return this == CAT;
     }
 
-    public MapLocation[] getAllLocations(MapLocation center) {
-        // return in CCW order starting from top left
+    public MapLocation[] getAllTypeLocations(MapLocation center) {
+        // return robot part locations in order of increasing x and y values, starting from bottom left corner
         MapLocation[] locs = new MapLocation[size * size];
         int c = 0;
         for (int i = -(size - 1) / 2; i <= size / 2; i++) {
@@ -77,11 +74,10 @@ public enum UnitType {
         return locs;
     }
 
-    UnitType(int health, int size, int speed, int visionConeRadius, int visionConeAngle, int actionCooldown,
+    UnitType(int health, int size, int visionConeRadius, int visionConeAngle, int actionCooldown,
             int movementCooldown, int bytecodeLimit) {
         this.health = health;
         this.size = size;
-        this.speed = speed;
         this.visionConeRadiusSquared = visionConeRadius;
         this.visionConeAngle = visionConeAngle;
         this.actionCooldown = actionCooldown;
@@ -96,10 +92,6 @@ public enum UnitType {
 
     public int getSize() {
         return size;
-    }
-
-    public int getSpeed() {
-        return speed;
     }
 
     public int getVisionRadiusSquared() {

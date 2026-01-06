@@ -345,8 +345,7 @@ public interface RobotController {
     RobotInfo[] senseNearbyRobots(MapLocation center, int radiusSquared, Team team) throws GameActionException;
 
     /**
-     * Given a senseable location, returns whether that location is passable (a
-     * wall).
+     * Given a senseable location, returns whether that location is passable (i.e. no wall or dirt)
      * 
      * @param loc the given location
      * @return whether that location is passable
@@ -511,7 +510,7 @@ public interface RobotController {
 
     /**
      * Returns the number of turning cooldown turns remaining before this unit can
-     * move again.
+     * turn again.
      * When this number is strictly less than {@link GameConstants#COOLDOWN_LIMIT},
      * isTurningReady()
      * is true and the robot can turn again. This number decreases by
@@ -534,7 +533,7 @@ public interface RobotController {
      * location is not on the map, if the target location is occupied, if the target
      * location is impassible, or if there are cooldown turns remaining.
      *
-     * @return true if it is possible to call <code>move</code> without an exception
+     * @return true if it is possible to call <code>moveForward</code> without an exception
      *
      * @battlecode.doc.costlymethod
      */
@@ -583,7 +582,6 @@ public interface RobotController {
     /**
      * Checks whether this robot can turn.
      * 
-     * @param d
      * @return
      */
     boolean canTurn();
@@ -789,9 +787,9 @@ public interface RobotController {
     // ****************************
 
     /**
-     * Tests whether this robot can attack the given location.
+     * Tests whether this robot can attack (aka bite) the given location.
      *
-     * @param loc target location to attack
+     * @param loc target location to attack (bite)
      * @return whether it is possible to attack the given location
      *
      * @battlecode.doc.costlymethod
@@ -799,10 +797,20 @@ public interface RobotController {
     boolean canAttack(MapLocation loc);
 
     /**
-     * Performs the specific attack for this robot type, defaulting to a bite with 
-     * no cheese for rats and a scratch for cats
+     * Tests whether this robot can attack (bite) the given location with the given amount of cheese.
      *
-     * @param loc the target location to attack (for splashers, the center location)
+     * @param loc target location to attack (bite)
+     * @param cheeseAmount amount of cheese to spend on the attack
+     * @return whether it is possible to attack the given location with this cheese amount
+     *
+     * @battlecode.doc.costlymethod
+     */
+    boolean canAttack(MapLocation loc, int cheeseAmount);
+
+    /**
+     * Performs a rat attack (aka bite) action, defaulting to a bite with no cheese for rats
+     *
+     * @param loc the target location to attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -810,10 +818,10 @@ public interface RobotController {
     void attack(MapLocation loc) throws GameActionException;
 
     /**
-     * Performs the specific attack for this robot type, defaulting to a bite with 
-     * no cheese for rats and a scratch for cats
+     * Performs the specific attack for this robot type, consuming the specified amount of cheese 
+     * for increasing bite strength
      *
-     * @param loc the target location to attack (for splashers, the center location)
+     * @param loc the target location to attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
@@ -830,10 +838,10 @@ public interface RobotController {
      * 
      * @param messageContent an int representing the content of the
      *                       message (up to 4 bytes)
-     * 
+     * @return true if squeak was sent, false if not (i.e. if reached max. number of messages fo this turn)
      * @battlecode.doc.costlymethod
      */
-    void squeak(int messageContent);
+    boolean squeak(int messageContent);
 
     /**
      * Reads all squeaks sent to this unit within the past 5 rounds if roundNum =
@@ -872,30 +880,6 @@ public interface RobotController {
      * @battlecode.doc.costlymethod
      */
     int readSharedArray(int index) throws GameActionException;
-
-    /**
-     * Writes a value to the persistent array at the given index.
-     * This is only allowed for rat kings.
-     * 
-     * @param index the index to write to, between 0 and 4
-     * @param value the value to write in the index (must be between 0 and 1023)
-     * @throws GameActionException if the action is invalid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    void writePersistentArray(int index, int value) throws GameActionException;
-
-    /**
-     * Reads a value from the persistent array at the given index.
-     * All rats and rat kings can read from the persistent array.
-     * 
-     * @param index the index to read from, between 0 and 4
-     * @return the value stored at the given index (between 0 and 1023)
-     * @throws GameActionException if the action is invalid
-     * 
-     * @battlecode.doc.costlymethod
-     */
-    int readPersistentArray(int index) throws GameActionException;
 
     // ***********************************
     // ****** OTHER ACTION METHODS *******
@@ -945,6 +929,7 @@ public interface RobotController {
     /**
      * Safely drops robot in the specified direction
      * 
+     * @param dir direction to drop rat
      * @battlecode.doc.costlymethod
      */
     void dropRat(Direction dir) throws GameActionException;

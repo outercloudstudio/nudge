@@ -16,17 +16,11 @@ export declare class Round {
     teamIdsLength(): number;
     teamIdsArray(): Int32Array | null;
     /**
-     * The total amount of cheese this round per team
+     * The total amount of cheese transferred per team
      */
-    teamCheeseAmounts(index: number): number | null;
-    teamCheeseAmountsLength(): number;
-    teamCheeseAmountsArray(): Int32Array | null;
-    /**
-     * The total amount of collected this round per team
-     */
-    teamCollectedCheeseAmounts(index: number): number | null;
-    teamCollectedCheeseAmountsLength(): number;
-    teamCollectedCheeseAmountsArray(): Int32Array | null;
+    teamCheeseTransferred(index: number): number | null;
+    teamCheeseTransferredLength(): number;
+    teamCheeseTransferredArray(): Int32Array | null;
     /**
      * The total number of cat damage done by each team
      */
@@ -88,20 +82,13 @@ export declare class Round {
      */
     static createTeamIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
     static startTeamIdsVector(builder: flatbuffers.Builder, numElems: number): void;
-    static addTeamCheeseAmounts(builder: flatbuffers.Builder, teamCheeseAmountsOffset: flatbuffers.Offset): void;
-    static createTeamCheeseAmountsVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
+    static addTeamCheeseTransferred(builder: flatbuffers.Builder, teamCheeseTransferredOffset: flatbuffers.Offset): void;
+    static createTeamCheeseTransferredVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
     /**
      * @deprecated This Uint8Array overload will be removed in the future.
      */
-    static createTeamCheeseAmountsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
-    static startTeamCheeseAmountsVector(builder: flatbuffers.Builder, numElems: number): void;
-    static addTeamCollectedCheeseAmounts(builder: flatbuffers.Builder, teamCollectedCheeseAmountsOffset: flatbuffers.Offset): void;
-    static createTeamCollectedCheeseAmountsVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
-    /**
-     * @deprecated This Uint8Array overload will be removed in the future.
-     */
-    static createTeamCollectedCheeseAmountsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
-    static startTeamCollectedCheeseAmountsVector(builder: flatbuffers.Builder, numElems: number): void;
+    static createTeamCheeseTransferredVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset;
+    static startTeamCheeseTransferredVector(builder: flatbuffers.Builder, numElems: number): void;
     static addTeamCatDamage(builder: flatbuffers.Builder, teamCatDamageOffset: flatbuffers.Offset): void;
     static createTeamCatDamageVector(builder: flatbuffers.Builder, data: number[] | Int32Array): flatbuffers.Offset;
     /**
@@ -156,5 +143,5 @@ export declare class Round {
     static startDiedIdsVector(builder: flatbuffers.Builder, numElems: number): void;
     static addRoundId(builder: flatbuffers.Builder, roundId: number): void;
     static endRound(builder: flatbuffers.Builder): flatbuffers.Offset;
-    static createRound(builder: flatbuffers.Builder, teamIdsOffset: flatbuffers.Offset, teamCheeseAmountsOffset: flatbuffers.Offset, teamCollectedCheeseAmountsOffset: flatbuffers.Offset, teamCatDamageOffset: flatbuffers.Offset, teamAliveRatKingsOffset: flatbuffers.Offset, teamAliveBabyRatsOffset: flatbuffers.Offset, teamRatTrapCountOffset: flatbuffers.Offset, teamCatTrapCountOffset: flatbuffers.Offset, teamDirtAmountsOffset: flatbuffers.Offset, turnsOffset: flatbuffers.Offset, diedIdsOffset: flatbuffers.Offset, roundId: number): flatbuffers.Offset;
+    static createRound(builder: flatbuffers.Builder, teamIdsOffset: flatbuffers.Offset, teamCheeseTransferredOffset: flatbuffers.Offset, teamCatDamageOffset: flatbuffers.Offset, teamAliveRatKingsOffset: flatbuffers.Offset, teamAliveBabyRatsOffset: flatbuffers.Offset, teamRatTrapCountOffset: flatbuffers.Offset, teamCatTrapCountOffset: flatbuffers.Offset, teamDirtAmountsOffset: flatbuffers.Offset, turnsOffset: flatbuffers.Offset, diedIdsOffset: flatbuffers.Offset, roundId: number): flatbuffers.Offset;
 }

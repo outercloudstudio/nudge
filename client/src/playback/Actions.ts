@@ -118,7 +118,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const fontY =
                 coords.y - (2 + 4 * random2) * interpolationFactor + 8 * interpolationFactor * interpolationFactor - 0.5
             ctx.fillText('nom', fontX, fontY)
-            src.imgPath = 'robots/cat/cat_feed.png' // is reset in `finish`.
+            src.imgPath = `robots/cat/cat_feed_${src.direction}.png`// is reset in `finish`.
             ctx.restore()
         }
 
@@ -344,6 +344,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             }
             ctx.stroke()
             ctx.globalAlpha = 1
+            body.imgPath = `robots/cat/cat_scratch_${body.direction}.png`
+        }
+
+        finish(round: Round): void {
+            const body = round.bodies.getById(this.robotId)
+            body.imgPath = 'robots/cat/cat.png'
         }
     },
     [schema.Action.CatPounce]: class CatPounceAction extends Action<schema.CatPounce> {

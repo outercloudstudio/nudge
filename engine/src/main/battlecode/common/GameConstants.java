@@ -31,10 +31,10 @@ public class GameConstants {
     public static final int MIN_CHEESE_MINE_SPACING_SQUARED = 25;
 
     /** The maximum percentage of the map that can be dirt */
-    public static final int MAX_DIRT_PERCENTAGE = 25;
+    public static final int MAX_DIRT_PERCENTAGE = 50;
 
     /** The maximum percentage of the map that can be walls */
-    public static final int MAX_WALL_PERCENTAGE = 10; // TODO remove if not using walls
+    public static final int MAX_WALL_PERCENTAGE = 20;
 
     // *********************************
     // ****** GAME PARAMETERS **********
@@ -59,10 +59,10 @@ public class GameConstants {
     public static final int EXCEPTION_BYTECODE_PENALTY = 500;
 
     /** The amount of cheese each team starts with. */
-    public static final int INITIAL_TEAM_CHEESE = 5000;
+    public static final int INITIAL_TEAM_CHEESE = 2500;
 
     /** The maximum number of rat kings that a team can have. */
-    public static final int MAX_NUMBER_OF_RAT_KINGS = 5; // TODO need to specify!
+    public static final int MAX_NUMBER_OF_RAT_KINGS = 5;
 
     /**
      * The maximum execution time that can be spent on a team in one match. If the
@@ -89,7 +89,7 @@ public class GameConstants {
     public static final double CHEESE_COOLDOWN_PENALTY = 0.01;
 
     /** The amount of cheese the ratking consumes each round. */
-    public static final int RATKING_CHEESE_CONSUMPTION = 5;
+    public static final int RATKING_CHEESE_CONSUMPTION = 3;
 
     /** The amount of health the ratking loses by not eating cheese. */
     public static final int RATKING_HEALTH_LOSS = 10;
@@ -133,20 +133,11 @@ public class GameConstants {
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
 
-    /** The maximum amount of bytes that can be encoded in a message */
-    public static final int MAX_MESSAGE_BYTES = 4; // TODO need to spec messages as a whole!
-
-    /** The maximum squared radius a robot can send a message to */
-    public static final int MESSAGE_RADIUS_SQUARED = 20; // TODO need to spec messages as a whole!
-
-    /** The maxmimum squared radius a tower can broadcast a message */
-    public static final int BROADCAST_RADIUS_SQUARED = 80; // TODO need to spec messages as a whole!
-
     /** The maximum number of rounds a message will exist for */
-    public static final int MESSAGE_ROUND_DURATION = 5; // TODO need to spec messages as a whole!
+    public static final int MESSAGE_ROUND_DURATION = 5;
 
     /** The maximum number of messages a robot can send per turn */
-    public static final int MAX_MESSAGES_SENT_ROBOT = 1; // TODO need to spec messages as a whole!
+    public static final int MAX_MESSAGES_SENT_ROBOT = 1;
 
     /** The maximum squared radius a robot can squeak to */
     public static final int SQUEAK_RADIUS_SQUARED = 16;
@@ -161,7 +152,7 @@ public class GameConstants {
     public static final int THROW_DAMAGE_PER_TILE = 5;
 
     /** The damage a robot takes after being bitten by a rat */
-    public static final int RAT_BITE_DAMAGE = 5;
+    public static final int RAT_BITE_DAMAGE = 10;
 
     /** The damage a robot takes after being scratched by a cat */
     public static final int CAT_SCRATCH_DAMAGE = 50;
@@ -183,9 +174,6 @@ public class GameConstants {
      */
     public static final int HEALTH_GRAB_THRESHOLD = 0;
 
-    /** The area effected by the cat's attack. */
-    public static final int CAT_ATTACK_AOE_RADIUS_SQUARED = 4; // TODO need to specify!
-
     /** The cheese cost for upgrading a rat into a rat king */
     public static final int RAT_KING_UPGRADE_CHEESE_COST = 50;
 
@@ -193,10 +181,8 @@ public class GameConstants {
     public static final int DIG_DIRT_CHEESE_COST = 10;
 
     /** The cheese cost to place a tile of dirt */
-    public static final int PLACE_DIRT_CHEESE_COST = 20;
+    public static final int PLACE_DIRT_CHEESE_COST = 10;
 
-    /** After this many turns, cats will begin moving if they haven't already. */
-    public static final int CAT_GRACE_PERIOD = 100;
 
     // *********************************
     // ****** COMMUNICATION ************
@@ -208,8 +194,6 @@ public class GameConstants {
     /** The maximum value of an integer in the shared array and persistent array. */
     public static final int COMM_ARRAY_MAX_VALUE = 1023;
 
-    /** The size of the persistent array. */
-    public static final int PERSISTENT_ARRAY_SIZE = 5;
 
     // *********************************
     // ****** COOLDOWNS ****************
@@ -224,12 +208,7 @@ public class GameConstants {
     /**
      * The amount added to the turning cooldown counter when turning
      */
-    public static final int TURNING_COOLDOWN = 5; // TODO not sure
-
-    /**
-     * The amount added to the movement cooldown counter when a king moves
-     */
-    public static final int DRAGGING_MOVEMENT_COOLDOWN = 15; // TODO need to specify!
+    public static final int TURNING_COOLDOWN = 10;
 
     /**
      * The amount added to the action cooldown counter after a king builds a robot
@@ -246,16 +225,10 @@ public class GameConstants {
      * The amount added to the action cooldown counter after digging out a tile of
      * dirt
      */
-    public static final int DIG_COOLDOWN = 25; // TODO need to specify!
+    public static final int DIG_COOLDOWN = 25;
 
     /**
-     * The amount added to the action cooldown counter after building a tile of dirt
-     */
-    public static final int BUILD_COOLDOWN = 35; // TODO need to specify!
-
-    /**
-     * The multiplier to the cooldowns when carrying another robot; TODO increases
-     * exponentially when >1 robot is carried?
+     * The multiplier to the cooldowns when carrying another robot
      */
     public static final double CARRY_COOLDOWN_MULTIPLIER = 1.5;
 
@@ -266,9 +239,7 @@ public class GameConstants {
     public static final int MAX_CARRY_DURATION = 10;
 
     /**
-     * The total number turns a rat can travel for while thrown (rats are stunned
-     * while
-     * thrown)
+     * The total number turns a rat can travel for while thrown (rats are stunned while thrown)
      */
     public static final int THROW_DURATION = 4;
 

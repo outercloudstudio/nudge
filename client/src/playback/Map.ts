@@ -261,8 +261,8 @@ export class CurrentMap {
                 ctx.fill()
             })
             waypoints?.forEach((waypoint, idx) => {
-                let prevWaypoint = bodies.getById(selectedBodyID).pos
-                if (idx > 0) {
+                let prevWaypoint = waypoints[0]
+                if (idx > 1) {
                     prevWaypoint = waypoints[idx - 1]
                 }
                 const startCoords = renderUtils.getRenderCoords(prevWaypoint.x, prevWaypoint.y, this.dimension)
@@ -561,17 +561,6 @@ export class StaticMap {
             this.dimension.width,
             this.dimension.height
         )
-
-        const dirtImg = getImageIfLoaded('dirty.png')
-        if (dirtImg) {
-            ctx.drawImage(
-                dirtImg,
-                this.dimension.minCorner.x,
-                this.dimension.minCorner.y,
-                this.dimension.width,
-                this.dimension.height
-            )
-        }
 
         for (let i = 0; i < this.dimension.width; i++) {
             for (let j = 0; j < this.dimension.height; j++) {

@@ -43,6 +43,7 @@ public class GameWorld {
     private final LiveMap gameMap;
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
+    private boolean hasRunCheeseMinesThisRound; // whether we've run the cheese mines yet
 
     private int[] currentNumberUnits = { 0, 0 };
 
@@ -118,6 +119,15 @@ public class GameWorld {
         return Direction.fromDelta(dx, dy);
     }
 
+    public void runCheeseMines(){
+        if (hasRunCheeseMinesThisRound)
+            return;
+
+        for (CheeseMine mine : this.cheeseMines) {
+            spawnCheese(mine);
+        }
+        hasRunCheeseMinesThisRound = true;
+    }
 
     public MapLocation symmetryLocation(MapLocation p) {
         return new MapLocation(symmetricX(p.x), symmetricY(p.y));
@@ -134,6 +144,7 @@ public class GameWorld {
         this.trapLocations = new Trap[numSquares]; // We guarantee that no maps will contain traps at t = 0
         this.robots = new InternalRobot[width][height]; // if represented in cartesian, should be height-width, but this
                                                         // should allow us to index x-y
+        this.hasRunCheeseMinesThisRound = false;
         this.currentRound = 0;
         this.idGenerator = new IDGenerator(gm.getSeed());
         this.gameStats = new GameStats();
@@ -182,7 +193,6 @@ public class GameWorld {
         }
 
         this.sharedArray = new int[2][GameConstants.SHARED_ARRAY_SIZE];
-        this.persistentArray = new int[2][GameConstants.PERSISTENT_ARRAY_SIZE];
         // TODO make persistent array last between matches
 
         RobotInfo[] initialBodies = gm.getInitialBodies();
@@ -230,10 +240,16 @@ public class GameWorld {
             for (Direction d : Direction.allDirections()){
                 if (d == Direction.CENTER)
                     continue;
-                if (chirality == 1)
-                    d = flipDirBySymmetry(d);
+
+                Direction useDir;
+                if (chirality == 1){
+                    useDir = flipDirBySymmetry(d);
+                }
+                else{
+                    useDir = d;
+                }
                 
-                MapLocation neighbor = nextLoc.add(d);
+                MapLocation neighbor = nextLoc.add(useDir);
 
                 if (this.gameMap.onTheMap(neighbor) && bfs_map[locationToIndex(neighbor)][locationToIndex(target)] != null){
                     // visited already
@@ -259,7 +275,7 @@ public class GameWorld {
                     }
                 }
                 if (validPath){
-                    Direction reverseDirection = d.opposite();
+                    Direction reverseDirection = useDir.opposite();
                     bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
                     queue.add(neighbor);
                 }
@@ -812,7 +828,6 @@ public class GameWorld {
         totalCheeseValues[Team.B.ordinal()] += this.teamInfo.getCheese(Team.B);
 
         if (totalCheeseValues[Team.A.ordinal()] > totalCheeseValues[Team.B.ordinal()]) {
-            // TODO: add new tiebreakers to domination factor
             setWinner(Team.A, DominationFactor.MORE_CHEESE);
             return true;
         } else if (totalCheeseValues[Team.B.ordinal()] > totalCheeseValues[Team.A.ordinal()]) {
@@ -828,12 +843,8 @@ public class GameWorld {
     public boolean setWinnerIfMoreRatsAlive() {
         int[] totalRobotsAlive = new int[2];
 
-        for (UnitType type : UnitType.values()) {
-            if (type.isBabyRatType() || type.isRatKingType()) {
-                totalRobotsAlive[Team.A.ordinal()] += this.getObjectInfo().getRobotTypeCount(Team.A, type);
-                totalRobotsAlive[Team.B.ordinal()] += this.getObjectInfo().getRobotTypeCount(Team.B, type);
-            }
-        }
+        totalRobotsAlive[0] = this.getTeamInfo().getNumBabyRats(Team.A) + this.getTeamInfo().getNumRatKings(Team.A);
+        totalRobotsAlive[1] = this.getTeamInfo().getNumBabyRats(Team.B) + this.getTeamInfo().getNumRatKings(Team.B);
 
         if (totalRobotsAlive[Team.A.ordinal()] > totalRobotsAlive[Team.B.ordinal()]) {
             setWinner(Team.A, DominationFactor.MORE_ROBOTS_ALIVE);
@@ -849,34 +860,34 @@ public class GameWorld {
      * @return whether a team has more points depending on the game state
      */
     public boolean setWinnerIfMorePoints() {
-        double cat_weight;
-        double king_weight;
-        double cheese_weight;
+        double cat_weight; // cat damage
+        double king_weight; // number of kings
+        double cheese_transfer_weight; // amount cheese transferred
 
         if (isCooperation()) {
             cat_weight = 0.5;
             king_weight = 0.3;
-            cheese_weight = 0.2;
+            cheese_transfer_weight = 0.2;
         } else {
             cat_weight = 0.3;
             king_weight = 0.5;
-            cheese_weight = 0.2;
+            cheese_transfer_weight = 0.2;
         }
 
         ArrayList<Integer> teamPoints = new ArrayList<>();
 
         int total_num_rat_kings = teamInfo.getNumRatKings(Team.A) + teamInfo.getNumRatKings(Team.B);
-        int total_amount_cheese_collected = teamInfo.getCheeseCollected(Team.A) + teamInfo.getCheeseCollected(Team.B);
+        int total_amount_cheese_transferred = teamInfo.getCheeseTransferred(Team.A) + teamInfo.getCheeseTransferred(Team.B);
         int total_amount_cat_damage = teamInfo.getDamageToCats(Team.A) + teamInfo.getDamageToCats(Team.B);
 
         for (Team team : List.of(Team.A, Team.B)) {
 
-            float proportion_rat_kings = teamInfo.getNumRatKings(team) / total_num_rat_kings;
-            float proportion_cheese_collected = teamInfo.getCheeseCollected(team) / total_amount_cheese_collected;
-            float proportion_cat_damage = teamInfo.getDamageToCats(team) / total_amount_cat_damage;
+            float proportion_rat_kings = total_num_rat_kings != 0 ? teamInfo.getNumRatKings(team) / total_num_rat_kings : 0; 
+            float proportion_cheese_transferred = total_amount_cheese_transferred != 0 ? teamInfo.getCheeseTransferred(team) / total_amount_cheese_transferred : 0;
+            float proportion_cat_damage = total_amount_cat_damage != 0 ? teamInfo.getDamageToCats(team) / total_amount_cat_damage : 0;
 
             int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings
-                    + cheese_weight * 100 * proportion_cheese_collected);
+                    + cheese_transfer_weight * 100 * proportion_cheese_transferred);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
         }
@@ -918,12 +929,23 @@ public class GameWorld {
     }
 
     private void checkWin(Team team) {
+        
+        // killed all of both team's rat kings in the same round
+        if (gameStats.getWinner() != null && gameStats.getDominationFactor() == DominationFactor.KILL_ALL_RAT_KINGS && setWinnerIfKilledAllRatKings()){
+            if (setWinnerIfMorePoints())
+                return;
+            if (setWinnerIfMoreCheese())
+                return;
+            if (setWinnerIfMoreRatsAlive())
+                return;
+            setWinnerArbitrary();
+        }
         if (gameStats.getWinner() != null) { // to avoid overriding previously set win
             return;
         }
-        // killed all rat kings?
-        if (setWinnerIfKilledAllRatKings())
+        if (setWinnerIfKilledAllRatKings()){
             return;
+        }
         // all cats dead
         if (setWinnerifAllCatsDead()) {
             return;
@@ -933,13 +955,12 @@ public class GameWorld {
     }
 
     public void processEndOfRound() {
-        for (CheeseMine mine : this.cheeseMines) {
-            spawnCheese(mine);
-        }
+        // clear hasRunCheeseMinesThisRound for next round
+        this.hasRunCheeseMinesThisRound =  false;
 
         Team[] teams = {Team.A, Team.B};
         for (Team t : teams){
-            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheese(t), this.teamInfo.getCheeseCollected(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
 
@@ -970,7 +991,7 @@ public class GameWorld {
 
         InternalRobot robot = new InternalRobot(this, ID, team, type, location, dir, chirality);
 
-        for (MapLocation loc : type.getAllLocations(location)) {
+        for (MapLocation loc : robot.getAllPartLocations()) {
             addRobot(loc, robot);
         }
 
@@ -1071,6 +1092,13 @@ public class GameWorld {
                 InternalRobot carryingRobot = robot.getCarryingRobot();
                 carryingRobot.getDropped(loc);
             }
+            if (robot.isGrabbedByRobot()) {
+                InternalRobot carrier = robot.getGrabbedByRobot();
+                robot.clearGrabbedByRobot();
+                if (carrier != null && carrier.getCarryingRobot() == robot) {
+                    carrier.clearCarryingRobot();
+                }
+            }
             if (robot.getCheese() > 0) {
                 addCheese(loc, robot.getCheese());
                 matchMaker.addCheeseSpawnAction(loc, robot.getCheese());
@@ -1088,11 +1116,8 @@ public class GameWorld {
 
         // check win
         if (robot.getType() == UnitType.RAT_KING && this.getTeamInfo().getNumRatKings(robot.getTeam()) == 0) {
-            System.out
-                    .println("DEBUGGING: number of rat kings = " + this.getTeamInfo().getNumRatKings(robot.getTeam()));
             checkWin(robotTeam);
         } else if (this.isCooperation && robot.getType() == UnitType.CAT && this.getNumCats() == 0) {
-            System.out.println("DEBUGGING: number of cats = " + this.getNumCats());
             checkWin(robotTeam);
         }
     }

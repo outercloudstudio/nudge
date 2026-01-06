@@ -76,14 +76,14 @@ export const Sections = {
 export const Colors = {
     GAMEAREA_BACKGROUND: new Color(
         'GAMEAREA_BACKGROUND',
-        '#2e2323',
+        '#4f345a',
         '--color-gamearea-background',
         'Background',
         Sections.INTERFACE
     ),
     SIDEBAR_BACKGROUND: new Color(
         'SIDEBAR_BACKGROUND',
-        '#3f3131',
+        '#40284b',
         '--color-sidebar-background',
         'Sidebar',
         Sections.INTERFACE
@@ -116,9 +116,9 @@ export const Colors = {
     ),
     LIGHT_CARD: new Color('LIGHT_CARD', '#f7f7f722', '--color-light-card', 'Light Card', Sections.INTERFACE),
 
-    WALLS_COLOR: new Color('WALLS_COLOR', '#547f31', '--color-walls', 'Walls', Sections.GENERAL),
-    DIRT_COLOR: new Color('DIRT_COLOR', '#991111', '--color-dirt', 'Dirt', Sections.GENERAL),
-    TILES_COLOR: new Color('TILES_COLOR', '#4c301e', '--color-tile', 'Tiles', Sections.GENERAL),
+    WALLS_COLOR: new Color('WALLS_COLOR', '#52485a', '--color-walls', 'Walls', Sections.GENERAL),
+    DIRT_COLOR: new Color('DIRT_COLOR', '#3b2931', '--color-dirt', 'Dirt', Sections.GENERAL),
+    TILES_COLOR: new Color('TILES_COLOR', '#221725', '--color-tile', 'Tiles', Sections.GENERAL),
 
     TEAM_ONE: new Color('TEAM_ONE', '#fcc00d', '--color-team0', 'Text', Sections.CHEDDAR),
 
@@ -131,8 +131,8 @@ export const Presets: ColorPreset[] = [
         data: {
             version: 0,
             colors: {
-                GAMEAREA_BACKGROUND: '#2e2323',
-                SIDEBAR_BACKGROUND: '#3f3131',
+                GAMEAREA_BACKGROUND: '#4f345a',
+                SIDEBAR_BACKGROUND: '#40284b',
                 RED: '#ff9194',
                 PINK: '#ffb4c1',
                 GREEN: '#00a28e',
@@ -148,8 +148,8 @@ export const Presets: ColorPreset[] = [
                 LIGHT: '#aaaaaa22',
                 LIGHT_HIGHLIGHT: '#ffffff33',
                 LIGHT_CARD: '#f7f7f722',
-                WALLS_COLOR: '#547f31',
-                TILES_COLOR: '#4c301e',
+                WALLS_COLOR: '#52485A',
+                TILES_COLOR: '#221725',
                 TEAM_ONE: '#fcc00d',
                 TEAM_TWO: '#c91c7e'
             }
