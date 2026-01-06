@@ -552,7 +552,7 @@ export class StaticMap {
         }
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, config: ClientConfig) {
         // Fill background
         ctx.fillStyle = Colors.TILES_COLOR.get()
         ctx.fillRect(
@@ -569,10 +569,15 @@ export class StaticMap {
 
                 // Render rounded (clipped) wall
                 if (this.walls[schemaIdx]) {
-                    renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                    if (config.enableFancyPaint) {
+                        renderUtils.renderRounded(ctx, i, j, this, this.walls, () => {
+                            ctx.fillStyle = Colors.WALLS_COLOR.get()
+                            ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
+                        })
+                    } else {
                         ctx.fillStyle = Colors.WALLS_COLOR.get()
                         ctx.fillRect(coords.x, coords.y, 1.0, 1.0)
-                    })
+                    }
                 }
 
                 // Draw grid
