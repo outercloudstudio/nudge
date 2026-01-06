@@ -23,10 +23,9 @@ export const DIRECTIONS: Record<number, Array<number>> = {
 
 export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     // Default
-    //'DefaultSmall',
-    //'DefaultMedium',
-    //'DefaultLarge',
-    //'DefaultHuge',
+    'DefaultSmall',
+    'DefaultMedium',
+    'DefaultLarge'
     // Sprint 1
     // Sprint 2
     // HS
