@@ -820,7 +820,7 @@ public final class RobotControllerImpl implements RobotController {
             processTrapsAtLocation(newLoc);
         }
 
-        this.robot.setLocation(d.dx, d.dy);
+        this.robot.translateLocation(d.dx, d.dy);
         this.robot.addMovementCooldownTurns(d);
 
     }
@@ -934,11 +934,11 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
         
         if (this.gameWorld.getTeamInfo().getCheese(this.getTeam()) + this.getAllCheese() < cheeseConsumed) {
-            throw new RuntimeException("Not enough cheese to bite!");
+            throw new GameActionException(CANT_DO_THAT, "Not enough cheese to bite!");
         }
 
         if (this.getType() == UnitType.CAT) {
-            throw new RuntimeException("Unit must be a baby rat or rat king to bite!");
+            throw new GameActionException(CANT_DO_THAT, "Unit must be a baby rat or rat king to bite!");
         }
     }
 
@@ -1203,10 +1203,10 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.robot.isCarryingRobot())
             throw new GameActionException(CANT_DO_THAT, "This rat is not carrying any rat!");
         if (!this.gameWorld.getGameMap().onTheMap(nextLoc)) {
-            throw new RuntimeException("Cannot throw outside of map!");
+            throw new GameActionException(CANT_DO_THAT, "Cannot throw outside of map!");
         }
         if (!this.gameWorld.isPassable(nextLoc) || (this.gameWorld.getRobot(nextLoc) != null)) {
-            throw new RuntimeException("There must be at least 1 empty space in front the throwing rat!");
+            throw new GameActionException(CANT_DO_THAT, "There must be at least 1 empty space in front the throwing rat!");
         }
     }
 
@@ -1219,10 +1219,10 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.robot.isCarryingRobot())
             throw new GameActionException(CANT_DO_THAT, "This rat is not carrying any rat!");
         if (!this.gameWorld.getGameMap().onTheMap(nextLoc)) {
-            throw new RuntimeException("Cannot drop outside of map!");
+            throw new GameActionException(CANT_DO_THAT, "Cannot drop outside of map!");
         }
         if (!this.gameWorld.isPassable(nextLoc) || (this.gameWorld.getRobot(nextLoc) != null)) {
-            throw new RuntimeException("Can only drop rats into empty spaces!");
+            throw new GameActionException(CANT_DO_THAT, "Can only drop rats into empty spaces!");
         }
     }
 
@@ -1263,9 +1263,9 @@ public final class RobotControllerImpl implements RobotController {
         assertIsActionReady();
 
         if (!this.robot.getType().isThrowingType()) {
-            throw new RuntimeException("Unit must be a rat to grab other rats");
+            throw new GameActionException(CANT_DO_THAT, "Unit must be a rat to grab other rats");
         } else if (this.robot.isCarryingRobot()) {
-            throw new RuntimeException("Already carrying a rat");
+            throw new GameActionException(CANT_DO_THAT, "Already carrying a rat");
         } 
         // Must be a rat-type
         if (!this.robot.getType().isBabyRatType()) {

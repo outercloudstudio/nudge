@@ -425,12 +425,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
     }
 
     /**
-     * Sets the location of the robot.
+     * Sets the location of the robot by translating it.
      * 
      * @param dx # amount to translate in x direction
      * @param dy # amount to translate in y direction
      */
-    public void setLocation(int dx, int dy) {
+    public void translateLocation(int dx, int dy) {
         MapLocation[] beforeLocs = this.getAllPartLocations();
         for (MapLocation partLoc : beforeLocs) {
             this.gameWorld.removeRobot(partLoc);
@@ -777,8 +777,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
         
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
         
-        if (this.health > 0)
+        if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
+        }
 
         setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
         setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
@@ -815,10 +816,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
             return;
         }
 
-        System.out
-                .println("Robot flyingggg: " + this.ID + " " + this.thrownDir + " " + this.health + " " + isSecondMove);
-        // use the internal location
-
         MapLocation newLoc = this.location.add(this.thrownDir);
 
         if (!this.gameWorld.getGameMap().onTheMap(newLoc)) {
@@ -837,8 +834,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
             return;
         }
 
-        MapLocation nextLocation = new MapLocation(this.thrownDir.dx, this.thrownDir.dy);
-        this.setInternalLocationOnly(nextLocation);
+        this.setInternalLocationOnly(newLoc);
     }
 
     /**
@@ -955,7 +951,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
 
         // actually translate the cat
-        this.setLocation(dx, dy);
+        this.translateLocation(dx, dy);
 
         // incur double the movement cooldown
         this.addMovementCooldownTurns(this.dir);
