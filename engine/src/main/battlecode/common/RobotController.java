@@ -822,11 +822,12 @@ public interface RobotController {
      * for increasing bite strength
      *
      * @param loc the target location to attack
+     * @param cheeseAmount amount of cheese to spend on the attack
      * @throws GameActionException if conditions for attacking are not satisfied
      *
      * @battlecode.doc.costlymethod
      */
-    void attack(MapLocation loc, int cheese) throws GameActionException;
+    void attack(MapLocation loc, int cheeseAmount) throws GameActionException;
 
     // ***********************************
     // ****** COMMUNICATION METHODS ******
