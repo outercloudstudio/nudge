@@ -871,9 +871,11 @@ public final class RobotControllerImpl implements RobotController {
         assertNotNull(loc);
         assertCanActLocation(loc, GameConstants.BUILD_ROBOT_RADIUS_SQUARED);
         assertIsActionReady();
+
         if (!this.robot.getType().isRatKingType()) {
             throw new GameActionException(CANT_DO_THAT, "Only rat kings can spawn other rats!");
         }
+
         int cost = getCurrentRatCost();
 
         if (this.gameWorld.getTeamInfo().getCheese(this.robot.getTeam()) < cost) {
@@ -902,11 +904,11 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void buildRat(MapLocation loc) throws GameActionException {
         assertCanBuildRat(loc);
+        int cost = getCurrentRatCost();
+        this.robot.addCheese(-cost);
         this.robot.addActionCooldownTurns(GameConstants.BUILD_ROBOT_COOLDOWN);
         this.gameWorld.spawnRobot(UnitType.BABY_RAT, loc, this.getDirection(), this.robot.getChirality(),
                 this.robot.getTeam());
-        int cost = getCurrentRatCost();
-        this.robot.addCheese(-cost);
         InternalRobot robotSpawned = this.gameWorld.getRobot(loc);
         this.gameWorld.getMatchMaker().addSpawnAction(robotSpawned.getID(), loc, this.robot.getDirection(),
                 this.robot.getChirality(), getTeam(), UnitType.BABY_RAT);
