@@ -11,7 +11,7 @@ const EMPTY_ROBOT_COUNTS: Record<schema.RobotType, number> = {
 }
 
 export class TeamRoundStat {
-    gameModeCooperation: boolean = false
+    gameModeCooperation: boolean = true
     cheeseAmount: number = 0
     cheesePercent: number = 0
     catDamageAmount: number = 0
@@ -87,7 +87,7 @@ export default class RoundStat {
                 const teamStat = this.teams.get(team) ?? assert.fail(`team ${i} not found in team stats in round`)
 
                 teamStat.cheeseAmount = delta.teamCheeseTransferred(i) ?? assert.fail('missing cheese amount')
-                teamStat.cheesePercent = teamStat.cheeseAmount / totalCheese
+                teamStat.cheesePercent = totalCheese ? teamStat.cheeseAmount / totalCheese : 0
                 teamStat.catDamageAmount = delta.teamCatDamage(i) ?? assert.fail('missing cat damage amount')
                 teamStat.catDamagePercent = totalCatDamage ? teamStat.catDamageAmount / totalCatDamage : 0
                 teamStat.ratKingCount = delta.teamAliveRatKings(i) ?? assert.fail('missing rat king count')
