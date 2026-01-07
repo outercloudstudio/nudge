@@ -119,7 +119,7 @@ export const GamePage: React.FC<Props> = React.memo((props) => {
                 ) : (
                     <div className="w-full flex justify-center my-2">
                         <div className="px-3 py-1 rounded-md bg-rose-600 text-black font-bold">
-                            Backstab Mode Active
+                            Backstab Mode Active {`${!!round}, ${!!game}, ${round ? round.stat.getTeamStat(game.teams[0])?.gameModeCooperation : 'none'}, ${round ? round.stat.getTeamStat(game.teams[1])?.gameModeCooperation : 'none'}`}
                         </div>
                     </div>
                 )

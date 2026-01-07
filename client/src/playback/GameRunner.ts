@@ -256,7 +256,7 @@ export function useRound(): Round | undefined {
             GameRunner._roundListeners = GameRunner._roundListeners.filter((l) => l !== listener)
         }
     }, [match])
-    return match?.currentRound
+    return round
 }
 
 export function useTurnNumber(): { current: number; max: number } | undefined {
