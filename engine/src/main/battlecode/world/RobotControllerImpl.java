@@ -546,7 +546,10 @@ public final class RobotControllerImpl implements RobotController {
                                                                                                                    // corner
         InternalRobot[] allSensedRobots = gameWorld.getAllRobotsWithinRadiusSquared(center, actualRadiusSquared, team, this.robot.getChirality());
         List<RobotInfo> validSensedRobots = new ArrayList<>();
+        HashSet<Integer> uniqueRobotIds = new HashSet<>();
         for (InternalRobot sensedRobot : allSensedRobots) {
+            if (uniqueRobotIds.contains(sensedRobot.getID()))
+                continue;
             // check if this robot
             if (sensedRobot.equals(this.robot))
                 continue;
@@ -557,6 +560,7 @@ public final class RobotControllerImpl implements RobotController {
             if (team != null && sensedRobot.getTeam() != team)
                 continue;
             validSensedRobots.add(sensedRobot.getRobotInfo());
+            uniqueRobotIds.add(sensedRobot.getID());
         }
         return validSensedRobots.toArray(new RobotInfo[validSensedRobots.size()]);
     }
