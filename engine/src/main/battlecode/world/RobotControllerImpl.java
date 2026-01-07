@@ -1031,6 +1031,9 @@ public final class RobotControllerImpl implements RobotController {
         int numAllyRats = 0;
         for (Direction d : Direction.allDirections()) {
             MapLocation curLoc = this.adjacentLocation(d);
+            if (!this.gameWorld.getGameMap().onTheMap(curLoc))
+                throw new GameActionException(CANT_DO_THAT,
+                        "Not enough space on map for rat to become rat king!");
             InternalRobot curRobot = this.gameWorld.getRobot(curLoc);
             if (curRobot != null && curRobot.getTeam() == this.robot.getTeam() && curRobot.getType() == UnitType.BABY_RAT) {
                 numAllyRats += 1;
