@@ -655,16 +655,15 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const body = match.currentRound.bodies.getById(this.robotId)
             const renderCoords = renderUtils.getRenderCoords(
-                body.pos.x - 1 + body.size / 2,
-                body.pos.y + body.size / 2,
+                body.pos.x,
+                body.pos.y,
                 match.map.dimension,
-                true
             )
             renderUtils.renderCenteredImageOrLoadingIndicator(
                 ctx,
                 getImageIfLoaded('robots/squeak.png'),
                 renderCoords,
-                1
+                body.size
             )
         }
     },
