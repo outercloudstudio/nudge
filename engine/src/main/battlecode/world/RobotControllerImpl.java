@@ -235,6 +235,7 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanPlaceDirt(MapLocation loc) throws GameActionException {
+        assertIsActionReady();
         assertIsRobotType(this.robot.getType());
         // Use unit action radius as the allowed range for the action
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
@@ -256,6 +257,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanRemoveDirt(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
+        assertIsActionReady();
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
 
         if ((this.robot.getType().isBabyRatType()
@@ -285,6 +287,7 @@ public final class RobotControllerImpl implements RobotController {
         this.robot.addCheese(-1 * GameConstants.PLACE_DIRT_CHEESE_COST);
 
         this.robot.addActionCooldownTurns(GameConstants.DIG_COOLDOWN);
+        this.gameWorld.getMatchMaker().addPlaceDirtAction(loc);
     }
 
     @Override
@@ -309,23 +312,20 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanPlaceTrap(MapLocation loc, TrapType trapType) throws GameActionException {
         assertIsRobotType(this.robot.getType());
+        assertIsActionReady();
         assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
-        System.out.println("LOG 1");
 
         if (trapType == TrapType.CAT_TRAP && !this.gameWorld.isCooperation)
             throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode!");
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place trap on a wall or dirt!");
-        System.out.println("LOG 1.1 " + this.gameWorld.getRobot(loc));
         if (this.gameWorld.getRobot(loc) != null)
             throw new GameActionException(CANT_DO_THAT, "Can't place trap on an occupied tile!");
-        System.out.println("LOG 2");
         if (this.gameWorld.hasTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "Tile already has a trap!");
         if (this.gameWorld.getTrapCount(trapType, this.robot.getTeam()) >= trapType.maxCount)
             throw new GameActionException(CANT_DO_THAT,
                     "Team has reached maximum number of " + trapType + " traps on the map!");
-        System.out.println("LOG 3");
         if (getAllCheese() < trapType.buildCost) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to build trap!");
         }
