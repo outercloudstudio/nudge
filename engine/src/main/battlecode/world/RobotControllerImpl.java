@@ -829,10 +829,16 @@ public final class RobotControllerImpl implements RobotController {
                 // kill this rat
                 crushedRobot.addHealth(-crushedRobot.getHealth());
             }
-            processTrapsAtLocation(newLoc);
+            // processTrapsAtLocation(newLoc);
         }
 
         this.robot.translateLocation(d.dx, d.dy);
+
+        for (int i = 0; i < curLocs.length; i++) {
+            MapLocation newLoc = curLocs[i].add(d);
+            processTrapsAtLocation(newLoc);
+        }
+
         this.robot.addMovementCooldownTurns(d);
 
     }
@@ -944,6 +950,10 @@ public final class RobotControllerImpl implements RobotController {
         assertIsActionReady();
         // Attack is limited to vision radius
         assertCanActLocation(loc, this.getType().getVisionRadiusSquared());
+        if (!this.getLocation().isAdjacentTo(loc)) {
+            throw new GameActionException(CANT_DO_THAT, "Rats can only attack adjacent squares!");
+        }
+
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
         
