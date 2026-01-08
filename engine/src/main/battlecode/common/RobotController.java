@@ -588,10 +588,10 @@ public interface RobotController {
 
     /**
      * Checks whether this robot can turn to the specified direction.
-     * Effectively just canTurn() with an extra check that d is not null.
+     * Effectively just canTurn() with an extra check that d is not null
+     * and not {@link Direction#CENTER}.
      * 
      * @param d the direction to turn to
-     * @throws GameActionException
      */
     boolean canTurn(Direction d);
 
