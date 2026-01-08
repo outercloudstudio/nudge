@@ -184,7 +184,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
     },
     [schema.Action.RatNap]: class RatNapAction extends Action<schema.RatNap> {
-        private static readonly OFFSET = { x: -0.35, y: 0 }
+        // private static readonly OFFSET = { x: -0.35, y: 0 }
         apply(round: Round): void {
             // move the target onto the source adjust target's size using scale factor
             const src = round.bodies.getById(this.robotId)
@@ -205,7 +205,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 target.beingCarried = true
 
                 target.lastPos = { ...target.pos }
-                target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
+                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
                 target.size = 0.6
             }
         }
@@ -232,7 +232,6 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             ctx.arcTo(srcCoords.x - half, srcCoords.y - half, srcCoords.x + half, srcCoords.y - half, radius)
             ctx.stroke()
             ctx.restore()
-            ctx.restore() 
         }
     },
     [schema.Action.RatCollision]: class RatCollisionAction extends Action<schema.RatCollision> {
