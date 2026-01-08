@@ -585,7 +585,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                 if (cheeseConsumed > 0) {
                     this.addCheese(-cheeseConsumed);
-                    damage += (int) Math.ceil(Math.log(cheeseConsumed));
+                    damage += (int) Math.ceil(Math.sqrt(cheeseConsumed));
                 }
 
                 targetRobot.addHealth(-damage);
@@ -617,7 +617,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     public void grabRobot(MapLocation loc) {
         this.robotBeingCarried = this.gameWorld.getRobot(loc);
         this.robotBeingCarried.getGrabbed(this); // Notify the grabbed robot that it has been picked up
-        this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
+        this.gameWorld.getMatchMaker().addRatNapAction(this.robotBeingCarried.getID());
 
         if (this.robotBeingCarried.getTeam() != this.getTeam()) {
             this.gameWorld.isCooperation = false;
@@ -650,11 +650,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.removeRobot(dropLoc);
         this.gameWorld.addRobot(dropLoc, this);
 
-        this.gameWorld.getMatchMaker().addRatNapAction(this.ID);
+        this.gameWorld.getMatchMaker().addRatNapAction(this.ID); // expand this rat
+        this.gameWorld.getMatchMaker().addRatNapAction(grabber.ID); // shrink carrier rat
 
-        if (grabber.getTeam() != this.getTeam()) {
-            grabber.remainingCarriedDuration = GameConstants.MAX_CARRY_DURATION;
-        }
+        grabber.remainingCarriedDuration = GameConstants.MAX_CARRY_DURATION;
     }
 
     private void getGrabbed(InternalRobot grabber) {
@@ -668,9 +667,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         
         this.setInternalLocationOnly(grabber.getLocation());
 
-        if (grabber.getTeam() != this.getTeam()) {
-            this.remainingCarriedDuration = GameConstants.MAX_CARRY_DURATION;
-        }
+        this.remainingCarriedDuration = GameConstants.MAX_CARRY_DURATION;
 
     }
 
@@ -688,18 +685,11 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.thrownDir = dir;
         this.remainingThrowDuration = 4;
 
-        MapLocation nextLoc = this.getLocation().add(dir);
+        this.setInternalLocationOnly(this.getLocation());
+        this.gameWorld.removeRobot(this.getLocation());
 
-        // Cat feeding!
-        if (this.gameWorld.getRobot(nextLoc) != null) { // there's a cat here
-            this.addHealth(-this.getHealth()); // rat dies :(
-            // put cat to sleep
-            this.gameWorld.getRobot(nextLoc).sleepTimeRemaining = GameConstants.CAT_SLEEP_TIME;
-            this.gameWorld.getMatchMaker().addCatFeedAction(this.getID());
-        } else {
-            this.setInternalLocationOnly(this.getLocation().add(dir));
-            this.gameWorld.removeRobot(this.getLocation());
-        }
+        this.travelFlying(true);
+        this.travelFlying(false);
     }
 
     public void getDropped(MapLocation loc) {
@@ -714,6 +704,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.grabbedByRobot = null;
         this.remainingCarriedDuration = 0;
         this.setInternalLocationOnly(loc);
+        
+        this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
 
         if (this.getHealth() > 0)
             this.gameWorld.addRobot(this.getLocation(), this);
@@ -729,6 +721,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.addHealth(-damage);
         
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
+        this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
+
         
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
@@ -760,6 +754,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
         setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
+        this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
 
         this.gameWorld.getMatchMaker().addStunAction(this.ID, GameConstants.HIT_TARGET_COOLDOWN);
     }
@@ -1053,8 +1048,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.gameWorld.runCheeseMines();
 
         // if rat is being carried
-        if (this.getType() == UnitType.BABY_RAT && this.isGrabbedByRobot()
-                && this.getGrabbedByRobot().getTeam() != this.getTeam()) {
+        if (this.getType() == UnitType.BABY_RAT && this.isGrabbedByRobot()) {
 
             // check if grabber has died
             if (this.getGrabbedByRobot().getHealth() <= 0) {
