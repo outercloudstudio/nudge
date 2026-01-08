@@ -585,7 +585,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                 if (cheeseConsumed > 0) {
                     this.addCheese(-cheeseConsumed);
-                    damage += (int) Math.ceil(Math.log(cheeseConsumed));
+                    damage += (int) Math.ceil(Math.sqrt(cheeseConsumed));
                 }
 
                 targetRobot.addHealth(-damage);
