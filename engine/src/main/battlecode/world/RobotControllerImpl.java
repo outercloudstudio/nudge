@@ -426,7 +426,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanPickUpCheese(MapLocation loc) throws GameActionException {
         assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
+        assertCanActLocation(loc, GameConstants.CHEESE_PICK_UP_RADIUS_SQUARED);
 
         if (this.gameWorld.getCheeseAmount(loc) <= 0)
             throw new GameActionException(CANT_DO_THAT, "No cheese at this location!");
@@ -840,11 +840,22 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         this.robot.addMovementCooldownTurns(d);
-
     }
 
     private void assertCanTurn() throws GameActionException {
         assertIsTurningReady();
+    }
+
+    private void assertCanTurn(Direction d) throws GameActionException {
+        assertIsTurningReady();
+
+        if (d == null) {
+            throw new GameActionException(CANT_DO_THAT, "Direction to turn to is null!");
+        }
+
+        if (d == Direction.CENTER) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot turn to CENTER direction!");
+        }
     }
 
     @Override
@@ -858,13 +869,21 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
-    public void turn(Direction d) throws GameActionException {
-        assertCanTurn();
-        if (d != Direction.CENTER) {
-            this.robot.setDirection(d);
-            this.robot.addTurningCooldownTurns();
+    public boolean canTurn(Direction d) {
+        try {
+            assertCanTurn(d);
+            return true;
+        } catch (GameActionException e) {
+            return false;
         }
+    }
 
+    @Override
+    public void turn(Direction d) throws GameActionException {
+        assertCanTurn(d);
+
+        this.robot.setDirection(d);
+        this.robot.addTurningCooldownTurns();
     }
 
     // ***********************************
@@ -1205,7 +1224,7 @@ public final class RobotControllerImpl implements RobotController {
 
     private void assertCanTransferCheese(MapLocation loc, int amount) throws GameActionException {
         assertNotNull(loc);
-        assertCanActLocation(loc, GameConstants.CHEESE_DROP_RADIUS_SQUARED);
+        assertCanActLocation(loc, GameConstants.CHEESE_TRANSFER_RADIUS_SQUARED);
         assertIsActionReady();
         InternalRobot robot = this.gameWorld.getRobot(loc);
         if (robot == null)
@@ -1354,6 +1373,7 @@ public final class RobotControllerImpl implements RobotController {
         }
 
         InternalRobot targetRobot = this.gameWorld.getRobot(loc);
+
         if (targetRobot == null) {
             throw new GameActionException(CANT_DO_THAT, "No robot at target location");
         }
@@ -1367,10 +1387,15 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Target robot is currently being thrown");
         }
 
+        if (targetRobot == this.robot) {
+            throw new GameActionException(CANT_DO_THAT, "Robots cannot grab themselves");
+        }
+
         // Allow grabbing if the target is facing away (cannot sense this robot), or
         // the target is allied, or the target is weaker (health comparison w/
         // threshold)
         boolean canGrab = false;
+
         if (!targetRobot.canSenseLocation(this.getLocation())) {
             canGrab = true;
         } else if (this.robot.getTeam() == targetRobot.getTeam()) {

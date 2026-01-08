@@ -189,17 +189,18 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id()) // rat getting napped
             
-            if(src.carriedRobot === target.id) {
+            if (target.beingCarried) {
                 // drop the target
-                src.carriedRobot = undefined
                 target.size = 1
+                target.beingCarried = false
             } else {
                 // pick up the target
                 src.carriedRobot = target.id
                 target.carriedRobot = undefined
+                target.beingCarried = true
 
-                target.lastPos = { ...target.pos }
-                target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
+                // target.lastPos = { ...target.pos }
+                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
                 target.size = 0.6
             }
         }

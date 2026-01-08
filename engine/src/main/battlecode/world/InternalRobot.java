@@ -616,6 +616,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public void grabRobot(MapLocation loc) {
         this.robotBeingCarried = this.gameWorld.getRobot(loc);
+        System.out.println("Robot " + this.ID + " grabbed robot " + this.robotBeingCarried);
         this.robotBeingCarried.getGrabbed(this); // Notify the grabbed robot that it has been picked up
         this.gameWorld.getMatchMaker().addRatNapAction(this.robotBeingCarried.getID());
 

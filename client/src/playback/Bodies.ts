@@ -364,6 +364,7 @@ export class Body {
     public actionCooldown: number = 0
     public turningCooldown: number = 0
     public carriedRobot: number | undefined = undefined  // id of carried robot
+    public beingCarried: boolean = false
     public bytecodesUsed: number = 0
     public cheese: number = 0
 
