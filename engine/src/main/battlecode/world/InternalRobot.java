@@ -707,8 +707,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
         
         this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
 
-        if (this.getHealth() > 0)
+        if (this.getHealth() > 0){
             this.gameWorld.addRobot(this.getLocation(), this);
+            this.controller.processTrapsAtLocation(this.location);
+        }
         else
             this.gameWorld.destroyRobot(this.getID());
     }
@@ -726,6 +728,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
         
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
+            this.controller.processTrapsAtLocation(this.location);
+        }
+        else{
+            this.gameWorld.destroyRobot(this.getID());
         }
 
         setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_GROUND_COOLDOWN);
@@ -747,9 +753,14 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.remainingThrowDuration = 0;
         
         this.addHealth(-damage);
-        if (this.health > 0){
+        if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
+            this.controller.processTrapsAtLocation(this.location);
         }
+        else{
+            this.gameWorld.destroyRobot(this.getID());
+        }
+
         setMovementCooldownTurns(this.movementCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
         setActionCooldownTurns(this.actionCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
         setTurningCooldownTurns(this.turningCooldownTurns + GameConstants.HIT_TARGET_COOLDOWN);
