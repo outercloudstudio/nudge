@@ -981,7 +981,7 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Rats cannot attack squares with walls or dirt on them!");
         }
         
-        if (this.gameWorld.getTeamInfo().getCheese(this.getTeam()) + this.getAllCheese() < cheeseConsumed) {
+        if (this.getAllCheese() < cheeseConsumed) {
             throw new GameActionException(CANT_DO_THAT, "Not enough cheese to bite!");
         }
 
