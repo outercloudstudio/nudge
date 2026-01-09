@@ -9,6 +9,8 @@ import battlecode.common.RobotInfo;
 import battlecode.common.Team;
 import battlecode.world.*;
 import battlecode.world.control.*;
+import battlecode.crossplay.CrossPlay;
+import battlecode.crossplay.CrossPlayLanguage;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +34,7 @@ public class Server implements Runnable {
     /**
      * The GameInfo that signals the server to terminate when it is encountered on the game queue.
      */
-    private static final GameInfo POISON = new GameInfo(null, null, null, null, null, null, null, null, false) {};
+    private static final GameInfo POISON = new GameInfo(null, null, null, null, null, null, null, null, null, null, false) {};
 
     /**
      * The queue of games to run.
@@ -309,6 +311,9 @@ public class Server implements Runnable {
                 case PAUSED:
                     Thread.sleep(250);
                     break;
+
+                default:
+                    break;
             }
         }
 
@@ -347,7 +352,7 @@ public class Server implements Runnable {
                 new PlayerControlProvider(
                     Team.A,
                     game.getTeamAPackage(),
-                    CrossPlayLanguage.parse(game.getTeamALanguage()),
+                    game.getTeamALanguage(),
                     crossPlayServer,
                     game.getTeamAURL(),
                     gameMaker.getMatchMaker().getOut(),
@@ -359,7 +364,7 @@ public class Server implements Runnable {
                 new PlayerControlProvider(
                     Team.B,
                     game.getTeamBPackage(),
-                    CrossPlayLanguage.parse(game.getTeamBLanguage()),
+                    game.getTeamBLanguage(),
                     crossPlayServer,
                     game.getTeamBURL(),
                     gameMaker.getMatchMaker().getOut(),

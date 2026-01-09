@@ -2,12 +2,15 @@ package battlecode.instrumenter;
 
 import battlecode.common.RobotController;
 import battlecode.common.Team;
+import battlecode.common.GameActionException;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.stream.RoboPrintStream;
 import battlecode.instrumenter.stream.SilencedPrintStream;
 import battlecode.server.ErrorReporter;
 import battlecode.world.control.PlayerControlProvider;
 import battlecode.server.Config;
+import battlecode.crossplay.CrossPlay;
+import battlecode.crossplay.CrossPlayLanguage;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -69,6 +72,11 @@ public class SandboxedRobotPlayer {
      * The main thread the player is running on.
      */
     private final Thread mainThread;
+
+    /**
+     * Used to pause the player thread after loading
+     */
+    private final Method pauseMethod;
 
     /**
      * The cached 'killRobot' method of the monitor.
@@ -136,8 +144,7 @@ public class SandboxedRobotPlayer {
         // Load monitor / monitor methods
         // Used to initialize the RobotMonitor for the player
         final Method initMethod;
-        // Used to pause the player thread after loading
-        final Method pauseMethod;
+
         try {
             // The loaded, uninstrumented-but-individual RobotMonitor for this player.
             Class<?> monitor = individualLoader
@@ -191,7 +198,7 @@ public class SandboxedRobotPlayer {
                 // Pause immediately
                 pauseMethod.invoke(null);
                 // Run the robot!
-                loadAndRunPlayer(teamName, PLAYER_CLASS_NAME);
+                loadAndRunPlayer(teamName, teamLanguage, PLAYER_CLASS_NAME);
                 // If we get here, we've returned from the 'run' method. Tell the user.
                 if (robotController.getLocation() != null){
                 System.out.println(robotController.getTeam().toString() + "'s " +
@@ -250,13 +257,22 @@ public class SandboxedRobotPlayer {
         }
     }
 
+    private void loadAndRunPlayer(String teamName, CrossPlayLanguage teamLanguage, String playerClassName)
+            throws InvocationTargetException, IllegalAccessException, InstrumentationException {
+        if (teamLanguage == CrossPlayLanguage.JAVA) {
+            loadAndRunPlayerJava(teamName, playerClassName);
+        } else {
+            loadAndRunPlayerCrossPlay(teamName, playerClassName);
+        }
+    }
+
     /**
      * Load the player class and invoke "run", counting bytecode as we go.
      * We do this after the rest of the player state is initialized, so that
      * static initialization will be counted as part of the bytecode used of
      * the first step.
      */
-    private void loadAndRunPlayer(String teamName, String playerClassName)
+    private void loadAndRunPlayerJava(String teamName, String playerClassName)
             throws InvocationTargetException, IllegalAccessException, InstrumentationException {
         // Load player in sandbox
         Class<?> robotPlayer;
