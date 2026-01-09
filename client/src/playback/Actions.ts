@@ -103,6 +103,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // chomping animation
             const src = match.currentRound.bodies.getById(this.robotId) // cat
+            if (!src) return
             // const target = match.currentRound.bodies.getById(this.actionData.id()) // rat being eaten
             const coords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
             const random1 = ((src.pos.x * 491 + src.pos.y * 603 + match.currentRound.roundNumber * 343) / 100) % 1 // https://xkcd.com/221/
@@ -132,6 +133,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const dstBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!dstBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = dstBody.getInterpolatedCoords(match)
@@ -190,6 +193,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id()) // rat getting napped
             
+            if (!target) return
+            
             if (target.beingCarried) {
                 // drop the target
                 const carrier = round.bodies.getById(target.carrierRobot!)
@@ -211,7 +216,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             //target rat moves onto src rat, circle around carried group thing
-            const src = match.currentRound.bodies.getById(this.robotId) 
+            const src = match.currentRound.bodies.getById(this.robotId)
+            
+            if (!src) return
+            
             const srcCoords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
             const t = match.getInterpolationFactor()
             const bump = Math.sin(t * Math.PI * 8) * 0.03
@@ -308,6 +316,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             // remove cheese from map and increment body cheese count
             const body = round.bodies.getById(this.robotId)
+            if (!body) return
             const amt = round.map.cheeseData[this.actionData.loc()]
             round.map.cheeseData[this.actionData.loc()] = 0
             body.cheese += amt
@@ -316,6 +325,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // cheese pickup animation
             const map = match.currentRound.map
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             const coords = renderUtils.getRenderCoords(body.pos.x, body.pos.y, map.dimension, false)
             const factor = match.getInterpolationFactor()
             const isEndpoint = factor == 0 || factor == 1
@@ -357,6 +367,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const targetBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!targetBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = targetBody.getInterpolatedCoords(match)
@@ -426,6 +438,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             // maybe move cat to target loc
             const body = round.bodies.getById(this.robotId)
+            if (!body) return
             const startPos = round.map.indexToLocation(this.actionData.startLoc())
             const endPos = round.map.indexToLocation(this.actionData.endLoc())
             console.log('pounce from', startPos, 'to', endPos)
@@ -433,6 +446,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // cat pouncing animation
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             const startPos = match.map.indexToLocation(this.actionData.startLoc())
             const endPos = match.map.indexToLocation(this.actionData.endLoc())
             const startCoords = renderUtils.getRenderCoords(startPos.x, startPos.y, match.map.dimension, true)
@@ -463,6 +477,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
         finish(round: Round): void {
             const body = round.bodies.getById(this.robotId)
+            if (!body) return
             body.textureOverride = false
         }
     },
@@ -517,6 +532,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             // trap triggering animation
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             // const pos = match.map.indexToLocation(this.actionData.loc())
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
@@ -563,6 +579,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             // maybe move rat to target loc
             const body = round.bodies.getById(this.robotId)
+            if (!body) return
             const endLoc = round.map.indexToLocation(this.actionData.loc())
             if( body.carriedRobot !== undefined ) {
                 const carrier = round.bodies.getById(body.carriedRobot)
@@ -575,6 +592,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
             const interp = match.getInterpolationFactor()
@@ -628,10 +646,12 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             // promote body in-place to RatKing while preserving ID/state
             const body = round.bodies.getById(this.robotId)
+            if (!body) return
             body.promoteTo(schema.RobotType.RAT_KING)
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
 
@@ -680,6 +700,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
 
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const body = match.currentRound.bodies.getById(this.robotId)
+            if (!body) return
             const renderCoords = renderUtils.getRenderCoords(
                 body.pos.x,
                 body.pos.y,
@@ -697,6 +718,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id())
+
+            if (!target) return
 
             const damage = this.actionData.damage()
             target.hp = Math.max(target.hp - damage, 0)

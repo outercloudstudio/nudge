@@ -214,6 +214,7 @@ export default class Bodies {
         body.pos = { x: turn.x(), y: turn.y() }
         body.direction = turn.dir()
         body.hp = Math.max(turn.health(), 0)
+        body.cheese = turn.cheese()
         body.moveCooldown = turn.moveCooldown()
         body.actionCooldown = turn.actionCooldown()
         body.turningCooldown = turn.turningCooldown()
