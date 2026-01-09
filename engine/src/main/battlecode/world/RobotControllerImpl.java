@@ -3,15 +3,10 @@ package battlecode.world;
 import battlecode.common.*;
 
 import static battlecode.common.GameActionExceptionType.*;
-import battlecode.schema.Action;
-import battlecode.schema.RobotType;
-import battlecode.util.FlatHelpers;
 import battlecode.instrumenter.RobotDeathException;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * The actual implementation of RobotController. Its methods *must* be called
@@ -425,13 +420,17 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanPickUpCheese(MapLocation loc) throws GameActionException {
-        assertIsRobotType(this.robot.getType());
+        UnitType myType = this.robot.getType();
+        assertIsRobotType(myType);
         assertCanActLocation(loc, GameConstants.CHEESE_PICK_UP_RADIUS_SQUARED);
 
-        if (this.gameWorld.getCheeseAmount(loc) <= 0)
+        if (this.gameWorld.getCheeseAmount(loc) <= 0) {
             throw new GameActionException(CANT_DO_THAT, "No cheese at this location!");
-        if (this.robot.getType() != UnitType.BABY_RAT && this.robot.getType() != UnitType.RAT_KING)
+        }
+
+        if (myType != UnitType.BABY_RAT && myType != UnitType.RAT_KING) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
+        }
     }
 
     @Override
@@ -752,15 +751,13 @@ public final class RobotControllerImpl implements RobotController {
             }
 
             InternalRobot occupyingRobot = this.gameWorld.getRobot(loc);
-            if ((occupyingRobot != null) && (occupyingRobot.getID() != this.robot.getID())) {
 
-                if (occupyingRobot.getType().isBabyRatType() && this.getType().isCatType()) {
-                } else {
-                    MapLocation[] partLocs = this.robot.getAllPartLocations();
-                    throw new GameActionException(CANT_MOVE_THERE,
-                            "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
-                }
+            if ((occupyingRobot != null) && (occupyingRobot.getID() != this.robot.getID())
+                && !(occupyingRobot.getType().isBabyRatType() && this.getType().isCatType())) {
+                throw new GameActionException(CANT_MOVE_THERE,
+                    "Cannot move to an occupied location; " + loc + " is occupied by a different robot.");
             }
+
             if (!this.gameWorld.isPassable(loc)) {
                 throw new GameActionException(CANT_MOVE_THERE,
                         "Cannot move to an impassable location; " + loc + " is impassable.");

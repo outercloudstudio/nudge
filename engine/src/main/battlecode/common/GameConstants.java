@@ -137,7 +137,7 @@ public class GameConstants {
      * The maximum distance squared a rat king can attack, measured from the king's center.
      * All rats (including rat kings) can only attack adjacent squares,
      * and the rat king is 3x3, so this is 8.
-     * */
+     */
     public static final int RAT_KING_ATTACK_DISTANCE_SQUARED = 8;
 
     /** The maximum number of rounds a message will exist for */
