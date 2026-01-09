@@ -203,7 +203,7 @@ public class CrossPlay {
                 return nodeFactory.booleanNode(this.processingRobot.canBecomeRatKing());
             }
 
-            case RC_CAN_BUILD_ROBOT: {
+            case RC_CAN_BUILD_RAT: {
                 checkParams(message, 1);
                 MapLocation loc = parseLocNode(message.params().get(0));
                 return nodeFactory.booleanNode(this.processingRobot.canBuildRat(loc));
@@ -305,6 +305,11 @@ public class CrossPlay {
             }
 
             case RC_CAN_TURN: {
+                checkParams(message, 0);
+                return nodeFactory.booleanNode(this.processingRobot.canTurn());
+            }
+
+            case RC_CAN_TURN__DIR: {
                 checkParams(message, 1);
                 Direction dir = parseDirNode(message.params().get(0));
                 return nodeFactory.booleanNode(this.processingRobot.canTurn(dir));
@@ -698,7 +703,7 @@ public class CrossPlay {
                 this.processingRobot.writeSharedArray(index, value);
                 return nodeFactory.nullNode();
             }
-            
+
             default:
                 throw new CrossPlayException("Received unknown cross-play method: " + message.method());
         }
