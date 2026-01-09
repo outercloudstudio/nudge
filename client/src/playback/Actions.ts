@@ -569,10 +569,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
     [schema.Action.ThrowRat]: class ThrowRatAction extends Action<schema.ThrowRat> {
         apply(round: Round): void {
             // maybe move rat to target loc
-            const body = round.bodies.getById(this.robotId)
+            const body = round.bodies.getById(this.actionData.id())
             const endLoc = round.map.indexToLocation(this.actionData.loc())
-            if( body.carriedRobot !== undefined ) {
-                const carrier = round.bodies.getById(body.carriedRobot)
+            if( body.carrierRobot !== undefined && round.bodies.hasId(body.carrierRobot)) {
+                const carrier = round.bodies.getById(body.carrierRobot)
                 carrier.carriedRobot = undefined
             }
             body.carrierRobot = undefined
@@ -581,7 +581,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // body.pos = { ...endLoc }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const body = match.currentRound.bodies.getById(this.robotId)
+            if( !match.currentRound.bodies.hasId(this.actionData.id()) ) return
+            const body = match.currentRound.bodies.getById(this.actionData.id())
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
             const interp = match.getInterpolationFactor()
