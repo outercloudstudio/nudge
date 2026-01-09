@@ -990,8 +990,14 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Cheese consumed must be non-negative!");
         }
 
-        if (this.gameWorld.getRobot(loc) == null) {
+        InternalRobot enemyRobot = this.gameWorld.getRobot(loc);
+
+        if (enemyRobot == null) {
             throw new GameActionException(CANT_DO_THAT, "No robot to attack at the specified location!");
+        }
+
+        if (enemyRobot.getTeam() == this.robot.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack ally robots!");
         }
     }
 
