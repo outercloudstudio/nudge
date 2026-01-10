@@ -233,7 +233,10 @@ def play(team_a=None, team_b=None, debug=False):
         close()
 
 
-def main():
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+
     if sys.version_info.major != 3 or sys.version_info.minor != 12:
         print(
             f"Error: The Battlecode Python runner requires Python 3.12. Found version {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}."
@@ -249,19 +252,19 @@ def main():
         action="store_true",
         help="Start the Python runner in a new process",
     )
-    args = parser.parse_args()
+    parsed_args = parser.parse_args(args)
 
-    if args.new_process:
+    if parsed_args.new_process:
         new_args = [
             sys.executable,
             __file__,
             "--teamA",
-            args.teamA if args.teamA else "/",
+            parsed_args.teamA if parsed_args.teamA else "/",
             "--teamB",
-            args.teamB if args.teamB else "/",
+            parsed_args.teamB if parsed_args.teamB else "/",
         ]
 
-        if args.debug:
+        if parsed_args.debug:
             new_args.append("--debug")
 
         Popen(
@@ -274,7 +277,7 @@ def main():
             creationflags=DETACHED_PROCESS,
         )
     else:
-        play(team_a=args.teamA, team_b=args.teamB, debug=args.debug)
+        play(team_a=parsed_args.teamA, team_b=parsed_args.teamB, debug=parsed_args.debug)
 
 
 if __name__ == "__main__":

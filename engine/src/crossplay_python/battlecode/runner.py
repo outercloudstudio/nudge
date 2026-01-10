@@ -5,6 +5,8 @@ from RestrictedPython import safe_builtins, limited_builtins, utility_builtins, 
 from threading import Thread, Event, Lock
 from time import sleep
 
+import battlecode
+
 from .classes import GameActionException, GameActionExceptionType
 from .instrument import Instrument
 from types import CodeType, MethodType
@@ -192,6 +194,10 @@ class RobotRunner:
                 return enum
             if name == 'battlecode':
                 import battlecode
+                
+                if hasattr(battlecode, '_main'):
+                    del battlecode._main
+
                 return battlecode
 
             raise ImportError('Module "' + name + '" does not exist.')
