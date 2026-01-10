@@ -104,33 +104,36 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             // chomping animation
             const src = match.currentRound.bodies.getById(this.robotId) // cat
             // const target = match.currentRound.bodies.getById(this.actionData.id()) // rat being eaten
-            const coords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
-            const random1 = ((src.pos.x * 491 + src.pos.y * 603 + match.currentRound.roundNumber * 343) / 100) % 1 // https://xkcd.com/221/
-            const random2 = ((src.pos.x * 259 + src.pos.y * 429 + match.currentRound.roundNumber * 224) / 100) % 1
-            const interpolationFactor = match.getInterpolationFactor()
+            // const coords = renderUtils.getRenderCoords(src.pos.x, src.pos.y, match.map.dimension, true)
+            // const random1 = ((src.pos.x * 491 + src.pos.y * 603 + match.currentRound.roundNumber * 343) / 100) % 1 // https://xkcd.com/221/
+            // const random2 = ((src.pos.x * 259 + src.pos.y * 429 + match.currentRound.roundNumber * 224) / 100) % 1
+            // const interpolationFactor = match.getInterpolationFactor()
 
-            ctx.save()
-            ctx.globalAlpha = 0.5 - 0.5 * interpolationFactor * interpolationFactor
-            ctx.fillStyle = '#000000'
-            ctx.font = '0.4px Arial'
-            // parabolic trajectory.
-            const fontX = coords.x + (4 * random1 - 2) * interpolationFactor - 0.5
-            const fontY =
-                coords.y - (2 + 4 * random2) * interpolationFactor + 8 * interpolationFactor * interpolationFactor - 0.5
-            ctx.fillText('nom', fontX, fontY)
+            // ctx.save()
+            // ctx.globalAlpha = 0.5 - 0.5 * interpolationFactor * interpolationFactor
+            // ctx.fillStyle = '#000000'
+            // ctx.font = '0.4px Arial'
+            // // parabolic trajectory.
+            // const fontX = coords.x + (4 * random1 - 2) * interpolationFactor - 0.5
+            // const fontY =
+            //     coords.y - (2 + 4 * random2) * interpolationFactor + 8 * interpolationFactor * interpolationFactor - 0.5
+            // ctx.fillText('nom', fontX, fontY)
+            src.textureOverride = true
             src.imgPath = `robots/cat/cat_feed_${src.direction}.png`// is reset in `finish`.
-            ctx.restore()
+            // ctx.restore()
         }
 
         finish(round: Round): void {
             const src = round.bodies.getById(this.robotId)
-            src.imgPath = 'robots/cat/cat.png'
+            src.textureOverride = false
         }
     },
     [schema.Action.RatAttack]: class AttackAction extends Action<schema.RatAttack> {
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const dstBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!dstBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = dstBody.getInterpolatedCoords(match)
@@ -183,7 +186,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         }
     },
     [schema.Action.RatNap]: class RatNapAction extends Action<schema.RatNap> {
-        private static readonly OFFSET = { x: -0.35, y: 0 }
+        // private static readonly OFFSET = { x: -0.35, y: 0 }
         apply(round: Round): void {
             // move the target onto the source adjust target's size using scale factor
             const src = round.bodies.getById(this.robotId)
@@ -191,17 +194,24 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             
             if (target.beingCarried) {
                 // drop the target
-                target.size = 1
+                // const carrier = round.bodies.getById(target.carrierRobot!)
+                if(target.carrierRobot !== undefined && round.bodies.hasId(target.carrierRobot)) {
+                    const carrier = round.bodies.getById(target.carrierRobot)
+                    carrier.carriedRobot = undefined
+                }
                 target.beingCarried = false
+                target.carrierRobot = undefined
+                target.size = 1
             } else {
                 // pick up the target
                 src.carriedRobot = target.id
+                target.carrierRobot = src.id
                 target.carriedRobot = undefined
                 target.beingCarried = true
 
-                // target.lastPos = { ...target.pos }
-                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }
+                target.lastPos = { ...target.pos }
                 target.size = 0.6
+                // target.pos = { x: src.pos.x + RatNapAction.OFFSET.x, y: src.pos.y + RatNapAction.OFFSET.y }  
             }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
@@ -227,7 +237,6 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
             ctx.arcTo(srcCoords.x - half, srcCoords.y - half, srcCoords.x + half, srcCoords.y - half, radius)
             ctx.stroke()
             ctx.restore()
-            ctx.restore() 
         }
     },
     [schema.Action.RatCollision]: class RatCollisionAction extends Action<schema.RatCollision> {
@@ -353,6 +362,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
             const srcBody = match.currentRound.bodies.getById(this.robotId)
             const targetBody = match.currentRound.bodies.getById(this.actionData.id())
+
+            if (!targetBody) return
 
             const from = srcBody.getInterpolatedCoords(match)
             const to = targetBody.getInterpolatedCoords(match)
@@ -558,11 +569,19 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
     [schema.Action.ThrowRat]: class ThrowRatAction extends Action<schema.ThrowRat> {
         apply(round: Round): void {
             // maybe move rat to target loc
-            const body = round.bodies.getById(this.robotId)
+            const body = round.bodies.getById(this.actionData.id())
             const endLoc = round.map.indexToLocation(this.actionData.loc())
+            if( body.carrierRobot !== undefined && round.bodies.hasId(body.carrierRobot)) {
+                const carrier = round.bodies.getById(body.carrierRobot)
+                carrier.carriedRobot = undefined
+            }
+            body.carrierRobot = undefined
+            body.size = 1
+            // body.pos = { ...endLoc }
         }
         draw(match: Match, ctx: CanvasRenderingContext2D): void {
-            const body = match.currentRound.bodies.getById(this.robotId)
+            if( !match.currentRound.bodies.hasId(this.actionData.id()) ) return
+            const body = match.currentRound.bodies.getById(this.actionData.id())
             const pos = body.getInterpolatedCoords(match)
             const coords = renderUtils.getRenderCoords(pos.x, pos.y, match.map.dimension, true)
             const interp = match.getInterpolationFactor()
@@ -577,7 +596,7 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
 
             const ux = dx / mag
             const uy = dy / mag
-            const px = -uy
+            const px = uy
             const py = ux
 
             // deterministic jitter
@@ -597,10 +616,10 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
                 const offset = i * spacing
                 const jitter = (r - 0.5) * 0.15
 
-                const endX = coords.x - ux * 0.3 + px * offset + px * jitter
+                const endX = coords.x + ux * 0.3 + px * offset + px * jitter
                 const endY = coords.y - uy * 0.3 + py * offset + py * jitter
 
-                const startX = endX - ux * baseLength
+                const startX = endX + ux * baseLength
                 const startY = endY - uy * baseLength
 
                 ctx.beginPath()
@@ -685,6 +704,8 @@ export const ACTION_DEFINITIONS: Record<schema.Action, typeof Action<ActionUnion
         apply(round: Round): void {
             const src = round.bodies.getById(this.robotId)
             const target = round.bodies.getById(this.actionData.id())
+
+            if (!target) return
 
             const damage = this.actionData.damage()
             target.hp = Math.max(target.hp - damage, 0)
