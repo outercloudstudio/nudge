@@ -1322,6 +1322,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void throwRat() throws GameActionException {
         assertCanThrowRat(this.robot.getDirection());
+        this.robot.addActionCooldownTurns(GameConstants.THROW_RAT_COOLDOWN);
         this.robot.throwRobot();
     }
 
