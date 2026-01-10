@@ -14,7 +14,6 @@ import battlecode.world.GameWorld;
 import battlecode.world.InternalRobot;
 
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +80,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     /**
      * The match id of the current match. Incremented by one every time a new match starts.
      */
-    private int matchId = -1;
+    // private int matchId = -1;
 
     /**
      * The total time the player's bots have spent executing, measured in ns
@@ -128,7 +127,7 @@ public class PlayerControlProvider implements RobotControlProvider {
     @Override
     public void matchStarted(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
-        matchId++;
+        // matchId++;
     }
 
     @Override

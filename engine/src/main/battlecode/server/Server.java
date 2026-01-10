@@ -1,29 +1,15 @@
 package battlecode.server;
 
-import battlecode.world.maps.*;
-
-import battlecode.common.Direction;
-import battlecode.common.GameConstants;
 import battlecode.common.MapLocation;
-import battlecode.common.RobotInfo;
 import battlecode.common.Team;
 import battlecode.world.*;
 import battlecode.world.control.*;
 import battlecode.crossplay.CrossPlay;
-import battlecode.crossplay.CrossPlayLanguage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.management.RuntimeErrorException;
 
 /**
  * Runs matches. Specifically, this class forms a pipeline connecting match and
@@ -221,13 +207,13 @@ public class Server implements Runnable {
         }
     }
 
-    private int locationToIndex(LiveMap liveMap, int x, int y) {
-        return x + y * liveMap.getWidth();
-    }
+    // private int locationToIndex(LiveMap liveMap, int x, int y) {
+    //     return x + y * liveMap.getWidth();
+    // }
 
-    private int locationToIndex(LiveMap liveMap, MapLocation loc) {
-        return loc.x + loc.y * liveMap.getWidth();
-    }
+    // private int locationToIndex(LiveMap liveMap, MapLocation loc) {
+    //     return loc.x + loc.y * liveMap.getWidth();
+    // }
 
     public boolean onTheMap(LiveMap liveMap, MapLocation loc) {
         return loc.x >= 0 && loc.y >= 0 && loc.x < liveMap.getWidth() && loc.y < liveMap.getHeight();
@@ -237,12 +223,10 @@ public class Server implements Runnable {
         return new MapLocation(idx % liveMap.getWidth(),
                                idx / liveMap.getWidth());
     }
-
-
     
-    private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
-        return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
-    }
+    // private Team runMatch(GameInfo currentGame, int matchIndex, RobotControlProvider prov, GameMaker gameMaker, boolean checkMapGuarantees) throws Exception {
+    //     return runMatch(currentGame, matchIndex, prov, gameMaker, checkMapGuarantees, false);
+    // }
 
     /**
      * @return the winner of the match

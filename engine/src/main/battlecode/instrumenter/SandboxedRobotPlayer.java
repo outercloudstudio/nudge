@@ -1,6 +1,5 @@
 package battlecode.instrumenter;
 
-import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.Team;
 import battlecode.instrumenter.profiler.Profiler;
