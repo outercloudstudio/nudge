@@ -542,9 +542,15 @@ public final class RobotControllerImpl implements RobotController {
             // check if this robot
             if (sensedRobot.equals(this.robot))
                 continue;
-            // check if can sense
-            if (!canSenseLocation(sensedRobot.getLocation()))
+            // check if can sense in vision cone (restricted radius)
+            boolean canSensePartOfRobot = false;
+            for (MapLocation robotpart : sensedRobot.getAllPartLocations()){
+                canSensePartOfRobot = canSensePartOfRobot || (canSenseLocation(robotpart) && center.isWithinDistanceSquared(robotpart, actualRadiusSquared));
+            }
+
+            if (!canSensePartOfRobot)
                 continue;
+            
             // check if right team
             if (team != null && sensedRobot.getTeam() != team)
                 continue;
@@ -1142,7 +1148,9 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.getTeamInfo().addCheese(this.getTeam(), -GameConstants.RAT_KING_UPGRADE_CHEESE_COST);
         health = Math.min(health, UnitType.RAT_KING.health);
 
-        robot.becomeRatKing(health);
+        this.gameWorld.getTeamInfo().addCheese(this.getTeam(), robot.getCheese());
+        this.robot.addCheese(-this.robot.getCheese());
+        this.robot.becomeRatKing(health);
 
 
         for (Direction d : Direction.allDirections()) {
@@ -1314,6 +1322,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void throwRat() throws GameActionException {
         assertCanThrowRat(this.robot.getDirection());
+        this.robot.addActionCooldownTurns(GameConstants.THROW_RAT_COOLDOWN);
         this.robot.throwRobot();
     }
 

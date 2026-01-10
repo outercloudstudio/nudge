@@ -214,6 +214,7 @@ export default class Bodies {
         body.pos = { x: turn.x(), y: turn.y() }
         body.direction = turn.dir()
         body.hp = Math.max(turn.health(), 0)
+        body.cheese = turn.cheese()
         body.moveCooldown = turn.moveCooldown()
         body.actionCooldown = turn.actionCooldown()
         body.turningCooldown = turn.turningCooldown()
@@ -364,6 +365,7 @@ export class Body {
     public actionCooldown: number = 0
     public turningCooldown: number = 0
     public carriedRobot: number | undefined = undefined  // id of carried robot
+    public carrierRobot: number | undefined = undefined  // id of robot carrying this robot
     public beingCarried: boolean = false
     public bytecodesUsed: number = 0
     public cheese: number = 0
@@ -431,6 +433,7 @@ export class Body {
 
     public draw(match: Match, ctx: CanvasRenderingContext2D): void {
         const pos = this.getInterpolatedCoords(match)
+        
         const renderCoords = renderUtils.getRenderCoords(pos.x, pos.y, match.currentRound.map.staticMap.dimension)
 
         if (this.robotType == schema.RobotType.CAT) {
@@ -514,18 +517,22 @@ export class Body {
         const maxX = Math.min(location.x + ceiledRadius, match.map.width - 1)
         const maxY = Math.min(location.y + ceiledRadius, match.map.height - 1)
 
-        const coords: Vector[] = [location]
+        const coords: Vector[] = []
+
         const halfFOV = fov / 2
         if (direction == 0) {
             return coords
         }
 
+        const OFFSET = this.robotType === schema.RobotType.CAT ? {x: 0.5, y: 0.5} : {x: 0, y: 0}
+        const center = {x: location.x + OFFSET.x, y: location.y + OFFSET.y}
+
         const directionRad = (directionAngles[direction] * Math.PI) / 180
 
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
-                const dx = x - location.x
-                const dy = y - location.y
+                const dx = x - center.x
+                const dy = y - center.y
                 if (dx * dx + dy * dy <= radius) {
                     const angleToPoint = Math.atan2(dy, dx)
                     let angleDiff = angleToPoint - directionRad

@@ -40,7 +40,8 @@ public class GameWorld {
     private final TeamInfo teamInfo;
     private final ObjectInfo objectInfo;
     private boolean hasRunCheeseMinesThisRound; // whether we've run the cheese mines yet
-
+    private HashSet<Integer> hasTraveledIDs; // ids of robots that have traveled this ronud
+    
     private int[] currentNumberUnits = { 0, 0 };
 
     private Map<Team, ProfilerCollection> profilerCollections;
@@ -168,7 +169,8 @@ public class GameWorld {
 
         // Write match header at beginning of match
         this.matchMaker.makeMatchHeader(this.gameMap);
-
+        
+        this. hasTraveledIDs = new HashSet<>();
         this.allCheeseMinesByLoc = gm.getCheeseMineArray();
         this.cheeseMines = new ArrayList<CheeseMine>();
         this.cheeseMineLocs = new CheeseMine[numSquares];
@@ -742,6 +744,14 @@ public class GameWorld {
         return returnLocations.toArray(new MapLocation[returnLocations.size()]);
     }
 
+
+    public void addHasTraveledRobot(int id){
+        this.hasTraveledIDs.add(id);
+    }
+    public boolean getHasTraveledRobot(int id){
+        return this.hasTraveledIDs.contains(id);
+    }
+
     /**
      * @return all of the locations on the grid
      */
@@ -873,11 +883,11 @@ public class GameWorld {
 
         for (Team team : List.of(Team.A, Team.B)) {
 
-            float proportion_rat_kings = total_num_rat_kings != 0 ? teamInfo.getNumRatKings(team) / total_num_rat_kings : 0; 
-            float proportion_cheese_transferred = total_amount_cheese_transferred != 0 ? teamInfo.getCheeseTransferred(team) / total_amount_cheese_transferred : 0;
-            float proportion_cat_damage = total_amount_cat_damage != 0 ? teamInfo.getDamageToCats(team) / total_amount_cat_damage : 0;
+            float proportion_rat_kings = total_num_rat_kings != 0 ? (float)teamInfo.getNumRatKings(team) / total_num_rat_kings : 0.0f; 
+            float proportion_cheese_transferred = total_amount_cheese_transferred != 0 ? (float)teamInfo.getCheeseTransferred(team) / total_amount_cheese_transferred : 0.0f;
+            float proportion_cat_damage = total_amount_cat_damage != 0 ? (float)teamInfo.getDamageToCats(team) / total_amount_cat_damage : 0.0f;
 
-            int points = (int) (cat_weight * 100 * (proportion_cat_damage) + king_weight * 100 * proportion_rat_kings
+            int points = (int) (cat_weight * 100 * proportion_cat_damage + king_weight * 100 * proportion_rat_kings
                     + cheese_transfer_weight * 100 * proportion_cheese_transferred);
             this.teamInfo.addPoints(team, points);
             teamPoints.add(points);
@@ -954,6 +964,7 @@ public class GameWorld {
             this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
+        hasTraveledIDs.clear();
 
         this.getMatchMaker().endRound();
 

@@ -187,9 +187,12 @@ export const MapEditorPage: React.FC<Props> = (props) => {
     }
 
     useEffect(() => {
+        if (!canvasMouseDown || !hoveredTile) return;
         if (canvasMouseDown && hoveredTile) applyBrush(hoveredTile)
-        if (canvasMouseDown && hoveredTile) {
+        // added defensive checks just in case stuff is null for some reason
+        if (canvasMouseDown && hoveredTile && typeof hoveredTile.x === 'number' && typeof hoveredTile.y === 'number') {
             // override the GameRenderer's canvas click
+            if (!canvasMouseDown || !hoveredTile) return;
             const newSelectedBody = GameRunner.match?.currentRound.bodies.getBodyAtLocation(
                 hoveredTile.x,
                 hoveredTile.y
