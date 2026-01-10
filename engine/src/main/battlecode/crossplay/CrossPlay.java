@@ -10,23 +10,15 @@ import java.net.Socket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.Team;
-import battlecode.common.Direction;
-import battlecode.common.MapLocation;
-import battlecode.common.Message;
-import battlecode.common.MapInfo;
-import battlecode.common.RobotInfo;
+import battlecode.common.*;
 import battlecode.instrumenter.stream.RoboPrintStream;
 import battlecode.server.Server;
 
-import static battlecode.crossplay.CrossPlayObjectType.*;
 import static battlecode.crossplay.CrossPlayHelpers.*;
+import static battlecode.crossplay.CrossPlayObjectType.THROWN_GAME_ACTION_EXCEPTION;
 
 /**
  * Allows bots written in different languages to be run by the Java engine using a message-passing system.
@@ -41,6 +33,7 @@ public class CrossPlay {
     private Socket socket;
     private DataInputStream socketIn;
     private DataOutputStream socketOut;
+    private GameActionException recentException;
 
     private final ObjectMapper objectMapper;
 
@@ -81,6 +74,15 @@ public class CrossPlay {
         return objectMapper.readTree(bytes);
     }
 
+    private void sendJsonAndReceiveNull(JsonNode json) throws IOException, CrossPlayException {
+        sendJson(json);
+        JsonNode response = receiveJson();
+
+        if (!response.isNull()) {
+            throw new CrossPlayException("Expected null response, got: " + response.toString());
+        }
+    }
+
     public void cleanup() {
         try {
             sendEndGame();
@@ -92,41 +94,57 @@ public class CrossPlay {
         } catch (IOException ignored) {}
     }
 
-    public int runMessagePassing() throws GameActionException, CrossPlayException {
+    public void setPrintStream(OutputStream out) {
+        this.out = out;
+    }
+
+    public int runMessagePassing(boolean init) throws CrossPlayException, RethrownGameActionException, NonJavaBotException {
         while (true) {
             try {
                 JsonNode messageJson = receiveJson();
                 CrossPlayMessage message = objectMapper.treeToValue(messageJson, CrossPlayMessage.class);
 
-                JsonNode result = processMessage(message);
+                JsonNode result = processMessage(message, init);
                 sendJson(result);
 
                 if (message.method() == CrossPlayMethod.END_TURN) {
                     if (message.params() != null && message.params().isArray() && message.params().size() > 0) {
                         return message.params().get(0).asInt();
+                    } else {
+                        return 0;
                     }
-                    return 0;
                 }
-
             } catch (JsonProcessingException e) {
                 throw new CrossPlayException("Protocol error: Invalid JSON received from client: " + e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new CrossPlayException("Protocol error: Failed to map JSON to CrossPlayMessage: " + e.getMessage());
             } catch (IOException e) {
                 throw new CrossPlayException("Socket IPC failed: " + e.toString());
+            } catch (RethrownGameActionException e) {
+                throw e;
+            } catch (GameActionException e) {
+                sendException(e);
             }
         }
     }
 
-    private JsonNode processMessage(CrossPlayMessage message) throws GameActionException {
+    private JsonNode processMessage(CrossPlayMessage message, boolean init) throws GameActionException, NonJavaBotException {
         JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        CrossPlayMethod method = message.method();
 
-        switch (message.method()) {
-            case INVALID:
+        if (init && !method.isValidInitMethod()) {
+            throw new GameActionException(GameActionExceptionType.CANT_DO_THAT, "Python bot attempted to call method " + method + " during initialization!"
+                + " This method can only be called in the turn() function.");
+        }
+
+        switch (method) {
+            case INVALID: {
                 throw new CrossPlayException("Received invalid cross-play method!");
+            }
 
-            case END_TURN:
-                return nodeFactory.nullNode(); // Or object with type NULL if strict backward compat needed, but assuming raw JSON now.
+            case END_TURN: {
+                return nodeFactory.nullNode();
+            }
 
             case LOG: {
                 checkParams(message, 1);
@@ -139,17 +157,20 @@ public class CrossPlay {
                 return nodeFactory.nullNode();
             }
 
-            case RC_GET_ROUND_NUM:
+            case RC_GET_ROUND_NUM: {
                 checkParams(message, 0);
                 return nodeFactory.numberNode(this.processingRobot.getRoundNum());
+            }
 
-            case RC_GET_MAP_WIDTH:
+            case RC_GET_MAP_WIDTH: {
                 checkParams(message, 0);
                 return nodeFactory.numberNode(this.processingRobot.getMapWidth());
+            }
 
-            case RC_GET_MAP_HEIGHT:
+            case RC_GET_MAP_HEIGHT: {
                 checkParams(message, 0);
                 return nodeFactory.numberNode(this.processingRobot.getMapHeight());
+            }
 
             case RC_ADJACENT_LOCATION: {
                 checkParams(message, 1);
@@ -411,7 +432,7 @@ public class CrossPlay {
 
             case RC_GET_TEAM: {
                 checkParams(message, 0);
-                return nodeFactory.numberNode(this.processingRobot.getTeam().ordinal());
+                return makeTeamNode(nodeFactory, this.processingRobot.getTeam());
             }
 
             case RC_GET_TURNING_COOLDOWN_TURNS: {
@@ -421,7 +442,7 @@ public class CrossPlay {
 
             case RC_GET_TYPE: {
                 checkParams(message, 0);
-                return nodeFactory.numberNode(this.processingRobot.getType().ordinal());
+                return makeUnitTypeNode(nodeFactory, this.processingRobot.getType());
             }
 
             case RC_IS_ACTION_READY: {
@@ -704,8 +725,87 @@ public class CrossPlay {
                 return nodeFactory.nullNode();
             }
 
-            default:
+            case ML_BOTTOM_LEFT_DISTANCE_SQUARED_TO: {
+                checkParams(message, 2);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                return nodeFactory.numberNode(loc1.bottomLeftDistanceSquaredTo(loc2));
+            }
+
+            case ML_DIRECTION_TO: {
+                checkParams(message, 2);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                return makeDirNode(nodeFactory, loc1.directionTo(loc2));
+            }
+
+            case ML_DISTANCE_SQUARED_TO: {
+                checkParams(message, 2);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                return nodeFactory.numberNode(loc1.distanceSquaredTo(loc2));
+            }
+
+            case ML_IS_ADJACENT_TO: {
+                checkParams(message, 2);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                return nodeFactory.booleanNode(loc1.isAdjacentTo(loc2));
+            }
+
+            case ML_IS_WITHIN_DISTANCE_SQUARED: {
+                checkParams(message, 3);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                int distanceSquared = message.params().get(2).asInt();
+                return nodeFactory.booleanNode(loc1.isWithinDistanceSquared(loc2, distanceSquared));
+            }
+
+            case ML_IS_WITHIN_DISTANCE_SQUARED__LOC_INT_DIR_DOUBLE: {
+                checkParams(message, 5);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                int distanceSquared = message.params().get(2).asInt();
+                Direction dir = parseDirNode(message.params().get(3));
+                double theta = message.params().get(4).asDouble();
+                return nodeFactory.booleanNode(loc1.isWithinDistanceSquared(loc2, distanceSquared, dir, theta));
+            }
+
+            case ML_IS_WITHIN_DISTANCE_SQUARED__LOC_INT_DIR_DOUBLE_BOOLEAN: {
+                checkParams(message, 6);
+                MapLocation loc1 = parseLocNode(message.params().get(0));
+                MapLocation loc2 = parseLocNode(message.params().get(1));
+                int distanceSquared = message.params().get(2).asInt();
+                Direction dir = parseDirNode(message.params().get(3));
+                double theta = message.params().get(4).asDouble();
+                boolean useBottomLeft = message.params().get(5).asBoolean();
+                return nodeFactory.booleanNode(loc1.isWithinDistanceSquared(loc2, distanceSquared, dir, theta, useBottomLeft));
+            }
+
+            case UT_GET_ALL_TYPE_LOCATIONS: {
+                checkParams(message, 2);
+                UnitType type = unitTypes[message.params().get(0).asInt()];
+                MapLocation center = parseLocNode(message.params().get(1));
+                MapLocation[] locations = type.getAllTypeLocations(center);
+                return makeArrayNode(nodeFactory, locations, CrossPlayHelpers::makeLocNode);
+            }
+
+            case THROW_GAME_ACTION_EXCEPTION: {
+                checkParams(message, 2);
+                GameActionExceptionType etype = gameActionExceptionTypes[message.params().get(0).asInt()];
+                String traceback = message.params().get(1).asText();
+                throw new RethrownGameActionException(etype, traceback, recentException);
+            }
+
+            case THROW_EXCEPTION: {
+                checkParams(message, 1);
+                String traceback = message.params().get(0).asText();
+                throw new NonJavaBotException(traceback);
+            }
+
+            default: {
                 throw new CrossPlayException("Received unknown cross-play method: " + message.method());
+            }
         }
     }
 
@@ -714,7 +814,7 @@ public class CrossPlay {
         ObjectNode startTurn = nodeFactory.objectNode();
         startTurn.put("type", "start_turn");
         startTurn.put("round", this.processingRobot.getRoundNum());
-        startTurn.put("team", this.processingRobot.getTeam().ordinal());
+        startTurn.set("team", makeTeamNode(nodeFactory, this.processingRobot.getTeam()));
         startTurn.put("id", this.processingRobot.getID());
 
         try {
@@ -723,21 +823,78 @@ public class CrossPlay {
              throw new CrossPlayException("Failed to send start turn: " + e.toString());
         }
     }
-    
-    public void sendSpawnBot(int id, Team team) {
+
+    public void sendException(GameActionException e) {
+        JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
+        ObjectNode exceptionNode = nodeFactory.objectNode();
+        exceptionNode.put("type", THROWN_GAME_ACTION_EXCEPTION.ordinal());
+        exceptionNode.put("etype", e.getType().ordinal());
+        exceptionNode.put("msg", e.getMessage());
+
+        try {
+            sendJson(exceptionNode);
+        } catch (IOException e2) {
+            throw new CrossPlayException("Failed to send GameActionException over the socket: " + e2.toString());
+        }
+    }
+
+    public void sendSpawnBot(RobotController rc) {
+        this.processingRobot = rc;
+        int id = rc.getID();
+        Team team = rc.getTeam();
         JsonNodeFactory nodeFactory = objectMapper.getNodeFactory();
         ObjectNode spawnBot = nodeFactory.objectNode();
         spawnBot.put("type", "spawn_bot");
         spawnBot.put("id", id);
         spawnBot.put("team", team.ordinal());
-        
+
         try {
-            sendJson(spawnBot);
+            sendJsonAndReceiveNull(spawnBot);
+            runMessagePassing(true);
+            // TODO make this check bytecode by using runMessagePassing's return value
         } catch (IOException e) {
             throw new CrossPlayException("Failed to send spawn bot: " + e.toString());
+        } catch (NonJavaBotException e) {
+            printException(team, id, rc.getRoundNum(), e);
+        } catch (RethrownGameActionException e) {
+            printException(team, id, rc.getRoundNum(), e);
         }
     }
-    
+
+    public void printException(Team team, int id, int round, Exception e) {
+        String message = processPythonTraceback(e.getMessage());
+        String teamStr = team.toString();
+        String idStr = Integer.toString(id);
+        String formattedMessage = String.format("[%s: #%s@%s] ERROR:\n\n%s\n", teamStr, idStr, round, message);
+        System.out.println(formattedMessage);
+    }
+
+    private String processPythonTraceback(String traceback) {
+        String[] lines = traceback.split("\\r?\\n");
+        String prefix = "File \"<string>\", line "; // python-specific
+        StringBuilder sb = new StringBuilder();
+        boolean found = false;
+        sb.append("Traceback (most recent call last):");
+
+        for (String line : lines) {
+            int idx = 0;
+
+            while (idx < line.length() && Character.isWhitespace(line.charAt(idx))) {
+                idx++;
+            }
+            
+            if (idx < line.length() && line.startsWith(prefix, idx)) {
+                sb.append("\n  File \"bot.py\", line ");
+                sb.append(line.substring(idx + prefix.length()));
+                found = true;
+            }
+        }
+
+        sb.append("\n");
+        sb.append(lines[lines.length - 1]);
+        return found ? sb.toString() : traceback;
+    }
+
     public void sendDestroyBot(int id) {
         // If socket isn't initialized, we can't send destroy message, but that's fine 
         // because it means no bots have been spawned or connected yet.
@@ -749,7 +906,7 @@ public class CrossPlay {
         destroyBot.put("id", id);
         
         try {
-            sendJson(destroyBot);
+            sendJsonAndReceiveNull(destroyBot);
         } catch (IOException e) {
             throw new CrossPlayException("Failed to send destroy bot: " + e.toString());
         }
@@ -769,13 +926,12 @@ public class CrossPlay {
         }
     }
 
-    public int playTurn(RobotController rc, OutputStream systemOut) throws GameActionException {
+    public int playTurn(RobotController rc, OutputStream systemOut) throws RethrownGameActionException, NonJavaBotException {
         this.processingRobot = rc;
         this.out = systemOut;
 
         // Send start turn message to prime the client
         this.sendStartTurn();
-
-        return runMessagePassing();
+        return runMessagePassing(false);
     }
 }

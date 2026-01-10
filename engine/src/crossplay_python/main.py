@@ -1,17 +1,20 @@
 import os
 from argparse import ArgumentParser
 from subprocess import Popen
-import time
 import sys
+import traceback
 
+from battlecode.classes import GameActionException
 from battlecode.runner import RobotRunner
 from battlecode.crossplay import (
     BYTECODE_LIMIT,
+    CrossPlayException,
     receive,
     connect,
     close,
     send,
     send_and_wait,
+    send_null,
     CrossPlayMethod,
 )
 from battlecode.wrappers import _GAME_METHODS, Team
@@ -74,16 +77,23 @@ def play(team_a=None, team_b=None, debug=False):
         while True:
             # wait for server message
             response = receive()
+            print("Received message:", response)
 
             if not response:
                 # For null responses
                 continue
 
             msg_type = response.get("type")
+
             if msg_type == "end_game":
+                for runner in active_bots.values():
+                    runner.kill()
+                    
                 break
 
             elif msg_type == "spawn_bot":
+                send_null()
+                print("Sending null...")
                 team_ordinal = response["team"]
                 robot_id = response["id"]
 
@@ -98,12 +108,31 @@ def play(team_a=None, team_b=None, debug=False):
                     bytecode_limit=BYTECODE_LIMIT,
                     debug=debug,
                 )
-                runner.init_robot()
-                active_bots[robot_id] = runner
+
+                try:
+                    runner.init_robot()
+                    active_bots[robot_id] = runner
+                    bytecode_used = runner.bytecode_limit - runner.bytecode
+                    send(CrossPlayMethod.END_TURN, [bytecode_used])
+                except CrossPlayException as e:
+                    runner.kill()
+                    raise e
+                except GameActionException as e:
+                    runner.kill()
+                    print(f"GameActionException during initialization of bot {robot_id}: {e}")
+                    traceback.print_exc()
+                    send(CrossPlayMethod.THROW_GAME_ACTION_EXCEPTION, [e.type.value, traceback.format_exc()])
+                except Exception as e:
+                    runner.kill()
+                    print(f"Exception during initialization of bot {robot_id}: {e}")
+                    traceback.print_exc()
+                    send(CrossPlayMethod.THROW_EXCEPTION, [traceback.format_exc()])
 
             elif msg_type == "destroy_bot":
+                send_null()
                 robot_id = response["id"]
                 print(f"Destroying bot {robot_id}")
+
                 if robot_id in active_bots:
                     runner = active_bots.pop(robot_id)
                     runner.kill()
@@ -115,25 +144,35 @@ def play(team_a=None, team_b=None, debug=False):
                 print(f"Running turn {current_round} for id {robot_id}")
                 if robot_id in active_bots:
                     runner = active_bots[robot_id]
-                    runner.run()
-                    bytecode_used = runner.bytecode_limit - runner.bytecode
 
-                    # Send END_TURN with bytecode used
-                    send(CrossPlayMethod.END_TURN, [bytecode_used])
+                    try:
+                        runner.run()
+                        bytecode_used = runner.bytecode_limit - runner.bytecode
+                        send(CrossPlayMethod.END_TURN, [bytecode_used])
+                    except CrossPlayException as e:
+                        runner.kill()
+                        raise e
+                    except GameActionException as e:
+                        runner.kill()
+                        print(f"GameActionException during turn {current_round} of bot {robot_id}: {e}")
+                        traceback.print_exc()
+                        send(CrossPlayMethod.THROW_GAME_ACTION_EXCEPTION, [e.type.value, traceback.format_exc()])
+                    except Exception as e:
+                        runner.kill()
+                        print(f"Exception during turn {current_round} of bot {robot_id}: {e}")
+                        traceback.print_exc()
+                        send(CrossPlayMethod.THROW_EXCEPTION, [traceback.format_exc()])
                 else:
-                    print(
-                        f"Error: Unknown bot {robot_id} and no team info to spawn it."
-                    )
+                    # bot init must have thrown an exception
+                    send(CrossPlayMethod.RC_DISINTEGRATE)
 
             else:
                 print(f"Unknown message type: {msg_type}")
 
     except KeyboardInterrupt:
         pass
-    except Exception as e:
+    except CrossPlayException as e:
         print(f"CrossPlay runner error: {e}")
-        import traceback
-
         traceback.print_exc()
     finally:
         for runner in active_bots.values():

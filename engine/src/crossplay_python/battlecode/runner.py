@@ -4,6 +4,8 @@ import traceback
 from RestrictedPython import safe_builtins, limited_builtins, utility_builtins, Guards
 from threading import Thread, Event, Lock
 from time import sleep
+
+from .classes import GameActionException, GameActionExceptionType
 from .instrument import Instrument
 from types import CodeType, MethodType
 from typing import Any, List
@@ -24,6 +26,7 @@ class RobotThread(Thread):
         self.paused = False
         self.runner = runner
         self.running = True
+        self.exc = None
 
     def run(self):
         # Keep this thread alive until the robot is destroyed
@@ -32,11 +35,14 @@ class RobotThread(Thread):
             if not self.running:
                 return
 
-            #print("bytecode before", self.runner.bytecode)
-            if not self.runner.initialized:
-                self.runner.init_robot()
-            self.runner.do_turn()
-            #print("bytecode after", self.runner.bytecode)
+            try:
+                #print("bytecode before", self.runner.bytecode)
+                if not self.runner.initialized:
+                    self.runner.init_robot()
+                self.runner.do_turn()
+                #print("bytecode after", self.runner.bytecode)
+            except Exception as e:
+                self.exc = e
 
             self.run_event.clear()
             self.finished_event.set()
@@ -77,7 +83,6 @@ class RobotRunner:
         self.globals['__builtins__']['_unpack_sequence_'] = Guards.guarded_unpack_sequence
         self.globals['__builtins__']['_iter_unpack_sequence_'] = Guards.guarded_iter_unpack_sequence
         self.globals['__builtins__']['open'] = open
-        self.globals['__builtins__']['rc'] = RobotController
         self.globals['__builtins__']['enumerate'] = enumerate
         self.globals['__builtins__']['set'] = set
         self.globals['__builtins__']['frozenset'] = frozenset
@@ -223,22 +228,25 @@ class RobotRunner:
         return new_module
 
     def init_robot(self):
-        try:
-            exec(self.code['bot'], self.globals, self.locals)
-            self.globals.update(self.locals)
-            self.initialized = True
-        except:
-            self.error_method(traceback.format_exc(limit=5))
+        # try:
+        exec(self.code['bot'], self.globals, self.locals)
+        self.globals.update(self.locals)
+        self.initialized = True
+        # except:
+        #     self.error_method(traceback.format_exc(limit=5))
 
     def do_turn(self):
-        if 'turn' in self.locals and isinstance(self.locals['turn'], type(lambda _: 1)):
-            try:
-                exec(self.locals['turn'].__code__, self.globals, self.locals)
-            except Exception as e:
-                if not isinstance(e, GameFinishedException):
-                    self.error_method(traceback.format_exc(limit=5))
+        print("Doing turn")
+        if 'turn' in self.locals and isinstance(self.locals['turn'], type(lambda: 1)):
+            # try:
+            exec(self.locals['turn'].__code__, self.globals, self.locals)
+            # except Exception as e:
+            #     if not isinstance(e, GameFinishedException):
+            #         self.error_method(traceback.format_exc(limit=5))
         else:
-            self.error_method('Couldn\'t find turn function.')
+            # self.error_method('Couldn\'t find turn function.')
+            raise SyntaxError('Couldn\'t find turn() function.'
+                              ' All Battlecode bots written in Python must have a turn() function.')
 
     def run(self):
         self.bytecode = self.bytecode_limit
@@ -253,6 +261,10 @@ class RobotRunner:
         # Wait until the robot either pauses or completes its turn
         self.thread.finished_event.wait()
         self.thread.finished_event.clear()
+        
+        if self.thread.exc:
+            self.thread.kill()
+            raise self.thread.exc
 
     def pause(self):
         self.thread.wait()

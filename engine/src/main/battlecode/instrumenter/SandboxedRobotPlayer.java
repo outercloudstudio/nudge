@@ -1,8 +1,8 @@
 package battlecode.instrumenter;
 
+import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import battlecode.common.Team;
-import battlecode.common.GameActionException;
 import battlecode.instrumenter.profiler.Profiler;
 import battlecode.instrumenter.stream.RoboPrintStream;
 import battlecode.instrumenter.stream.SilencedPrintStream;
@@ -11,6 +11,8 @@ import battlecode.world.control.PlayerControlProvider;
 import battlecode.server.Config;
 import battlecode.crossplay.CrossPlay;
 import battlecode.crossplay.CrossPlayLanguage;
+import battlecode.crossplay.NonJavaBotException;
+import battlecode.crossplay.RethrownGameActionException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -199,18 +201,22 @@ public class SandboxedRobotPlayer {
                 pauseMethod.invoke(null);
                 // Run the robot!
                 loadAndRunPlayer(teamName, teamLanguage, PLAYER_CLASS_NAME);
+
                 // If we get here, we've returned from the 'run' method. Tell the user.
-                if (robotController.getLocation() != null){
-                System.out.println(robotController.getTeam().toString() + "'s " +
+                if (robotController.getLocation() != null) {
+                    System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " at location " + robotController.getLocation().toString()
                         + " froze in round " +robotController.getRoundNum() +
-                        " because it returned from its run() method!"); }
-                else{
+                        " because it returned from its run() method!");
+                } else {
                     System.out.println(robotController.getTeam().toString() + "'s " +
                         robotController.getID() + " that has not spawned yet " 
                         + " froze in round " +robotController.getRoundNum() +
                         " because it returned from its run() method!");
                 }
+            } catch (final NonJavaBotException e) {
+                crossPlayServer.printException(robotController.getTeam(),
+                    robotController.getID(), robotController.getRoundNum(), e);
             } catch (final IllegalAccessException e) {
                 ErrorReporter.report(e, true);
             } catch (final InvocationTargetException e) {
@@ -258,7 +264,7 @@ public class SandboxedRobotPlayer {
     }
 
     private void loadAndRunPlayer(String teamName, CrossPlayLanguage teamLanguage, String playerClassName)
-            throws InvocationTargetException, IllegalAccessException, InstrumentationException {
+            throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
         if (teamLanguage == CrossPlayLanguage.JAVA) {
             loadAndRunPlayerJava(teamName, playerClassName);
         } else {
@@ -302,21 +308,14 @@ public class SandboxedRobotPlayer {
     }
 
     private void loadAndRunPlayerCrossPlay(String teamName, String playerClassName)
-            throws InvocationTargetException, IllegalAccessException, InstrumentationException {
+            throws InvocationTargetException, IllegalAccessException, InstrumentationException, NonJavaBotException {
         while (true) {
             try {
                 // TODO set bytecode limit somehow (maybe in python, maybe here)
-                //int bytecodeUsed = crossPlay.playTurn(robotController, systemOut);
-
+                // int bytecodeUsed = crossPlay.playTurn(robotController, systemOut);
                 crossPlayServer.playTurn(robotController, systemOut);
-            } catch (GameActionException e) {
-                String message = "GameActionException thrown during cross-play turn: " + e.getMessage();
-
-                if (systemOut instanceof RoboPrintStream rps) {
-                    rps.println(message);
-                } else {
-                    System.out.println(message);
-                }
+            } catch (RethrownGameActionException e) {
+                throw new NonJavaBotException(e.getMessage());
             }
 
             this.pauseMethod.invoke(null);

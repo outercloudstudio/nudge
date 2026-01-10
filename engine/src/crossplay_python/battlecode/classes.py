@@ -1,5 +1,36 @@
 from enum import Enum as _Enum
 
+
+class GameActionExceptionType(_Enum):
+    INTERNAL_ERROR = 0
+    NOT_ENOUGH_RESOURCE = 1
+    CANT_MOVE_THERE = 2
+    IS_NOT_READY = 3
+    CANT_SENSE_THAT = 4
+    OUT_OF_RANGE = 5
+    CANT_DO_THAT = 6
+    NO_ROBOT_THERE = 7
+    ROUND_OUT_OF_RANGE = 8
+
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return f"GameActionExceptionType.{self.name}"
+
+
+class GameActionException(Exception):
+    def __init__(self, exc_type: GameActionExceptionType, message: str):
+        super().__init__(message)
+        self.type = exc_type
+    
+    def __str__(self):
+        return f"GameActionException of type {self.type}: {super().__str__()}"
+
+    def __repr__(self):
+        return f"GameActionException(type={repr(self.type)}, message={repr(super().__str__())})"
+
+
 class Team(_Enum):
     A = 0
     B = 1
@@ -13,9 +44,15 @@ class Team(_Enum):
                 return Team.A
             case Team.NEUTRAL:
                 return Team.NEUTRAL
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return f"Team.{self.name}"
 
 
-dir_to_index = {
+_dir_to_index = {
     (0, 1): 0,
     (1, 1): 1,
     (1, 0): 2,
@@ -47,17 +84,17 @@ class Direction(_Enum):
     def opposite(self) -> 'Direction':
         if self == Direction.CENTER:
             return self
-        return dir_order[(dir_to_index[self.value] + 4) % 8]
+        return _dir_order[(_dir_to_index[self.value] + 4) % 8]
 
     def rotate_left(self) -> 'Direction':
         if self == Direction.CENTER:
             return self
-        return dir_order[(dir_to_index[self.value] - 1) % 8]
+        return _dir_order[(_dir_to_index[self.value] - 1) % 8]
     
     def rotate_right(self) -> 'Direction':
         if self == Direction.CENTER:
             return self
-        return dir_order[(dir_to_index[self.value] + 1) % 8]
+        return _dir_order[(_dir_to_index[self.value] + 1) % 8]
     
     def all_directions():
         return Direction.__members__.values()
@@ -70,9 +107,15 @@ class Direction(_Enum):
     
     def get_delta_y(self):
         return self.dy
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return f"Direction.{self.name}"
 
 
-dir_order = [Direction.NORTH, Direction.NORTHEAST, Direction.EAST, Direction.SOUTHEAST, Direction.SOUTH, Direction.SOUTHWEST, Direction.WEST, Direction.NORTHWEST, Direction.CENTER]
+_dir_order = list(Direction)
 
 
 class MapLocation:
@@ -136,6 +179,12 @@ class UnitType(_Enum):
     
     def is_cat_type(self) -> bool:
         return self == UnitType.CAT
+
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return f"UnitType.{self.name}"
     
 
 class TrapType(_Enum):
@@ -153,6 +202,12 @@ class TrapType(_Enum):
         self.spawn_cheese_amount = spawn_cheese_amount
         self.max_count = max_count
         self.trigger_radius_squared = trigger_radius_squared
+    
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return f"TrapType.{self.name}"
 
 
 class MapInfo:
@@ -180,3 +235,87 @@ class RobotInfo:
         self.chirality = chirality
         self.cheese_amount = cheese_amount
         self.carrying_robot = carrying_robot
+
+
+class Message:
+    def __init__(self, message_bytes: int, sender_id: int, round: int, source_loc: MapLocation):
+        self.bytes = message_bytes
+        self.sender_id = sender_id
+        self.round = round
+        self.source_loc = source_loc
+    
+    def __str__(self):
+        return f"Message with value {self.bytes} sent from robot with ID {self.sender_id} during round {self.round} from location {self.source_loc}."
+    
+    def __repr__(self):
+        return f"Message({self.bytes}, sender_id={self.sender_id}, round={self.round}, source_loc={self.source_loc})"
+
+
+class GameConstants:
+    """
+    GameConstants defines constants that affect gameplay.
+    Modifying these constants on the Python side does not affect the game at all,
+    so there is no reason to modify them.
+    """
+
+    SPEC_VERSION = "1"
+    MAP_MIN_HEIGHT = 20
+    MAP_MAX_HEIGHT = 60
+    MAP_MIN_WIDTH = 20
+    MAP_MAX_WIDTH = 60
+    MIN_CHEESE_MINE_SPACING_SQUARED = 25
+    MAX_DIRT_PERCENTAGE = 50
+    MAX_WALL_PERCENTAGE = 20
+    GAME_DEFAULT_SEED = 6370
+    GAME_MAX_NUMBER_OF_ROUNDS = 2000
+    INDICATOR_STRING_MAX_LENGTH = 256
+    TIMELINE_LABEL_MAX_LENGTH = 64
+    EXCEPTION_BYTECODE_PENALTY = 500
+    INITIAL_TEAM_CHEESE = 2500
+    MAX_NUMBER_OF_RAT_KINGS = 5
+    MAX_TEAM_EXECUTION_TIME = 1200000000000
+    MOVE_STRAFE_COOLDOWN = 18
+    CHEESE_COOLDOWN_PENALTY = 0.01
+    RAT_KING_CHEESE_CONSUMPTION = 2
+    RAT_KING_HEALTH_LOSS = 10
+    CHEESE_MINE_SPAWN_PROBABILITY = 0.01
+    CHEESE_SPAWN_RADIUS = 4
+    CHEESE_SPAWN_AMOUNT = 20
+    NUMBER_INITIAL_RAT_KINGS = 1
+    CHEESE_TRANSFER_RADIUS_SQUARED = 9
+    CHEESE_PICK_UP_RADIUS_SQUARED = 2
+    BUILD_ROBOT_RADIUS_SQUARED = 4
+    BUILD_ROBOT_BASE_COST = 10
+    BUILD_ROBOT_COST_INCREASE = 10
+    NUM_ROBOTS_FOR_COST_INCREASE = 4
+    BUILD_DISTANCE_SQUARED = 2
+    RAT_KING_ATTACK_DISTANCE_SQUARED = 8
+    MESSAGE_ROUND_DURATION = 5
+    MAX_MESSAGES_SENT_ROBOT = 1
+    SQUEAK_RADIUS_SQUARED = 16
+    THROW_DAMAGE = 20
+    THROW_DAMAGE_PER_TILE = 5
+    RAT_BITE_DAMAGE = 10
+    CAT_SCRATCH_DAMAGE = 50
+    CAT_POUNCE_MAX_DISTANCE_SQUARED = 9
+    CAT_POUNCE_ADJACENT_DAMAGE_PERCENT = 50
+    CAT_DIG_ADDITIONAL_COOLDOWN = 5
+    HEALTH_GRAB_THRESHOLD = 0
+    RAT_KING_UPGRADE_CHEESE_COST = 50
+    DIG_DIRT_CHEESE_COST = 10
+    PLACE_DIRT_CHEESE_COST = 10
+    SHARED_ARRAY_SIZE = 64
+    COMM_ARRAY_MAX_VALUE = 1023
+    COOLDOWN_LIMIT = 10
+    COOLDOWNS_PER_TURN = 10
+    TURNING_COOLDOWN = 10
+    BUILD_ROBOT_COOLDOWN = 10
+    CHEESE_TRANSFER_COOLDOWN = 10
+    DIG_COOLDOWN = 25
+    CARRY_COOLDOWN_MULTIPLIER = 1.5
+    MAX_CARRY_TOWER_HEIGHT = 2
+    MAX_CARRY_DURATION = 10
+    THROW_DURATION = 4
+    HIT_GROUND_COOLDOWN = 10
+    HIT_TARGET_COOLDOWN = 30
+    CAT_SLEEP_TIME = 2

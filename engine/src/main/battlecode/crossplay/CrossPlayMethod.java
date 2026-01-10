@@ -1,5 +1,7 @@
 package battlecode.crossplay;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT)
@@ -106,7 +108,28 @@ public enum CrossPlayMethod {
     ML_DIRECTION_TO,
     UT_GET_ALL_TYPE_LOCATIONS,
     LOG,
+    THROW_GAME_ACTION_EXCEPTION,
+    THROW_EXCEPTION,
     ;
 
     public static final CrossPlayMethod[] values = values();
+    private static final Set<CrossPlayMethod> validInitMethods = Set.of(
+        INVALID,
+        END_TURN,
+        ML_DISTANCE_SQUARED_TO,
+        ML_BOTTOM_LEFT_DISTANCE_SQUARED_TO,
+        ML_IS_WITHIN_DISTANCE_SQUARED,
+        ML_IS_WITHIN_DISTANCE_SQUARED__LOC_INT_DIR_DOUBLE,
+        ML_IS_WITHIN_DISTANCE_SQUARED__LOC_INT_DIR_DOUBLE_BOOLEAN,
+        ML_IS_ADJACENT_TO,
+        ML_DIRECTION_TO,
+        UT_GET_ALL_TYPE_LOCATIONS,
+        LOG,
+        THROW_GAME_ACTION_EXCEPTION,
+        THROW_EXCEPTION
+    );
+
+    public boolean isValidInitMethod() {
+        return validInitMethods.contains(this);
+    }
 }
