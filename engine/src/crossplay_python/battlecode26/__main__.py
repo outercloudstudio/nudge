@@ -261,7 +261,8 @@ def main(args=None):
     if parsed_args.new_process:
         new_args = [
             sys.executable,
-            __file__,
+            "-m",
+            "battlecode26",
             "--teamA",
             team_a,
             "--teamB",
