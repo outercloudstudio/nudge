@@ -966,7 +966,7 @@ public final class RobotControllerImpl implements RobotController {
 
         MapLocation myLoc = this.getLocation();
 
-        if (!myLoc.isAdjacentTo(loc) || myType.isRatKingType() && myLoc.distanceSquaredTo(loc) > GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED) {
+        if (!myLoc.isAdjacentTo(loc) && !(myType.isRatKingType() && myLoc.distanceSquaredTo(loc) <= GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED)) {
             throw new GameActionException(CANT_DO_THAT, "Rats can only attack adjacent squares!");
         }
 
