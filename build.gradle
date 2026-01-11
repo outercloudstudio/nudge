@@ -78,6 +78,8 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
     '-Dbc.engine.show-indicators=' + (project.findProperty('showIndicators') ?: 'true'),
     '-Dbc.game.team-a=' + project.property('teamA'),
     '-Dbc.game.team-b=' + project.property('teamB'),
+    '-Dbc.game.team-a.language=' + (project.findProperty('languageA') ?: 'java'),
+    '-Dbc.game.team-b.language=' + (project.findProperty('languageB') ?: 'java'),
     '-Dbc.game.team-a.url=' + (project.findProperty('classLocationA') ?: defaultClassLocation),
     '-Dbc.game.team-b.url=' + (project.findProperty('classLocationB') ?: defaultClassLocation),
     '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
@@ -89,10 +91,29 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
   ]
 }
 
+task crossPlayPy(type: Exec, dependsOn: [':engine:build']) {
+  commandLine 'python', 'engine/src/crossplay_python/main.py',
+  '--teamA', (project.findProperty('languageA') == 'java' ? '/' : project.property('teamA')),
+  '--teamB', (project.findProperty('languageB') == 'java' ? '/' : project.property('teamB')),
+  '--dirA', 'example-bots/src/crossplay_python',
+  '--dirB', 'example-bots/src/crossplay_python',
+  '--new-process'
+}
+
+task headlessPy(dependsOn: ['headless']) {}
+headlessPy.mustRunAfter crossPlayPy
+
 // keep the client happy because it references this step
 task unpackClient() {}
 
-task run(dependsOn: ['headless', 'unpackClient']) {}
+task run(dependsOn: ['unpackClient']) {}
+
+if (project.hasProperty('languageA') && project.property('languageA') == 'python' ||
+    project.hasProperty('languageB') && project.property('languageB') == 'python') {
+  run.dependsOn crossPlayPy, headlessPy
+} else {
+  run.dependsOn headless
+}
 
 task runClient {
   doLast {

@@ -546,9 +546,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // ****** ACTION METHODS *********
     // *********************************
 
-    private int locationToInt(MapLocation loc) {
-        return this.gameWorld.locationToIndex(loc);
-    }
+    // private int locationToInt(MapLocation loc) {
+    //     return this.gameWorld.locationToIndex(loc);
+    // }
 
     /**
      * Method callable by (baby) rat robots to deal small
@@ -748,7 +748,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
     public void hitTarget(boolean isSecondMove) {
         int damage = GameConstants.THROW_DAMAGE
-                + GameConstants.THROW_DAMAGE_PER_TILE * (2 * this.remainingThrowDuration + (isSecondMove ? 0 : 1));
+                + GameConstants.THROW_DAMAGE_PER_TILE * (GameConstants.TILES_FLOWN_PER_TURN * this.remainingThrowDuration + (isSecondMove ? 0 : 1));
 
         if (this.gameWorld.getRobot(this.getLocation().add(this.thrownDir)) != null) {
             InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));

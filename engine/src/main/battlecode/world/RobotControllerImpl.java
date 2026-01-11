@@ -67,9 +67,9 @@ public final class RobotControllerImpl implements RobotController {
         return this.gameWorld.getObjectInfo().getRobotByID(id);
     }
 
-    private int locationToInt(MapLocation loc) {
-        return this.gameWorld.locationToIndex(loc);
-    }
+    // private int locationToInt(MapLocation loc) {
+    //     return this.gameWorld.locationToIndex(loc);
+    // }
 
     private MapInfo getMapInfo(MapLocation loc) throws GameActionException {
         GameWorld gw = this.gameWorld;
@@ -219,15 +219,15 @@ public final class RobotControllerImpl implements RobotController {
                     "Target location not within action range");
     }
 
-    private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
-        assertNotNull(loc);
-        if (getLocation().bottomLeftDistanceSquaredTo(loc) > maxRadiusSquared)
-            throw new GameActionException(OUT_OF_RANGE,
-                    "Target location not within action range");
-        if (!this.gameWorld.getGameMap().onTheMap(loc))
-            throw new GameActionException(CANT_SENSE_THAT,
-                    "Target location is not on the map");
-    }
+    // private void assertCanActOffCenterLocation(MapLocation loc, int maxRadiusSquared) throws GameActionException {
+    //     assertNotNull(loc);
+    //     if (getLocation().bottomLeftDistanceSquaredTo(loc) > maxRadiusSquared)
+    //         throw new GameActionException(OUT_OF_RANGE,
+    //                 "Target location not within action range");
+    //     if (!this.gameWorld.getGameMap().onTheMap(loc))
+    //         throw new GameActionException(CANT_SENSE_THAT,
+    //                 "Target location is not on the map");
+    // }
 
     private void assertCanPlaceDirt(MapLocation loc) throws GameActionException {
         assertIsActionReady();
@@ -1322,6 +1322,7 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public void throwRat() throws GameActionException {
         assertCanThrowRat(this.robot.getDirection());
+        this.robot.addActionCooldownTurns(GameConstants.THROW_RAT_COOLDOWN);
         this.robot.throwRobot();
     }
 
