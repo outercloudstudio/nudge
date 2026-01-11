@@ -154,7 +154,6 @@ jobs:
           python --version
           pip install --upgrade build
           SETUPTOOLS_SCM_PRETEND_VERSION=${RELEASE_VERSION} python -m build
-          cd ../../..
 
       - name: Determine access control
         run: |
