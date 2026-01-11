@@ -2,14 +2,10 @@ package battlecode.world;
 
 import battlecode.common.*;
 import battlecode.instrumenter.profiler.ProfilerCollection;
-import battlecode.schema.Action;
-import battlecode.schema.GameMap;
 import battlecode.server.ErrorReporter;
 import battlecode.server.GameMaker;
 import battlecode.server.GameState;
-import battlecode.util.FlatHelpers;
 import battlecode.world.control.RobotControlProvider;
-import battlecode.world.Trap;
 
 import java.util.*;
 

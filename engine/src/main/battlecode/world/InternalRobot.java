@@ -546,9 +546,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // ****** ACTION METHODS *********
     // *********************************
 
-    private int locationToInt(MapLocation loc) {
-        return this.gameWorld.locationToIndex(loc);
-    }
+    // private int locationToInt(MapLocation loc) {
+    //     return this.gameWorld.locationToIndex(loc);
+    // }
 
     /**
      * Method callable by (baby) rat robots to deal small

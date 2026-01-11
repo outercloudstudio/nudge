@@ -316,6 +316,7 @@ public final class MapLocation implements Serializable, Comparable<MapLocation> 
      *
      * @battlecode.doc.costlymethod
      */
+    @SuppressWarnings("unused")
     private MapLocation() {
         this(0, 0);
     }
