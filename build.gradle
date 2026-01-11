@@ -95,6 +95,8 @@ task crossPlayPy(type: Exec, dependsOn: [':engine:build']) {
   commandLine 'python', 'engine/src/crossplay_python/main.py',
   '--teamA', (project.findProperty('languageA') == 'java' ? '/' : project.property('teamA')),
   '--teamB', (project.findProperty('languageB') == 'java' ? '/' : project.property('teamB')),
+  '--dirA', 'example-bots/src/crossplay_python',
+  '--dirB', 'example-bots/src/crossplay_python',
   '--new-process'
 }
 

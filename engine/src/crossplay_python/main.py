@@ -20,17 +20,14 @@ from battlecode26.crossplay import (
 from battlecode26.wrappers import _GAME_METHODS, Team
 
 DETACHED_PROCESS = 0x00000008
-CROSSPLAY_PYTHON_DIR = "example-bots/src/crossplay_python"  # TODO change for scaffold
-
 TEAM_NAMES = {Team.A: "A", Team.B: "B", Team.NEUTRAL: "N"}
 
 
-def get_code(bot_name):
+def get_code(bot_name, bot_dir):
     if bot_name is None:
         return None
 
-    path = f"{CROSSPLAY_PYTHON_DIR}/{bot_name}"
-
+    path = f"{bot_dir}/{bot_name}"
     # read all files in this directory into a dictionary
     code = {}
 
@@ -57,13 +54,13 @@ def get_error_printer(team=None, id=None, round_provider=None):
     return format_print
 
 
-def play(team_a=None, team_b=None, debug=False):
+def play(team_a=None, team_b=None, dir_a="src", dir_b="src", debug=False):
     if team_a == "/":
         team_a = None
     if team_b == "/":
         team_b = None
 
-    code = {Team.A: get_code(team_a), Team.B: get_code(team_b), Team.NEUTRAL: None}
+    code = {Team.A: get_code(team_a, dir_a), Team.B: get_code(team_b, dir_b), Team.NEUTRAL: None}
     active_bots: dict[int, RobotRunner] = {}
     current_round = 0
     # _spawn_queue.clear()
@@ -244,8 +241,10 @@ def main(args=None):
         sys.exit(1)
 
     parser = ArgumentParser()
-    parser.add_argument("--teamA", help="Path to team A code file")
-    parser.add_argument("--teamB", help="Path to team B code file")
+    parser.add_argument("--teamA", help="Name of team A Python bot, or '/' for no bot", default="/")
+    parser.add_argument("--teamB", help="Name of team B Python bot, or '/' for no bot", default="/")
+    parser.add_argument("--dirA", help="Directory for team A code", default="src")
+    parser.add_argument("--dirB", help="Directory for team B code", default="src")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     parser.add_argument(
         "--new-process",
@@ -253,19 +252,32 @@ def main(args=None):
         help="Start the Python runner in a new process",
     )
     parsed_args = parser.parse_args(args)
+    team_a = parsed_args.teamA
+    team_b = parsed_args.teamB
+    dir_a = parsed_args.dirA
+    dir_b = parsed_args.dirB
+    debug = parsed_args.debug
 
     if parsed_args.new_process:
         new_args = [
             sys.executable,
             __file__,
             "--teamA",
-            parsed_args.teamA if parsed_args.teamA else "/",
+            team_a,
             "--teamB",
-            parsed_args.teamB if parsed_args.teamB else "/",
+            team_b,
+            "--dirA",
+            dir_a,
+            "--dirB",
+            dir_b,
         ]
 
-        if parsed_args.debug:
+        if debug:
             new_args.append("--debug")
+
+        # make sure that the code is valid before starting a new process
+        get_code(team_a, dir_a)
+        get_code(team_b, dir_b)
 
         Popen(
             new_args,
@@ -277,7 +289,9 @@ def main(args=None):
             creationflags=DETACHED_PROCESS,
         )
     else:
-        play(team_a=parsed_args.teamA, team_b=parsed_args.teamB, debug=parsed_args.debug)
+        play(team_a=parsed_args.teamA, team_b=parsed_args.teamB,
+             dir_a=parsed_args.dirA, dir_b=parsed_args.dirB,
+             debug=parsed_args.debug)
 
 
 if __name__ == "__main__":
