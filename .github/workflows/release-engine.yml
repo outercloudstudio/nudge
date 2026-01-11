@@ -149,11 +149,11 @@ jobs:
       - name: Build python package 
         shell: bash -el {0} # Make sure conda is activated
         run: |
-          cd engine/src/crossplay_python
           conda info
           python --version
           pip install --upgrade build
           SETUPTOOLS_SCM_PRETEND_VERSION=${RELEASE_VERSION} python -m build
+        working-directory: engine/src/crossplay_python
 
       - name: Determine access control
         run: |
@@ -165,7 +165,7 @@ jobs:
         run: |
           mv *.tar.gz battlecode.tar.gz
           gsutil -m cp -a $OBJECT_ACL battlecode.tar.gz gs://$GCS_BUCKET/maven/org/battlecode/${RELEASE_ARTIFACT_ID}-python/${RELEASE_VERSION}/
-        working-directory: ./dist
+        working-directory: engine/src/crossplay_python/dist
 
       # TODO: docs?
       # - name: Upload javadocs
