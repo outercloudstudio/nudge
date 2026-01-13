@@ -961,7 +961,9 @@ public class GameWorld {
 
         Team[] teams = {Team.A, Team.B};
         for (Team t : teams){
-            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+            // combine total cheese into the rat kings stat
+            int combined_stat = this.teamInfo.getNumRatKings(t) + 10*this.teamInfo.getCheese(t);
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), combined_stat, this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
         hasTraveledIDs.clear();
