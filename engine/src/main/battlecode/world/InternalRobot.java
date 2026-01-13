@@ -1252,8 +1252,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         this.dir = dir;
                     }
 
-                    if (getCatCornerByChirality().equals(this.catTargetLoc)) {
-                        this.catState = CatStateType.SEARCH;
+                    MapLocation[] partLocs = this.getAllPartLocations();
+
+                    for (MapLocation partLoc : partLocs) {
+                        if (partLoc.distanceSquaredTo(this.catTargetLoc) <= 2) {
+                            this.catState = CatStateType.SEARCH;
+                        }
                     }
 
                     // pounce towards target if possible
@@ -1269,7 +1273,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     } else {
                         boolean isStuck = true;
 
-                        for (MapLocation partLoc : this.getAllPartLocations()) {
+                        for (MapLocation partLoc : partLocs) {
                             MapLocation nextLoc = partLoc.add(this.dir);
 
                             if (this.controller.canRemoveDirt(nextLoc)) {
@@ -1357,7 +1361,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     ratVisible = false;
 
                     for (RobotInfo r : nearbyRobots) {
-                        if (r.equals(this.catTarget)) {
+                        if (r.getID() == this.catTarget.getID()) {
                             ratVisible = true;
                             this.catTargetLoc = this.catTarget.getLocation();
                         }
