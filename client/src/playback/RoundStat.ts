@@ -19,6 +19,7 @@ export class TeamRoundStat {
     ratKingCount: number = 0
     ratKingPercent: number = 0
     dirtAmount: number = 0
+    globalCheeseAmount: number = 0
     babyRatCount: number = 0
     ratTrapAmount: number = 0
     catTrapAmount: number = 0
