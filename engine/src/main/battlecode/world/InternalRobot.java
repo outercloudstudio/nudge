@@ -559,15 +559,17 @@ public class InternalRobot implements Comparable<InternalRobot> {
      * @param loc the MapLocation to attempt to bite
      */
     public void bite(MapLocation loc, int cheeseConsumed) {
-
         // Must be an immediate neighbor
         int distSq = this.location.distanceSquaredTo(loc);
-        if (distSq > 2 || distSq <= 0) {
+
+        if (!(distSq > 0 && (distSq <= 2 || (this.type == UnitType.RAT_KING
+            && distSq <= GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED)))) {
             return;
         }
 
         // Determine the direction from this rat to the target tile.
         Direction toTarget = this.location.directionTo(loc);
+
         if (toTarget == Direction.CENTER) {
             return;
         }
