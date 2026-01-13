@@ -280,14 +280,20 @@ def main(args=None):
         get_code(team_a, dir_a)
         get_code(team_b, dir_b)
 
+        kwargs = {
+            "shell": False,
+            "stdin": None,
+            "stdout": None,
+            "stderr": None,
+            "close_fds": True,
+        }
+
+        if os.name == "nt":
+            kwargs["creationflags"] = DETACHED_PROCESS
+
         Popen(
             new_args,
-            shell=False,
-            stdin=None,
-            stdout=None,
-            stderr=None,
-            close_fds=True,
-            creationflags=DETACHED_PROCESS,
+            **kwargs
         )
     else:
         play(team_a=parsed_args.teamA, team_b=parsed_args.teamB,

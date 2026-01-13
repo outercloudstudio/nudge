@@ -47,7 +47,7 @@ public class GameWorld {
     private Map<Team, ProfilerCollection> profilerCollections;
 
     private final RobotControlProvider controlProvider;
-    private Random rand;
+    Random rand;
     private final GameMaker.MatchMaker matchMaker;
 
     // Whether there is a ruin on each tile, indexed by location
@@ -220,6 +220,7 @@ public class GameWorld {
         // bfs form target to all possible sources, set source direction to target
 
         Direction[][] bfs_map;
+        
         if (chirality == 0)
             bfs_map = this.bfs_map_0;
         else
@@ -257,21 +258,25 @@ public class GameWorld {
                 boolean validPath = true;
                 
                 Direction[] dirsFromCenterLoc;
-                if (chirality == 0){
+
+                if (chirality == 0) {
                     dirsFromCenterLoc = new Direction[]{Direction.CENTER, Direction.NORTH, Direction.NORTHEAST, Direction.EAST};
-                }
-                else{
+                } else {
                     dirsFromCenterLoc = new Direction[]{flipDirBySymmetry(Direction.CENTER), flipDirBySymmetry(Direction.NORTH), flipDirBySymmetry(Direction.NORTHEAST), flipDirBySymmetry(Direction.EAST)};
                 }
+
                 for (Direction dirFromCenter : dirsFromCenterLoc){
                     MapLocation neighborCorner = neighbor.add(dirFromCenter);
-                    if (!this.gameMap.onTheMap(neighborCorner) || this.getWall(neighborCorner)){
+                    boolean onTheMap = this.gameMap.onTheMap(neighborCorner);
+
+                    if (!onTheMap || this.getWall(neighborCorner)){
                         // location not on map or has walls
                         validPath = false;
                         break;
                     }
                 }
-                if (validPath){
+
+                if (validPath) {
                     Direction reverseDirection = useDir.opposite();
                     bfs_map[locationToIndex(neighbor)][locationToIndex(target)] = reverseDirection;
                     queue.add(neighbor);
@@ -961,7 +966,9 @@ public class GameWorld {
 
         Team[] teams = {Team.A, Team.B};
         for (Team t : teams){
-            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), this.teamInfo.getNumRatKings(t), this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
+            // combine total cheese into the rat kings stat
+            int combined_stat = this.teamInfo.getNumRatKings(t) + 10*this.teamInfo.getCheese(t);
+            this.matchMaker.addTeamInfo(t, this.teamInfo.getCheeseTransferred(t), this.teamInfo.getDamageToCats(t), combined_stat, this.teamInfo.getNumBabyRats(t), this.teamInfo.getDirt(t), this.getTrapCount(TrapType.RAT_TRAP, t), this.getTrapCount(TrapType.CAT_TRAP, t));
         }
         this.teamInfo.processEndOfRound();
         hasTraveledIDs.clear();

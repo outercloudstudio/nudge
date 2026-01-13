@@ -1004,11 +1004,15 @@ public final class RobotControllerImpl implements RobotController {
         if (!this.gameWorld.isPassable(loc)) {
             throw new GameActionException(CANT_DO_THAT, "Cats cannot attack squares with walls or dirt on them!");
         }
-        if (this.gameWorld.getRobot(loc) == null) {
+
+        InternalRobot enemyRobot = this.gameWorld.getRobot(loc);
+
+        if (enemyRobot == null) {
             throw new GameActionException(CANT_DO_THAT, "No robot to attack at the specified location!");
         }
-        if (this.gameWorld.getRobot(loc) != null && this.gameWorld.getRobot(loc).getID() == this.robot.getID()) {
-            throw new GameActionException(CANT_DO_THAT, "Cannot attack self");
+        
+        if (enemyRobot != null && enemyRobot.getTeam() == this.robot.getTeam()) {
+            throw new GameActionException(CANT_DO_THAT, "Cannot attack another cat!");
         }
     }
 
