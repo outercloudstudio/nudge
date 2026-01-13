@@ -1437,10 +1437,6 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     }
                     break;
             }
-
-            if (this.controller.getRoundNum() <= 80) {
-                System.out.println("[" + this.controller.getRoundNum() + "] Cat " + this.ID + " is in state " + this.catState + " at location " + this.getLocation() + " with target " + this.catTargetLoc + " and turns stuck " + this.catTurnsStuck);
-            }
         }
 
         // indicator strings!
