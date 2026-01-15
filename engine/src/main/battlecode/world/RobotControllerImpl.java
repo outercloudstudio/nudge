@@ -254,10 +254,13 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanRemoveDirt(MapLocation loc) throws GameActionException {
-        assertIsRobotType(this.robot.getType());
+        UnitType myType = this.robot.getType();
+
         assertIsActionReady();
-        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
-        assertIsActionReady();
+        assertIsRobotType(myType);
+        assertCanActLocation(loc, myType == UnitType.RAT_KING
+            ? GameConstants.RAT_KING_BUILD_DISTANCE_SQUARED
+            : GameConstants.BUILD_DISTANCE_SQUARED);
 
         if ((this.robot.getType().isBabyRatType()
                 || this.robot.getType().isRatKingType()) && (this.getAllCheese() < GameConstants.DIG_DIRT_CHEESE_COST))
@@ -300,8 +303,12 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     private void assertCanRemoveRatTrap(MapLocation loc) throws GameActionException {
-        assertIsRobotType(this.robot.getType());
-        assertCanActLocation(loc, GameConstants.BUILD_DISTANCE_SQUARED);
+        UnitType myType = this.robot.getType();
+
+        assertIsRobotType(myType);
+        assertCanActLocation(loc, myType == UnitType.RAT_KING
+            ? GameConstants.RAT_KING_BUILD_DISTANCE_SQUARED
+            : GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (!this.gameWorld.hasRatTrap(loc))
             throw new GameActionException(CANT_DO_THAT, "No rat trap to remove at that location!");
@@ -1430,8 +1437,8 @@ public final class RobotControllerImpl implements RobotController {
             throw new GameActionException(CANT_DO_THAT, "Robots cannot grab themselves");
         }
 
-        if (targetRobot.getLastGrabberId() == this.robot.getID() && targetRobot.getTurnsSinceThrownOrDropped() < GameConstants.SAME_ROBOT_CARRY_COOLDOWN_TURNS) {
-            throw new GameActionException(CANT_DO_THAT, "Target robot was recently carried by this robot");
+        if (targetRobot.getTeam() != this.robot.getTeam() && targetRobot.getLastGrabberId() == this.robot.getID() && targetRobot.getTurnsSinceThrownOrDropped() < GameConstants.SAME_ROBOT_CARRY_COOLDOWN_TURNS) {
+            throw new GameActionException(CANT_DO_THAT, "Target robot (on the enemy team) was recently carried by this robot");
         }
 
         // Allow grabbing if the target is facing away (cannot sense this robot), or
