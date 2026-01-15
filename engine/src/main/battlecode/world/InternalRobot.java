@@ -574,8 +574,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
         // Must be an immediate neighbor
         int distSq = this.location.distanceSquaredTo(loc);
 
-        if (!(distSq > 0 && (distSq <= 2 || (this.type == UnitType.RAT_KING
-            && distSq <= GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED)))) {
+        if (distSq == 0 || distSq > (this.type == UnitType.RAT_KING
+            ? GameConstants.RAT_KING_ATTACK_DISTANCE_SQUARED
+            : GameConstants.ATTACK_DISTANCE_SQUARED)) {
             return;
         }
 

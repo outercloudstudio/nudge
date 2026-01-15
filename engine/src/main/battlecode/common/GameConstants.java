@@ -65,6 +65,20 @@ public class GameConstants {
     public static final int MAX_NUMBER_OF_RAT_KINGS = 5;
 
     /**
+     * The maximum number of rat kings that a team can have after the cutoff round.
+     * Rat kings created before the cutoff round are never destroyed,
+     * even if the team exceeds the new maximum.
+     */
+    public static final int MAX_NUMBER_OF_RAT_KINGS_AFTER_CUTOFF = 2;
+
+    /**
+     * The round after which the maximum number of rat kings is reduced.
+     * Rat kings created before this round are never destroyed,
+     * even if the team exceeds the new maximum.
+     */
+    public static final int RAT_KING_CUTOFF_ROUND = 1200;
+
+    /**
      * The maximum execution time that can be spent on a team in one match. If the
      * total time spent executing a team's bots
      * exceeds this limit, the team will immediately lose the game. Execution time
@@ -109,7 +123,11 @@ public class GameConstants {
     /** The maximum distance for transferring cheese to an allied rat king */
     public static final int CHEESE_TRANSFER_RADIUS_SQUARED = 9;
 
-    /** The maximum distance for picking up cheese on the map */
+    /**
+     * The maximum distance for picking up cheese on the map.
+     * This also applies to rat kings, so rat kings can only pick up cheese
+     * which is under one of their tiles.
+     */
     public static final int CHEESE_PICK_UP_RADIUS_SQUARED = 2;
 
     /** The maximum distance from a rat king for building robots */
@@ -132,6 +150,16 @@ public class GameConstants {
 
     /** The maximum distance from a robot for building traps or dirt */
     public static final int BUILD_DISTANCE_SQUARED = 2;
+
+    /**
+     * The maximum distance squared a rat king can build traps or dirt,
+     * measured from the king's center. All rats (including rat kings)
+     * can only build on adjacent squares, and the rat king is 3x3, so this is 8.
+     */
+    public static final int RAT_KING_BUILD_DISTANCE_SQUARED = 8;
+
+    /** The maximum distance squared a robot can attack */
+    public static final int ATTACK_DISTANCE_SQUARED = 2;
 
     /**
      * The maximum distance squared a rat king can attack, measured from the king's center.
