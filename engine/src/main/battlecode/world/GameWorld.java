@@ -1031,11 +1031,13 @@ public class GameWorld {
         MapLocation robotLoc = robot.getLocation();
         MapLocation[] locations = getAllLocationsWithinRadiusSquared(robotLoc, GameConstants.SQUEAK_RADIUS_SQUARED, 0); // chirality doesn't matter here
 
+        HashSet<Integer> squeakedIDs = new HashSet<>();
         for (MapLocation loc : locations) {
             InternalRobot otherRobot = getRobot(loc);
-
-            if (otherRobot != null && (otherRobot.getType().isCatType() || otherRobot.getTeam() == robot.getTeam())) {
+            
+            if (otherRobot != null && (otherRobot.getID() != robot.getID()) && (!squeakedIDs.contains(otherRobot.getID())) && (otherRobot.getType().isCatType() || otherRobot.getTeam() == robot.getTeam())) {
                 otherRobot.addMessage(message.copy());
+                squeakedIDs.add(otherRobot.getID());
             }
         }
 
