@@ -1269,6 +1269,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
                 case CHASE:
 
+                    if (this.catTurns >= 8) {
+                        this.catTurns = 0;
+                        this.catState = CatStateType.EXPLORE;
+                        break;
+                    }
+
                     dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
                     
                     if (dir == null) {
@@ -1284,6 +1290,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     for (MapLocation partLoc : partLocs) {
                         if (partLoc.distanceSquaredTo(this.catTargetLoc) <= 2) {
                             this.catState = CatStateType.SEARCH;
+                            this.catTurns = 0;
                         }
                     }
 
@@ -1342,6 +1349,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                             this.catTurnsStuck = 0;
                         }
                     }
+                    this.catTurns += 1;
                     break;
 
                 case SEARCH:
@@ -1374,6 +1382,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                         this.catTargetLoc = rat.getLocation();
                         this.catTarget = rat;
                         this.catState = CatStateType.ATTACK;
+                        this.catTurns = 0;
                     }
 
                     this.catTurns += 1;
