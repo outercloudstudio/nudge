@@ -25,8 +25,24 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     // Default
     'DefaultSmall',
     'DefaultMedium',
-    'DefaultLarge'
+    'DefaultLarge',
     // Sprint 1
+    'sittingducks',
+    'starvation',
+    'thunderdome',
+    'popthecork',
+    'cheesefarm',
+    'rift',
+    'ZeroDay',
+    'pipes',
+    'Nofreecheese',
+    'wallsofparadis',
+    'dirtpassageway',
+    'trapped',
+    'arrows',
+    'Meow',
+    'dirtfulcat',
+    'keepout'
     // Sprint 2
     // HS
     // Quals
