@@ -56,6 +56,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // the number of messages this robot/tower has sent this turn
     private int sentMessagesCount;
 
+    public static Random rand = new Random(1092);
+
     private int chirality;
     private int sleepTimeRemaining;
 
@@ -1179,11 +1181,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     if (this.catTurnsStuck >= 4){
                         // cat has been unable to move or dig or attack for 4+ turns
                         // start turning and then trying to dig or attack again
+                        Direction[] directions = Direction.values();
+                        Direction random = directions[rand.nextInt(directions.length)];
+                        
                         if (this.controller.canTurn()) {
-                            try {
-                                if (this.chirality == 0) this.controller.turn(this.dir.rotateRight());
-                                else this.controller.turn(this.dir.rotateLeft());
-                            } catch (GameActionException e) {}
+                            try{
+                                this.controller.turn(random);
+                            }
+                            catch (GameActionException e){} 
+                            
                         }
                     }
                     else{
