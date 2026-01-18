@@ -202,7 +202,7 @@ public class GameConstants {
     public static final int CAT_SCRATCH_DAMAGE = 20;
 
     /** The distance squared a cat can pounce to */
-    public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 9;
+    public static final int CAT_POUNCE_MAX_DISTANCE_SQUARED = 13;
 
     public static final int CAT_DIG_ADDITIONAL_COOLDOWN = 5;
 
