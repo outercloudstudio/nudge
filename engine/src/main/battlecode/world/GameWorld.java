@@ -235,7 +235,7 @@ public class GameWorld {
             MapLocation nextLoc = queue.poll();
             
             // check neighbors
-            for (Direction d : Direction.allDirections()){
+            for (Direction d : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST, Direction.NORTHEAST, Direction.SOUTHEAST, Direction.SOUTHWEST, Direction.NORTHWEST}){
                 if (d == Direction.CENTER)
                     continue;
 

@@ -56,6 +56,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
     // the number of messages this robot/tower has sent this turn
     private int sentMessagesCount;
 
+    public static Random rand = new Random(1092);
+
     private int chirality;
     private int sleepTimeRemaining;
 
@@ -67,6 +69,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
     private String indicatorString;
 
     private int currentWaypoint;
+    private int previousWaypoint;
     private CatStateType catState;
     private MapLocation[] catWaypoints;
     private MapLocation catTargetLoc;
@@ -120,6 +123,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.controller = new RobotControllerImpl(gameWorld, this);
 
         this.currentWaypoint = 0;
+        this.previousWaypoint = 0;
         this.catState = CatStateType.EXPLORE;
         this.sleepTimeRemaining = 0;
         this.chirality = chirality;
@@ -876,7 +880,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         // pounce distnace
         boolean isWithinPounceDistance = (this.getLocation()
                 .bottomLeftDistanceSquaredTo(loc) <= GameConstants.CAT_POUNCE_MAX_DISTANCE_SQUARED);
-        if (!this.gameWorld.isPassable(loc) || !isWithinPounceDistance) {
+        if (!this.gameWorld.getGameMap().onTheMap(loc) || !this.gameWorld.isPassable(loc) || !isWithinPounceDistance) {
             return null;
         }
 
@@ -1067,6 +1071,12 @@ public class InternalRobot implements Comparable<InternalRobot> {
         }
     }
 
+    private void clearAllMessages(){
+        while (!incomingMessages.isEmpty()){
+            popMessage();
+        }
+    }
+
     // ****************************
     // ****** GETTER METHODS ******
     // ****************************
@@ -1165,62 +1175,55 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.sleepTimeRemaining -= 1;
         }
         else if (this.type == UnitType.CAT) {
-            int[] pounceTraj = null;
-            Direction dir;
 
             switch (this.catState) {
                 case EXPLORE:
-
-                    // try seeing nearby rats
-                    
-                    Message squeak = getFrontMessage();
-                    RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
-
-                    boolean ratVisible = false;
-                    RobotInfo rat = null;
-
-                    for (RobotInfo r : nearbyRobots) {
-                        if (r.getType().isBabyRatType() || r.getType().isRatKingType()) {
-                            ratVisible = true;
-                            rat = r;
+                    if (this.catTurnsStuck >= 4){
+                        // cat has been unable to move or dig or attack for 4+ turns
+                        // start turning and then trying to dig or attack again
+                        Direction[] directions = Direction.values();
+                        Direction random = directions[rand.nextInt(directions.length)];
+                        
+                        if (this.controller.canTurn()) {
+                            try{
+                                this.controller.turn(random);
+                            }
+                            catch (GameActionException e){} 
                         }
                     }
-
-                    if (ratVisible) {
-                        // upon seeing a rat immediately go to attack it, otherwise chase then search
-                        this.catTargetLoc = rat.getLocation();
-                        this.catState = CatStateType.ATTACK;
-                        this.catTarget = rat;
-                    } else if (squeak != null) {
-                        this.catTargetLoc = squeak.getSource();
-                        this.catState = CatStateType.CHASE;
-                    } else {
+                    else if (this.catTurnsStuck == 0){
+                        // cat not stuck and ready to move! let's set our eyes on the next waypoint
                         MapLocation waypoint = catWaypoints[currentWaypoint];
 
                         if (getCatCornerByChirality().equals(waypoint)) {
-                            currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
+                            // reached waypoint, enter brief attack phase
+                            if (currentWaypoint == previousWaypoint){ // just returned to explore phase from attack phase, move on to next waypoint
+                                currentWaypoint = (currentWaypoint + 1) % catWaypoints.length;
+                            }
+                            else{ // first time reaching this waypoint, attack!
+                                previousWaypoint = currentWaypoint;
+                                this.catState = CatStateType.ATTACK;
+                                break;
+                            }
                         }
                         this.catTargetLoc = catWaypoints[currentWaypoint];
+
+                        this.dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
+
+                        if (dir == null || dir == Direction.CENTER) {
+                            dir = this.location.directionTo(this.catTargetLoc);
+                        }
                     }
 
-                    dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
-
-                    if (dir == null) {
-                        dir = this.location.directionTo(this.catTargetLoc);
-                    }
-
-                    if (dir != Direction.CENTER && this.catTurnsStuck <= 1) {
-                        this.dir = dir;
-                    }
-
+                    // now that we've established our facing direction, try moving
                     if (this.controller.canMove(this.dir)) {
                         try {
                             this.controller.move(this.dir);
                             this.catTurnsStuck = 0;
                         } catch (GameActionException e) {
                     }
-                    } else {
-                        boolean isStuck = true;
+                    } else { // cannot move that way, remove dirt or attack whatever is blocking us
+                        boolean isStuck = true; // represents whether cat is stuck without being able to dig or without being able to attack
 
                         for (MapLocation partLoc : this.getAllPartLocations()) {
                             MapLocation nextLoc = partLoc.add(this.dir);
@@ -1244,257 +1247,138 @@ public class InternalRobot implements Comparable<InternalRobot> {
                                 }
                             }
                         }
+
+                        // try pouncing out
+                        if (isStuck){
+                            // try pouncing
+                            int[] pounceTraj = null;
+                            MapLocation twoTilesAway = this.getCatCornerByChirality().add(dir).add(dir);
+                            pounceTraj = canPounce(twoTilesAway);
+                            if (canMoveCooldown() && pounceTraj != null) { 
+                                this.pounce(pounceTraj);
+                                isStuck = false;
+                            } 
+                        }
                         
+                        // give up
                         if (isStuck) {
                             this.catTurnsStuck += 1;
-
-                            if (this.controller.canTurn()) {
-                                try {
-                                    if (this.catTurnsStuck <= 2) {
-                                        if (this.chirality == 0) this.controller.turn(this.dir.rotateRight());
-                                        else this.controller.turn(this.dir.rotateLeft());
-                                    } else {
-                                        boolean right = this.gameWorld.rand.nextBoolean();
-
-                                        if (right) this.controller.turn(this.dir.rotateRight().rotateRight());
-                                        else this.controller.turn(this.dir.rotateLeft().rotateLeft());
-                                    }
-                                } catch (GameActionException e) {}
-                            }
-                        } else {
+                        }
+                        else {
                             this.catTurnsStuck = 0;
                         }
                     }
-                    break;
-
-                case CHASE:
-
-                    if (this.catTurns >= 10) {
-                        this.catTurns = 0;
-                        this.catState = CatStateType.EXPLORE;
-                        break;
-                    }
-
-                    dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
-                    
-                    if (dir == null) {
-                        dir = this.location.directionTo(this.catTargetLoc);
-                    }
-
-                    if (dir != Direction.CENTER && this.catTurnsStuck <= 1) {
-                        this.dir = dir;
-                    }
-
-                    MapLocation[] partLocs = this.getAllPartLocations();
-
-                    for (MapLocation partLoc : partLocs) {
-                        if (partLoc.distanceSquaredTo(this.catTargetLoc) <= 2) {
-                            this.catState = CatStateType.SEARCH;
-                            this.catTurns = 0;
-                        }
-                    }
-
-                    // pounce towards target if possible
-                    pounceTraj = canPounce(this.catTargetLoc);
-
-                    if (canActCooldown() && pounceTraj != null) {
-                        this.pounce(pounceTraj);
-                    } else if (this.controller.canMove(this.dir)) {
-                        try {
-                            this.controller.move(this.dir);
-                            this.catTurnsStuck = 0;
-                        } catch (GameActionException e) {}
-                    } else {
-                        boolean isStuck = true;
-
-                        for (MapLocation partLoc : partLocs) {
-                            MapLocation nextLoc = partLoc.add(this.dir);
-
-                            if (this.controller.canRemoveDirt(nextLoc)) {
-                                try {
-                                    this.controller.removeDirt(nextLoc);
-                                    this.addActionCooldownTurns(GameConstants.CAT_DIG_ADDITIONAL_COOLDOWN);
-                                    isStuck = false;
-                                } catch (GameActionException e) {
-                                    continue;
-                                }
-                            }
-                            else if (this.controller.canAttack(nextLoc)) {
-                                try {
-                                    this.controller.attack(nextLoc);
-                                    isStuck = false;
-                                } catch (GameActionException e) {
-                                    continue;
-                                }
-                            }
-                        }
-
-                        if (isStuck) {
-                            this.catTurnsStuck += 1;
-
-                            if (this.controller.canTurn()) {
-                                try {
-                                    if (this.catTurnsStuck <= 2) {
-                                        if (this.chirality == 0) this.controller.turn(this.dir.rotateRight());
-                                        else this.controller.turn(this.dir.rotateLeft());
-                                    } else {
-                                        boolean right = this.gameWorld.rand.nextBoolean();
-
-                                        if (right) this.controller.turn(this.dir.rotateRight().rotateRight());
-                                        else this.controller.turn(this.dir.rotateLeft().rotateLeft());
-                                    }
-                                } catch (GameActionException e) {}
-                            }
-                        } else {
-                            this.catTurnsStuck = 0;
-                        }
-                    }
-                    this.catTurns += 1;
-                    break;
-
-                case SEARCH:
-
-                    if (this.catTurns >= 4) {
-                        this.catTurns = 0;
-                        this.catState = CatStateType.EXPLORE;
-                        break;
-                    }
-
-                    if (chirality == 0) {
-                        this.dir = this.dir.rotateLeft().rotateLeft();
-                    } else {
-                        this.dir = this.dir.rotateRight().rotateRight();
-                    }
-
-                    nearbyRobots = this.controller.senseNearbyRobots();
-
-                    ratVisible = false;
-                    rat = null;
-
-                    for (RobotInfo r : nearbyRobots) {
-                        if (r.getType().isBabyRatType() || r.getType().isRatKingType()) {
-                            ratVisible = true;
-                            rat = r;
-                        }
-                    }
-
-                    if (ratVisible) {
-                        this.catTargetLoc = rat.getLocation();
-                        this.catTarget = rat;
-                        this.catState = CatStateType.ATTACK;
-                        this.catTurns = 0;
-                    }
-
-                    this.catTurns += 1;
                     break;
 
                 case ATTACK:
-                    
-                    if (this.catTurns == 10) {
-                        if (this.chirality == 0) this.dir = this.dir.rotateRight().rotateRight();
-                        else this.dir = this.dir.rotateLeft().rotateLeft();
-
-                        this.catTurns += 1;
-                        break;
-                    }
-                    else if (this.catTurns == 11){
-                        if (this.chirality == 0) this.dir = this.dir.rotateRight().rotateRight();
-                        else this.dir = this.dir.rotateLeft().rotateLeft();
-
+                    this.catTurns += 1; // increment number of turns spent in attack mode
+                    if (this.catTurns > 8){ // only allow attacking for 8 turns
+                        //return to exploring
                         this.catTurns = 0;
                         this.catState = CatStateType.EXPLORE;
                         break;
                     }
+                    
+                    // first listen for squeaks and take first squeak heard on this turn
+                    Message squeak = getFrontMessage();
+                    clearAllMessages();
+                    RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
 
-                    // step 1: try to find the rat it was attacking, if cannot find it go back to
-                    // explore
-                    nearbyRobots = this.controller.senseNearbyRobots();
-
-                    ratVisible = false;
-
-                    for (RobotInfo r : nearbyRobots) {
-                        if (r.getID() == this.catTarget.getID()) {
-                            ratVisible = true;
-                            this.catTargetLoc = this.catTarget.getLocation();
+                    if (squeak != null){
+                        // get distracted and turn towards squeak
+                        this.dir = this.getLocation().directionTo(squeak.getSource());
+                    } 
+                    
+                    // next look for rats in our current facing direction
+                    boolean sensedRat = false; // whether we have a rat to target
+                    // prioritize looking for target rat
+                    if (this.catTarget != null){
+                        for (RobotInfo r : nearbyRobots) {
+                            if (r.getID() == this.catTarget.getID()) {
+                                sensedRat = true;
+                                this.catTargetLoc = this.catTarget.getLocation();
+                                break;
+                            }
                         }
                     }
+                    if (!sensedRat){ // if we couldn't find target rat or there was no target rat look for one in our current vision cone
+                        // reset cat target
+                        this.catTarget = null;
+                        this.catTargetLoc = null;
 
-                    if (!ratVisible) {
-                        this.catState = CatStateType.EXPLORE;
-                        this.catTurns = 0;
-                        break;
+                        // look for new target
+                        for (RobotInfo r : nearbyRobots) {
+                            if (r.getType().isBabyRatType() || r.getType().isRatKingType()) {
+                                sensedRat = true;
+                                this.catTarget = r;
+                                this.catTargetLoc = this.catTarget.getLocation();
+                            }
+                        }
+                        
                     }
+                    if (this.catTargetLoc != null){
+                        // we have a target location!
 
-                    // step 2: try to attack it and move towards it
+                        // first try attacking
+                        if (this.controller.canAttack(this.catTarget.getLocation())) {
+                            try {
+                                this.controller.attack(this.catTarget.getLocation());
+                                break;
+                            } catch (GameActionException e) {}
+                        }
+                        else{
+                            // try pouncing
+                            int[] pounceTraj = null;
+                            pounceTraj = canPounce(this.catTargetLoc);
 
-                    if (this.controller.canAttack(this.catTarget.getLocation())) {
-                        try {
-                            this.controller.attack(this.catTarget.getLocation());
-                        } catch (GameActionException e) {}
-                    }
-
-                    dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
-
-                    if (dir == null) {
-                        dir = this.location.directionTo(this.catTargetLoc);
-                    }
-
-                    if (dir != Direction.CENTER && this.catTurnsStuck <= 1) {
-                        this.dir = dir;
-                    }
-
-                    // pounce towards target if possible
-                    pounceTraj = canPounce(this.catTargetLoc);
-
-                    if (canMoveCooldown() && pounceTraj != null) {
-                        this.pounce(pounceTraj);
-                    } else if (this.controller.canMove(this.dir)) {
-                        try {
-                            this.controller.move(this.dir);
-                            this.catTurnsStuck = 0;
-                        } catch (GameActionException e) {}
-                    } else {
-                        boolean isStuck = true;
-
-                        for (MapLocation partLoc : this.getAllPartLocations()) {
-                            MapLocation nextLoc = partLoc.add(this.dir);
-
-                            if (this.controller.canRemoveDirt(nextLoc)) {
-                                try {
-                                    isStuck = false;
-                                    this.controller.removeDirt(nextLoc);
-                                    this.addActionCooldownTurns(GameConstants.CAT_DIG_ADDITIONAL_COOLDOWN);
-                                } catch (GameActionException e) {
-                                    continue;
+                            if (canMoveCooldown() && pounceTraj != null) { 
+                                this.pounce(pounceTraj);
+                                break;
+                            }
+                            // if pounce failed, try moving in the direction of the target
+                            else{
+                                dir = this.gameWorld.getBfsDir(getCatCornerByChirality(), this.catTargetLoc, this.chirality);
+                                if (dir == null || dir == Direction.CENTER) {
+                                    dir = this.location.directionTo(this.catTargetLoc);
                                 }
-                            } else if (this.controller.canAttack(nextLoc)) {
-                                try {
-                                    this.controller.attack(nextLoc);
-                                } catch (GameActionException e) {
-                                    continue;
+                                if (this.controller.canMove(this.dir)) {
+                                    try {
+                                        this.controller.move(this.dir);
+                                        this.catTurnsStuck = 0;
+                                        break;
+                                    } 
+                                    catch (GameActionException e) {}
+                                }
+                                else{
+                                    // couldn't move :(
+                                    
+                                    // remove dirt if possible
+                                    for (MapLocation partLoc : this.getAllPartLocations()) {
+                                        MapLocation nextLoc = partLoc.add(this.dir);
+
+                                        if (this.controller.canRemoveDirt(nextLoc)) {
+                                            try {
+                                                this.controller.removeDirt(nextLoc);
+                                                this.addActionCooldownTurns(GameConstants.CAT_DIG_ADDITIONAL_COOLDOWN);
+                                                break;
+                                            } catch (GameActionException e) {
+                                                continue;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-
-                        if (isStuck) {
-                            this.catTurnsStuck += 1;
-
-                            try {
-                                if (this.catTurnsStuck <= 2) {
-                                    if (this.chirality == 0) this.controller.turn(this.dir.rotateRight());
-                                    else this.controller.turn(this.dir.rotateLeft());
-                                } else {
-                                    boolean right = this.gameWorld.rand.nextBoolean();
-
-                                    if (right) this.controller.turn(this.dir.rotateRight().rotateRight());
-                                    else this.controller.turn(this.dir.rotateLeft().rotateLeft());
-                                }
-                            } catch (GameActionException e) {}
-                        } else {
-                            this.catTurnsStuck = 0;
-                        }
                     }
-                    this.catTurns += 1;
+                    
+                    // if we never successfully did anything, just rotate
+                    if (this.controller.canTurn()) { 
+                        try {
+                            if (this.chirality == 0) this.controller.turn(this.dir.rotateRight());
+                            else this.controller.turn(this.dir.rotateLeft());
+                        } catch (GameActionException e) {}
+                    }
+                    
                     break;
             }
         }
