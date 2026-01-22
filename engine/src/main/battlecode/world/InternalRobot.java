@@ -1182,14 +1182,15 @@ public class InternalRobot implements Comparable<InternalRobot> {
             this.gameWorld.getMatchMaker().addCatFeedAction(this.getID());
             this.sleepTimeRemaining -= 1;
         } else if (this.type == UnitType.CAT) {
+            Direction[] nonCenterDirections = {Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST, Direction.SOUTHEAST, Direction.SOUTH, Direction.SOUTHWEST};
 
             switch (this.catState) {
                 case EXPLORE:
                     if (this.catTurnsStuck >= 4) {
                         // cat has been unable to move or dig or attack for 4+ turns
                         // start turning and then trying to dig or attack again
-                        Direction[] directions = Direction.values();
-                        Direction random = directions[rand.nextInt(directions.length)];
+                                            
+                        Direction random = nonCenterDirections[rand.nextInt(nonCenterDirections.length)];
 
                         if (this.controller.canTurn()) {
                             try {
@@ -1291,7 +1292,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
                     clearAllMessages();
                     RobotInfo[] nearbyRobots = this.controller.senseNearbyRobots();
 
-                    if (squeak != null) {
+                    if (squeak != null && this.getLocation().directionTo(squeak.getSource()) != Direction.CENTER) {
                         // get distracted and turn towards squeak
                         this.dir = this.getLocation().directionTo(squeak.getSource());
                     }
