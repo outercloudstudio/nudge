@@ -1,5 +1,5 @@
 # Battlecode 2026 Python Documentation
-v1.1.5
+v1.2.1
 
 ## Getting Started
 
@@ -228,7 +228,11 @@ class RobotController:
     def on_the_map(loc: MapLocation) -> bool:
         pass
 
-    def pick_up_cheese(loc: MapLocation) -> None:
+    def pick_up_cheese(loc: MapLocation, amount: int = ...) -> None:
+        """
+        Calling this function with only the first argument makes the rat
+        pick up the maximum amount of cheese possible.
+        """
         pass
 
     def place_cat_trap(loc: MapLocation) -> None:

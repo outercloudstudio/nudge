@@ -243,8 +243,11 @@ class RobotController:
         return _wait(_m.RC_ON_THE_MAP, [loc])
     
     @staticmethod
-    def pick_up_cheese(loc: MapLocation) -> None:
-        _wait(_m.RC_PICK_UP_CHEESE, [loc])
+    def pick_up_cheese(loc: MapLocation, amount: int = ...) -> None:
+        if amount is ...:
+            _wait(_m.RC_PICK_UP_CHEESE, [loc])
+        else:
+            _wait(_m.RC_PICK_UP_CHEESE__LOC_INT, [loc, amount])
 
     @staticmethod
     def place_cat_trap(loc: MapLocation) -> None:

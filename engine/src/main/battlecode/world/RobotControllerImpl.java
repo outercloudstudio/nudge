@@ -473,7 +473,12 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.addCheese(loc, -amountCheeseAvail);
         this.robot.addCheese(amountCheeseAvail);
         this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
-        this.gameWorld.getTeamInfo().addCheeseCollected(this.getTeam(), amountCheeseAvail);
+        this.gameWorld.getTeamInfo().addCheeseCollected(getTeam(), amountCheeseAvail);
+
+        if (getType() == UnitType.RAT_KING) {
+            this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), amountCheeseAvail);
+            this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), amountCheeseAvail);
+        }
     }
 
     @Override
@@ -488,7 +493,12 @@ public final class RobotControllerImpl implements RobotController {
         this.gameWorld.addCheese(loc, -pickUpAmount);
         this.robot.addCheese(pickUpAmount);
         this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
-        this.gameWorld.getTeamInfo().addCheeseCollected(this.getTeam(), pickUpAmount);
+        this.gameWorld.getTeamInfo().addCheeseCollected(getTeam(), pickUpAmount);
+
+        if (getType() == UnitType.RAT_KING) {
+            this.gameWorld.getMatchMaker().addCheeseTransferAction(robot.getID(), pickUpAmount);
+            this.gameWorld.getTeamInfo().addCheeseTransferred(getTeam(), pickUpAmount);
+        }
     }
 
     @Override
