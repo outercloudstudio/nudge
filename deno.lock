@@ -1,0 +1,28 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/path@*": "1.0.8",
+    "npm:@types/node@*": "24.2.0"
+  },
+  "jsr": {
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
+    }
+  },
+  "npm": {
+    "@types/node@24.2.0": {
+      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
+      "dependencies": [
+        "undici-types"
+      ]
+    },
+    "undici-types@7.10.0": {
+      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1"
+    ]
+  }
+}
