@@ -761,6 +761,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.gameWorld.getMatchMaker().addDamageAction(this.ID, damage);
         this.gameWorld.getMatchMaker().addRatNapAction(this.getID());
+        this.gameWorld.removeFlyingRobot(this.location);
 
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
@@ -789,6 +790,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
         this.remainingThrowDuration = 0;
 
         this.addHealth(-damage);
+        
+        this.gameWorld.removeFlyingRobot(this.location);
         if (this.health > 0) {
             this.gameWorld.addRobot(this.location, this);
             this.controller.processTrapsAtLocation(this.location);
@@ -825,6 +828,9 @@ public class InternalRobot implements Comparable<InternalRobot> {
         } else if (this.gameWorld.getRobot(newLoc) != null || !this.gameWorld.isPassable(newLoc)) {
             this.hitTarget(isSecondMove);
             return;
+        } else{
+            this.gameWorld.removeFlyingRobot(this.location);
+            this.gameWorld.addFlyingRobot(newLoc, this);
         }
 
         this.setInternalLocationOnly(newLoc);
