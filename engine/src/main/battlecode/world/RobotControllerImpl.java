@@ -477,6 +477,21 @@ public final class RobotControllerImpl implements RobotController {
     }
 
     @Override
+    public void pickUpCheese(MapLocation loc, int pickUpAmount) throws GameActionException {
+        assertCanPickUpCheese(loc);
+        int amountCheeseAvail = this.gameWorld.getCheeseAmount(loc);
+
+        // bound pickup amount above by the amount of cheese available and below by 0
+        // (can't pick up negative amounts of cheese)
+        pickUpAmount = Math.max(Math.min(pickUpAmount, amountCheeseAvail), 0);
+
+        this.gameWorld.addCheese(loc, -pickUpAmount);
+        this.robot.addCheese(pickUpAmount);
+        this.gameWorld.getMatchMaker().addCheesePickUpAction(loc);
+        this.gameWorld.getTeamInfo().addCheeseCollected(this.getTeam(), pickUpAmount);
+    }
+
+    @Override
     public boolean canSenseLocation(MapLocation loc) {
         try {
             assertCanSenseLocation(loc);
