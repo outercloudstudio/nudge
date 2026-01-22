@@ -405,6 +405,10 @@ public class GameWorld {
         return this.isCooperation;
     }
 
+    public Team getBackStabbingTeam(){
+        return this.backstabber;
+    }
+
     public int getRoundsSinceBackstab() {
         if (this.isCooperation) {
             return 0;

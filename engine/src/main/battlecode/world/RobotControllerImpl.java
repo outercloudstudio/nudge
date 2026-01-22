@@ -106,6 +106,11 @@ public final class RobotControllerImpl implements RobotController {
         return this.gameWorld.isCooperation();
     }
 
+    @Override
+    public Team getBackstabbingTeam() {
+        return this.gameWorld.getBackStabbingTeam();
+    }
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************

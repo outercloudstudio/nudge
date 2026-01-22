@@ -53,6 +53,15 @@ public interface RobotController {
      */
     boolean isCooperation();
 
+    /**
+     * Returns the backstabbing team, or null if still in cooperation mode. 
+     *
+     * @return the team that performed the backstab, or null if still in cooperation mode.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    Team getBackstabbingTeam();
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
