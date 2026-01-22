@@ -474,7 +474,7 @@ class TrapType(Enum):
     """
     RAT_TRAP = (30, 50, 20, 15, 25, 2)
     CAT_TRAP = (10, 100, 20, 10, 10, 2)
-    NONE = (0, 0, 0, 0, 0, 0, 0)
+    NONE = (0, 0, 0, 0, 0, 0)
 
     def ordinal(self) -> int:
         """
