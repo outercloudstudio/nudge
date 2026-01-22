@@ -103,7 +103,7 @@ public final class RobotControllerImpl implements RobotController {
 
     @Override
     public boolean isCooperation() {
-        return this.gameWorld.isCooperation;
+        return this.gameWorld.isCooperation();
     }
 
     // *********************************
@@ -329,8 +329,8 @@ public final class RobotControllerImpl implements RobotController {
                 ? GameConstants.RAT_KING_BUILD_DISTANCE_SQUARED
                 : GameConstants.BUILD_DISTANCE_SQUARED);
 
-        if (trapType == TrapType.CAT_TRAP && !this.gameWorld.isCooperation)
-            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode!");
+        if (trapType == TrapType.CAT_TRAP && !this.gameWorld.catTrapsAllowed(this.getTeam()))
+            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode after " + GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB + " rounds!");
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place trap on a wall or dirt!");
         if (this.gameWorld.getRobot(loc) != null)
@@ -1203,11 +1203,14 @@ public final class RobotControllerImpl implements RobotController {
     public void becomeRatKing() throws GameActionException {
         assertCanBecomeRatKing();
         int health = 0;
+
         for (Direction d : Direction.allDirections()) {
             InternalRobot currentRobot = this.gameWorld.getRobot(this.adjacentLocation(d));
+
             if (currentRobot != null && robot.getTeam() == currentRobot.getTeam()) {
                 health += currentRobot.getHealth();
             }
+
             if (currentRobot != null && d != Direction.CENTER) {
                 // all their raw cheese is taken
                 this.gameWorld.getTeamInfo().addCheese(this.getTeam(), currentRobot.getCheese());
