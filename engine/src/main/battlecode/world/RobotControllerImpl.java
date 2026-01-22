@@ -330,7 +330,7 @@ public final class RobotControllerImpl implements RobotController {
                 : GameConstants.BUILD_DISTANCE_SQUARED);
 
         if (trapType == TrapType.CAT_TRAP && !this.gameWorld.catTrapsAllowed(this.getTeam()))
-            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode after " + GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB + " rounds!");
+            throw new GameActionException(CANT_DO_THAT, "Can't place new cat traps in backstabbing mode unless you were backstabbed and within " + GameConstants.CAT_TRAP_ROUNDS_AFTER_BACKSTAB + " rounds!");
         if (!this.gameWorld.isPassable(loc))
             throw new GameActionException(CANT_DO_THAT, "Can't place trap on a wall or dirt!");
         if (this.gameWorld.getRobot(loc) != null)
