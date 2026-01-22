@@ -147,7 +147,7 @@ public class GameWorld {
         this.flyingRobots = new InternalRobot[width][height];
         this.hasRunCheeseMinesThisRound = false;
         this.currentRound = 0;
-        this.idGenerator = new IDGenerator(gm.getSeed());
+        this.idGenerator = new IDGenerator(new Random().nextInt());
         this.gameStats = new GameStats();
         this.gameMap = gm;
         this.objectInfo = new ObjectInfo(gm);

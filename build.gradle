@@ -99,6 +99,39 @@ task headless(type: JavaExec, dependsOn: [':engine:build', ':example-bots:build'
   ]
 }
 
+task headlessNoBuild(type: JavaExec) {
+  mainClass = 'battlecode.server.Main'
+  classpath = files(serverJar) + project(':example-bots').sourceSets.main.output + configurations.scala
+  args = ['-c=-']
+  jvmArgs = [
+    '--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED',
+    '--add-opens=java.base/jdk.internal.math=ALL-UNNAMED',
+    '--add-opens=java.base/jdk.internal.util=ALL-UNNAMED',
+    '--add-opens=java.base/jdk.internal.access=ALL-UNNAMED',
+    '--add-opens=java.base/sun.security.action=ALL-UNNAMED',
+    '-Dbc.server.wait-for-client=' + (project.findProperty('waitForClient') ?: 'false'),
+    '-Dbc.server.mode=headless',
+    '-Dbc.server.map-path=maps',
+    '-Dbc.server.robot-player-to-system-out=' + (project.findProperty('outputVerbose') ?: 'true'),
+    '-Dbc.server.debug=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.debug-methods=' + (project.findProperty('debug') ?: 'false'),
+    '-Dbc.engine.enable-profiler=' + (project.findProperty('enableProfiler') ?: 'false'),
+    '-Dbc.engine.show-indicators=' + (project.findProperty('showIndicators') ?: 'true'),
+    '-Dbc.game.team-a=' + project.property('teamA'),
+    '-Dbc.game.team-b=' + project.property('teamB'),
+    '-Dbc.game.team-a.language=' + (project.findProperty('languageA') ?: 'java'),
+    '-Dbc.game.team-b.language=' + (project.findProperty('languageB') ?: 'java'),
+    '-Dbc.game.team-a.url=' + (project.findProperty('classLocationA') ?: defaultClassLocation),
+    '-Dbc.game.team-b.url=' + (project.findProperty('classLocationB') ?: defaultClassLocation),
+    '-Dbc.game.team-a.package=' + (project.findProperty('packageNameA') ?: project.property('teamA')),
+    '-Dbc.game.team-b.package=' + (project.findProperty('packageNameB') ?: project.property('teamB')),
+    '-Dbc.game.maps=' + project.property('maps'),
+    '-Dbc.server.validate-maps=' + project.property('validateMaps'),
+    '-Dbc.server.alternate-order=' + project.property('alternateOrder'),
+    '-Dbc.server.save-file=' + (saveFileName)
+  ]
+}
+
 task crossPlayPy(type: Exec, dependsOn: ['installPythonPackage']) {
   commandLine 'python', '-m', 'battlecode26',
   '--teamA', (project.findProperty('languageA') == 'java' ? '/' : project.property('teamA')),
