@@ -165,6 +165,16 @@ public final class RobotControllerImpl implements RobotController {
         return this.gameWorld.getTeamInfo().getDirt(getTeam());
     }
 
+    @Override 
+    public int getNumberCatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.CAT_TRAP, this.getTeam());
+    }
+
+    @Override 
+    public int getNumberRatTraps(){
+        return this.gameWorld.getTrapCount(TrapType.RAT_TRAP, this.getTeam());
+    }
+
     @Override
     public UnitType getType() {
         return this.robot.getType();

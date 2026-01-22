@@ -62,6 +62,24 @@ public interface RobotController {
      */
     Team getBackstabbingTeam();
 
+    /**
+     * Returns the number of active cat traps for the team.
+     *
+     * @return the number of active cat traps this team has.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumberCatTraps();
+
+    /**
+     * Returns the number of active rat traps for the team.
+     *
+     * @return the number of active rat traps this team has.
+     *
+     * @battlecode.doc.costlymethod
+     */
+    int getNumberRatTraps();
+
     // *********************************
     // ****** UNIT QUERY METHODS *******
     // *********************************
