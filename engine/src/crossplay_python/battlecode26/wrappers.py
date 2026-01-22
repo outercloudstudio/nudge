@@ -344,11 +344,15 @@ class RobotController:
     @staticmethod
     def set_indicator_dot(loc: MapLocation, r: int, g: int, b: int) -> None:
         _wait(_m.RC_SET_INDICATOR_DOT, [loc, r, g, b])
-    
+
     @staticmethod
     def set_indicator_string(text: str) -> None:
         _wait(_m.RC_SET_INDICATOR_STRING, [text])
-    
+
+    @staticmethod
+    def set_indicator_line(startLoc: MapLocation, endLoc: MapLocation, r: int, g: int, b: int) -> None:
+        _wait(_m.RC_SET_INDICATOR_LINE, [startLoc, endLoc, r, g, b])
+
     @staticmethod
     def set_timeline_marker(text: str, r: int, g: int, b: int) -> None:
         _wait(_m.RC_SET_TIMELINE_MARKER, [text, r, g, b])

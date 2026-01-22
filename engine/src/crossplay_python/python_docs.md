@@ -300,6 +300,9 @@ class RobotController:
     def set_indicator_string(text: str) -> None:
         pass
 
+    def set_indicator_line(startLoc: MapLocation, endLoc: MapLocation, r: int, g: int, b: int) -> None:
+        pass
+
     def set_timeline_marker(text: str, r: int, g: int, b: int) -> None:
         pass
 
