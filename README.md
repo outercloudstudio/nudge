@@ -5,6 +5,9 @@ The high performance distributed game runner for battlecode. Nudge helps you tes
 
 ![Nudge Loading Gif](assets/loading.gif)
 
+## By The Way
+If this runner helps you out, give this repo a star. ⭐ It lets me know my work is helping people out.  
+
 # Tutorial
 ## Prerequisites
 First, clone this repository onto your device. Then you'll need to install some dependencies.
