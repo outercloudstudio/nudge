@@ -199,7 +199,24 @@ function uploadDirectory(directory: string) {
 
             console.log(`Sending file ${filePath}`)
 
-            socket.send(JSON.stringify({ message: 'file', path: filePath, data: btoa(String.fromCharCode(...Deno.readFileSync(path.join(directory, entry.name)))) }))
+            const fileData = Deno.readFileSync(path.join(directory, entry.name))
+
+            let binary = ''
+
+            const chunkSize = 8192
+            const chunks = fileData.length / chunkSize
+
+            for (let chunkIndex = 0; chunkIndex < chunks; chunkIndex++) {
+                const chunk = fileData.slice(chunkIndex * chunkSize, chunkIndex * chunkSize + chunkSize)
+
+                binary += String.fromCharCode(...chunk)
+            }
+            
+            socket.send(JSON.stringify({ 
+                message: 'file', 
+                path: filePath,
+                data: btoa(binary)
+            }))
         } else {
             uploadDirectory(path.join(directory, entry.name))
         }
