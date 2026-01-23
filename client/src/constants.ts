@@ -42,8 +42,30 @@ export const ENGINE_BUILTIN_MAP_NAMES: string[] = [
     'arrows',
     'Meow',
     'dirtfulcat',
-    'keepout'
+    'keepout',
     // Sprint 2
+    '5t4rv4t10n_1337',
+    'cheesebottles',
+    'hatefullattice',
+    'knifefight',
+    'mercifullattice',
+    'peaceinourtime',
+    'jail',
+    'safelycontained',
+    'minimaze',
+    'averyfineline',
+    'averystrangespace',
+    'canyoudig',
+    'streetsofnewyork',
+    'TheHeist',
+    'closeup',
+    'corridorofdoomanddespair',
+    'EscapeTheNight',
+    'tiny',
+    'toomuchcheese',
+    'uneruesansfin',
+    'whatsthecatdoin',
+    'whereisthecheese'
     // HS
     // Quals
 ]
