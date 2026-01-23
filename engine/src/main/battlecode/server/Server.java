@@ -200,7 +200,7 @@ public class Server implements Runnable {
                 }
                 Team winner = aWins >= bWins ? Team.A : Team.B;
                 gameMaker.makeGameFooter(winner);
-                gameMaker.writeGame(currentGame.getSaveFile());
+                // gameMaker.writeGame(currentGame.getSaveFile());
             } finally {
                 crossPlayServer.cleanup();
             }

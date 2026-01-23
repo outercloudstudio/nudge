@@ -20,6 +20,12 @@
       "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
     }
   },
+  "redirects": {
+    "https://deno.land/x/clipboard/mod.ts": "https://deno.land/x/clipboard@v0.0.3/mod.ts"
+  },
+  "remote": {
+    "https://deno.land/x/clipboard@v0.0.3/mod.ts": "5b68fe3b710b852de5273c135fc3c11b2b4050577401ee994161380bd8cab219"
+  },
   "workspace": {
     "dependencies": [
       "jsr:@std/assert@1"

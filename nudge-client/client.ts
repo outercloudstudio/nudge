@@ -3,6 +3,7 @@ import { createHash, Hash } from 'node:crypto'
 
 const botsDirectory = './example-bots/src/main'
 const defaultMaps = 'DefaultLarge,DefaultMedium,DefaultSmall,Meow,Nofreecheese,ZeroDay,arrows,cheesefarm,cheeseguardians,combat-test,dirtfulcat,dirtpassageway,evileye,keepout,pipes,popthecork,rift,sittingducks,starvation,thunderdome,trapped,wallsofparadis'
+const moreMaps = '5t4rv4t10n_1337,arrows,averyfineline,averystrangespace,canyoudig,cheesebottles,cheesefarm,cheeseguardians,closeup,corridorofdoomanddespair,DefaultLarge,DefaultMedium,DefaultSmall,dirtfulcat,dirtpassageway,EscapeTheNight,evileye,hatefullattice,jail,keepout,knifefight,Meow,mercifullattice,minimaze,Nofreecheese,peaceinourtime,pipes,popthecork,rift,safelycontained,sittingducks,starvation,streetsofnewyork,TheHeist,thunderdome,tiny,toomuchcheese,trapped,uneruesansfin,wallsofparadis,whatsthecatdoin,whereisthecheese,ZeroDay'
 
 let socket: WebSocket | null = null
 let requiresDownload: boolean = true
@@ -247,7 +248,9 @@ async function runGames(maps: string, playerA: string, playerB: string): Promise
             `-PteamB=${playerB}`,
             `-PlanguageA=java`,
             `-PlanguageB=java`
-        ]
+        ],
+        stdout: "null",
+        stderr: "null"
     });
 
     command.spawn()
@@ -272,7 +275,9 @@ async function setupBuild(): Promise<void> {
     const gradlewScript = isWindows ? "./gradlew.bat" : "./gradlew";
 
     const command = new Deno.Command(gradlewScript, {
-        args: [':engine:build', ':example-bots:build']
+        args: [':engine:build', ':example-bots:build'],
+        stdout: "null",
+        stderr: "null"
     });
 
     const child = command.spawn()
