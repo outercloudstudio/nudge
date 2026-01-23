@@ -82,7 +82,8 @@ function connectClient(address: string) {
 
             const {count, hash} = indexDirectory(botsDirectory)
 
-            requiresDownload = count !== data.count || hash.digest('hex') !== data.hash
+            // requiresDownload = count !== data.count || hash.digest('hex') !== data.hash
+            requiresDownload = true
 
             if(requiresDownload) {
                 Deno.removeSync(botsDirectory, { recursive: true })
