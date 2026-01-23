@@ -724,8 +724,8 @@ public class InternalRobot implements Comparable<InternalRobot> {
 
         this.setInternalLocationOnly(this.getLocation());
 
-        this.travelFlying(true);
         this.travelFlying(false);
+        this.travelFlying(true);
     }
 
     public void getDropped(MapLocation loc) {
@@ -786,6 +786,10 @@ public class InternalRobot implements Comparable<InternalRobot> {
             InternalRobot robot = this.gameWorld.getRobot(this.getLocation().add(this.thrownDir));
             robot.addHealth(-damage);
         }
+        else if (this.gameWorld.getFlyingRobot(this.getLocation().add(this.thrownDir)) != null){
+            InternalRobot robot = this.gameWorld.getFlyingRobot(this.getLocation().add(this.thrownDir));
+            robot.remainingThrowDuration = 1; // force other robot to drop to ground as well on next turn
+        }
         this.thrownDir = null;
         this.remainingThrowDuration = 0;
 
@@ -821,6 +825,7 @@ public class InternalRobot implements Comparable<InternalRobot> {
         } else if (this.gameWorld.getRobot(newLoc) != null
                 && this.gameWorld.getRobot(newLoc).getType() == UnitType.CAT) {
             // cat feeding!
+            this.gameWorld.removeFlyingRobot(this.location);
             this.addHealth(-this.getHealth()); // rat dies :(
             // put cat to sleep
             this.gameWorld.getRobot(newLoc).sleepTimeRemaining = GameConstants.CAT_SLEEP_TIME;

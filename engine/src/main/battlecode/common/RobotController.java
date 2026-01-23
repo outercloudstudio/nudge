@@ -384,7 +384,7 @@ public interface RobotController {
 
     /**
      * Senses the map info at a location.
-     * MapInfo includes walls, dirt, cheese mines, and cheese.
+     * MapInfo includes passability, flying robots, walls, dirt, traps, cheese mines, and cheese.
      * 
      * @param loc to sense map at
      * @return MapInfo describing map at location
@@ -396,7 +396,7 @@ public interface RobotController {
 
     /**
      * Return map info for all senseable locations.
-     * MapInfo includes walls, dirt, cheese mines, and cheese.
+     * MapInfo includes passability, flying robots, walls, dirt, traps, cheese mines, and cheese.
      *
      * @return MapInfo about all locations within vision radius
      *
@@ -409,7 +409,7 @@ public interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes walls, dirt, cheese mines, and cheese.
+     * MapInfo includes passability, flying robots, walls, dirt, traps, cheese mines, and cheese.
      *
      * @param radiusSquared the squared radius of all locations to be returned
      * @return MapInfo about all locations within vision radius
@@ -422,7 +422,7 @@ public interface RobotController {
     /**
      * Return map info for all senseable locations within vision radius of a center
      * location.
-     * MapInfo includes walls, dirt, cheese mines, and cheese.
+     * MapInfo includes passability, flying robots, walls, dirt, traps, cheese mines, and cheese.
      *
      * @param center the center of the search area
      * @return MapInfo about all locations within vision radius
@@ -438,7 +438,7 @@ public interface RobotController {
      * If radiusSquared is larger than the robot's vision radius, uses the robot's
      * vision radius instead. If -1 is passed, all locations within vision radius
      * are returned.
-     * MapInfo includes walls, dirt, cheese mines, and cheese.
+     * MapInfo includes passability, flying robots, walls, dirt, traps, cheese mines, and cheese.
      *
      * @param center        the center of the search area
      * @param radiusSquared the squared radius of all locations to be returned
@@ -766,7 +766,7 @@ public interface RobotController {
      * Tests whether this robot can place a cat trap at the given location.
      * 
      * @param loc the location to place cat trap
-     * @return whether the robot can remove a cat trap at the given location
+     * @return whether the robot can place a cat trap at the given location
      * 
      * @battlecode.doc.costlymethod
      */

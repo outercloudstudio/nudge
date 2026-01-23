@@ -423,9 +423,11 @@ public class GameWorld {
     }
 
     public void backstab(Team backstabber) {
-        this.isCooperation = false;
-        this.backstabRound = this.currentRound;
-        this.backstabber = backstabber;
+        if (this.isCooperation){
+            this.isCooperation = false;
+            this.backstabRound = this.currentRound;
+            this.backstabber = backstabber;
+        }
     }
 
     public boolean getWall(MapLocation loc) {
@@ -630,7 +632,7 @@ public class GameWorld {
 
         robot.setMovementCooldownTurns(type.stunTime);
 
-        if (type == TrapType.CAT_TRAP && robot.getType().isCatType()) {
+        if (type == TrapType.CAT_TRAP && robot.getType().isCatType() && robot.getHealth() > 0) {
             this.teamInfo.addDamageToCats(trap.getTeam(), Math.min(type.damage, robot.getHealth()));
         }
 
@@ -1137,6 +1139,7 @@ public class GameWorld {
 
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
+                removeFlyingRobot(robotLoc);
             }
 
             if (robot.isCarryingRobot()) {
