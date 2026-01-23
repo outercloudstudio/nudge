@@ -1,71 +1,70 @@
-# Battlecode 2026
+# Nudge
+![Nudge Logo](assets/logo.png)
 
-🚩
+The high performance distributed game runner for battlecode. Nudge helps you test your bots fast with confidence.
 
-## Note, Competitors
-This is the development repo! You most likely won't need anything in here; do not clone this.
-Instead, follow the instructions [here](https://play.battlecode.org/bc26/quick_start) to get started.
+![Nudge Loading Gif](assets/loading.gif)
 
-## Repository Structure
+# Tutorial
+## Prerequisites
+Nude requires three things to run:
+1. Java 21
+2. Deno
+3. Go
 
-- `/engine`: Game engine in Java
-- `/specs`: Game specs in Markdown (and HTML generation)
-- `/schema`: Game serialization schema (basically, an encoding of all units and events in a game)
-- `/client`: Game client (visualizer and playback) in TypeScript
-- `/example-bots`: A bunch of example bots for the game!
+Alternatively, we provide a nix flake to automatically handle the dependnecies.
 
-## Development
+### Java
+The steps should be the same for running the battlecode client. If you neeed help here check out battlecode's resources on this topic.
+### Deno
+You can install deno from [here.](https://deno.com/) You may need to restart your computer.
+### Go
+You can install go from [here.](https://go.dev/dl/) You may need to restart you computer.
 
-### Engine
-
-Windows users: Instead of `./gradlew`, use `gradlew` for all commands.
-
-(whenever Gradle has problems with something, run `./gradlew clean` and see if it helps)
-
-To run a game, run
-
+## Adding The Bots
+Make sure to copy any bots you want the runner to use into the `example-bots/src/main/` directory. It should look something like this:
 ```
-./gradlew headless
-```
-
-The replay file will be in `/matches`. Use `headlessX` for bots that are in `battlecode20-internal-test-bots`. You can specify the robot code and map like this: `./gradlew headless -Pmaps=maptestsmall -PteamA=examplefuncsplayer -PteamB=examplefuncsplayer`.
-
-### Client
-
-(Make sure you have a recent version of `npm`: `sudo npm cache clean -f && sudo npm install -g n && sudo n stable && PATH="$PATH"`.)
-
-Navigate to the `client` folder and run `npm run install-all`. You can then run
-
-```
-npm run watch
+example-bots
+├─ src
+│  ├─ main
+│  │  ├─ examplefuncsplayer
+│  │  ├─ bot_a
+│  │  ├─ bot_b
+│  │  │ ...
 ```
 
-which will launch the client on http://localhost:8080 (if available).
+When you begin a run, the example-bots directory will be synced to all other clients connected to the server.
 
-## Notes for porting to a new repo
+## Running Your First Game
+First, open a terminal and run the `server.bat` or `server.sh` scripts. This should launch your Nudge server.
 
-When the next edition of Battlecode comes around, it will probably useful to reuse a fair amount of this codebase. Maintaining git history is nice. Use `git-filter-repo` for this:
+![Nudge Server Dashboard](assets/server.png)
 
-```
-pip3 install git-filter-repo
-```
+Open a second terminal and run the `runner.bat` or `runner.sh` scripts. This should launch a Nudge client. It should look like this:
 
-Make sure you have a recent git version (run `git --version` and make sure it's compatible with git-filter-repo).
+![Nudge Client waiting to connect](assets/client-connect.png)
 
-As an example, the following steps were taken to port from `battlehack20` to this repo:
+Enter the address of your server. By default the server runs on port 8000 so simply hitting enter should connect.
 
-First, create a fresh `battlecode21` repo on GitHub. Clone it. Then, starting in that repo:
+![Nudge Client ready](assets/client-ready.png)
 
-```
-cd ..
-git clone https://github.com/battlecode/battlehack20 battlehack20-export
-cd battlehack20-export
-git filter-repo --tag-rename '':'bh20-'
-cd ..
-cd battlecode21
-git pull ../battlehack20-export —allow-unrelated-histories
-```
+Once you see this screen, you're client is ready to run games. Hit `ENTER` and fill in the information. After entering all necessary information the bot code will sync to all clients, and then the run will start. Once the run is done you'll be able to see you're results:
 
-(Git filter-repo can do lots of cool things; see its documenation, old examples in our repo, etc. for ideas. For example, renaming directories is possible. )
+![Nudge Client results](assets/client-results.png)
 
-Then, port all of the codebase! Don't forget to update the files in the highest level of the repo too, such as this readme itself, and the release script.
+## Going Faster / Distributed Running
+All clients communicate with the server over websockets without tls. If you want clients on other devices to access your server, they must be able to connect to the server device. We found [tailscale](https://tailscale.com/) works nicely however port forwarding or simply just running all of the clients on a single wifi network should work as well. Simply specify the correct address when connecting other clients, for example `XXX.XX.XX.XX:8000`.
+
+# Help / Feedback
+If you need help, reach out over any of these platforms:
+- [My Discord](https://discord.gg/z9GKKaJfhJ)
+- [Github Issues](https://github.com/outercloudstudio/nudge/issues)
+- [Bluesky](https://bsky.app/profile/outercloud.dev)
+- [Battlecode Discord](https://discord.gg/ceeej66Z3A)
+
+# License
+All additional files are licensed under [MIT](https://raw.githubusercontent.com/outercloudstudio/nudge/refs/heads/master/LICENSE). The battlecode engine and any modifcations to that engine are licensed under the battlecode engine's license.
+
+---
+
+Outer Cloud - For the love of the game
