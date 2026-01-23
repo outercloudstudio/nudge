@@ -321,6 +321,7 @@ def parse(json):
                         return MapInfo(
                             parse(json["loc"]),
                             json["pass"],
+                            parse(json["fly"]),
                             json["wall"],
                             json["dirt"],
                             json["ch"],

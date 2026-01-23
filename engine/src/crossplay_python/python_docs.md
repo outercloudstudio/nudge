@@ -497,6 +497,7 @@ class MapInfo:
     Fields:
     - location: MapLocation
     - is_passable: bool
+    - flying_robot: RobotInfo
     - is_wall: bool
     - is_dirt: bool
     - cheese_amount: int
