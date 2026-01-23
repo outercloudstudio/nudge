@@ -766,7 +766,7 @@ public interface RobotController {
      * Tests whether this robot can place a cat trap at the given location.
      * 
      * @param loc the location to place cat trap
-     * @return whether the robot can remove a cat trap at the given location
+     * @return whether the robot can place a cat trap at the given location
      * 
      * @battlecode.doc.costlymethod
      */
