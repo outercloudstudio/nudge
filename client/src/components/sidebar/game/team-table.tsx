@@ -5,7 +5,7 @@ import { schema } from 'battlecode-schema'
 import { TeamRoundStat } from '../../../playback/RoundStat'
 import { DoubleChevronUpIcon } from '../../../icons/chevron'
 import { CurrentMap } from '../../../playback/Map'
-import { useRound } from '../../../playback/GameRunner'
+import { useRound, useTurnNumber } from '../../../playback/GameRunner'
 
 interface UnitsIconProps {
     teamIdx: 0 | 1
@@ -34,6 +34,8 @@ interface TeamTableProps {
 
 export const TeamTable: React.FC<TeamTableProps> = (props: TeamTableProps) => {
     const round = useRound()
+    // force react to re-render when using turn playback
+    const _turn = useTurnNumber()
     const teamStat = round?.stat?.getTeamStat(round?.match.game.teams[props.teamIdx])
     const map = round?.map
 
