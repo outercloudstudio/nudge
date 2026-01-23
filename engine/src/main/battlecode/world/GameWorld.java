@@ -1137,6 +1137,7 @@ public class GameWorld {
 
             for (MapLocation robotLoc : robot.getAllPartLocations()) {
                 removeRobot(robotLoc);
+                removeFlyingRobot(robotLoc);
             }
 
             if (robot.isCarryingRobot()) {

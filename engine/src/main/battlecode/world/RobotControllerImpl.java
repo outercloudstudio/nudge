@@ -469,6 +469,10 @@ public final class RobotControllerImpl implements RobotController {
         if (myType != UnitType.BABY_RAT && myType != UnitType.RAT_KING) {
             throw new GameActionException(CANT_DO_THAT, "Only rats can pick up cheese");
         }
+
+        if (this.robot.isBeingThrown()){
+            throw new GameActionException(CANT_DO_THAT, "Flying rats cannot pick up cheese");
+        }
     }
 
     @Override
@@ -551,7 +555,8 @@ public final class RobotControllerImpl implements RobotController {
     @Override
     public boolean canSenseRobot(int id) {
         InternalRobot sensedRobot = getRobotByID(id);
-        return sensedRobot != null && canSenseLocation(sensedRobot.getLocation());
+        Boolean isFlying = sensedRobot.isBeingThrown();
+        return sensedRobot != null && isFlying && canSenseLocation(sensedRobot.getLocation());
     }
 
     @Override
