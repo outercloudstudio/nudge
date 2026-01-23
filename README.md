@@ -52,6 +52,8 @@ Once you see this screen, you're client is ready to run games. Hit `ENTER` and f
 
 ![Nudge Client results](assets/client-results.png)
 
+Each history entry displays the run's label, which bots were used, the game record, the first bot's win rate, the win rate difference, and a 95% confidence error bound of the winrate. Usually increasing the amount of games will lower this bound. If you're win rate delta is less than the error bound, then there isn't enough evidence to suggest one bot is better than the other.
+
 ## Going Faster / Distributed Running
 All clients communicate with the server over websockets without tls. If you want clients on other devices to access your server, they must be able to connect to the server device. We found [tailscale](https://tailscale.com/) works nicely however port forwarding or simply just running all of the clients on a single wifi network should work as well. Simply specify the correct address when connecting other clients, for example `XXX.XX.XX.XX:8000`.
 
