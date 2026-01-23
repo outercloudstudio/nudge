@@ -423,9 +423,11 @@ public class GameWorld {
     }
 
     public void backstab(Team backstabber) {
-        this.isCooperation = false;
-        this.backstabRound = this.currentRound;
-        this.backstabber = backstabber;
+        if (this.isCooperation){
+            this.isCooperation = false;
+            this.backstabRound = this.currentRound;
+            this.backstabber = backstabber;
+        }
     }
 
     public boolean getWall(MapLocation loc) {
