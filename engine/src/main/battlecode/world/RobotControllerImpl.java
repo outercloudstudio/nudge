@@ -76,7 +76,8 @@ public final class RobotControllerImpl implements RobotController {
         GameWorld gw = this.gameWorld;
         Trap trap = gw.getTrap(loc, team);
         TrapType trapType = (trap != null) ? trap.getType() : TrapType.NONE;
-        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), gw.getWall(loc), gw.getDirt(loc),
+        RobotInfo flyingRobot = gw.getFlyingRobot(loc)!=null ? gw.getFlyingRobot(loc).getRobotInfo() : null;
+        MapInfo currentLocInfo = new MapInfo(loc, gw.isPassable(loc), flyingRobot, gw.getWall(loc), gw.getDirt(loc),
                 gw.getCheeseAmount(loc), trapType,
                 gw.hasCheeseMine(loc));
         return currentLocInfo;
