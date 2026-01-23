@@ -6,6 +6,7 @@ export type Client = {
 	socket: WebSocket
     state: 'idle' | 'syncing' | 'ready' | 'running'
     runId: string | null
+    syncId: string | null
 }
 
 const clients: Client[] = []
@@ -39,8 +40,9 @@ function startNodeServer() {
         socket.addEventListener("open", () => {
             client = {
                 socket,
+                state: 'idle',
                 runId: null,
-                state: 'idle'
+                syncId: null,
             }
 
             clients.push(client)
@@ -217,6 +219,19 @@ function startNodeServer() {
 }
 
 function syncClient(client: Client) {
+    const id = randomUUID()
+
+    client.syncId = id
+
+    setTimeout(() => {
+        if(client.state !== 'syncing') return
+        if(client.syncId !== id) return
+
+        console.log('Client syncing timed out! Disconnecting...')
+
+        client.socket.close()
+    }, 1200000);
+
     client.socket.send(JSON.stringify({ message: 'startDownload', count: fileCount, hash: hash }))
                     
     for(const [path, data] of Object.entries(files)) {
