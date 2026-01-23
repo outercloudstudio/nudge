@@ -7,7 +7,9 @@ The high performance distributed game runner for battlecode. Nudge helps you tes
 
 # Tutorial
 ## Prerequisites
-Nude requires three things to run:
+First, clone the repository onto your device. Then you'll need to install some dependencies.
+
+Nudge requires three things to run:
 1. Java 21
 2. Deno
 3. Go
