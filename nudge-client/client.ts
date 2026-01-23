@@ -250,7 +250,7 @@ async function runGames(maps: string, playerA: string, playerB: string): Promise
             `-PlanguageA=java`,
             `-PlanguageB=java`
         ],
-        stdout: "null",
+        stdout: "piped",
         stderr: "null"
     });
 
